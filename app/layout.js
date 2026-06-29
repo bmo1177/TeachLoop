@@ -38,6 +38,7 @@ export default function RootLayout({ children }) {
       className={`${geist.variable} ${geistMono.variable}`}
     >
       <head>
+        <meta name="color-scheme" content="light dark" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('teachloop-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, createContext, useContext } from "react";
+import { useState, useRef, useEffect, useCallback, createContext, useContext, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useSessionHistory } from "@/app/_hooks/useSessionHistory";
 import {
   GraduationCap,
   ChatCircle,
@@ -59,6 +60,19 @@ const AUDIENCES = [
   { id: "executive", label: "A C-suite executive", hint: "Business value over implementation." },
   { id: "engineer", label: "A senior AI engineer", hint: "Go deep. Skip the basics." },
 ];
+
+const audienceIcons = {
+  child: User,
+  recruiter: Briefcase,
+  junior: Laptop,
+  executive: ChartBar,
+  engineer: Cpu,
+};
+
+function AudienceIcon({ id, size = 20, weight = "duotone" }) {
+  const Icon = audienceIcons[id];
+  return Icon ? <Icon size={size} weight={weight} /> : null;
+}
 
 const N = 5;
 function pick(arr, n) {
@@ -373,7 +387,26 @@ function Nav({ onHome }) {
 
 /* ─── SCREENS ───────────────────────────────────────────────────────────────── */
 
-function HomeScreen({ onMode }) {
+function Sparkline({ data, width = 80, height = 24 }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * width;
+      const y = height - ((v - min) / range) * (height - 4) - 2;
+      return `${x},${y}`;
+    })
+    .join(" ");
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="sparkline" aria-hidden="true">
+      <polyline fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points={points} />
+    </svg>
+  );
+}
+
+function HomeScreen({ onMode, pastSessions }) {
   return (
     <>
       <Nav onHome={() => {}} />
@@ -532,6 +565,60 @@ function HomeScreen({ onMode }) {
           </div>
         </motion.section>
 
+        {pastSessions && pastSessions.length > 0 && (
+          <motion.section
+            className="past-sessions-section"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="container-wide">
+              <div className="past-sessions-header">
+                <h2 className="past-sessions-title">Your Past Sessions</h2>
+                <Sparkline
+                  data={pastSessions.map((s) => Number(s.overallScore)).reverse()}
+                  width={120}
+                  height={32}
+                />
+              </div>
+              <div className="past-sessions-list">
+                {pastSessions.slice(0, 5).map((s) => {
+                  const sc = Number(s.overallScore) || 0;
+                  const color =
+                    sc >= 8
+                      ? "var(--color-success)"
+                      : sc >= 5
+                      ? "var(--color-accent)"
+                      : "var(--color-error)";
+                  const dateStr = new Date(s.date).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  });
+                  return (
+                    <div key={s.id} className="past-session-card">
+                      <div className="past-session-left">
+                        <span className="past-session-score" style={{ color }}>
+                          {sc}/10
+                        </span>
+                        <div className="past-session-info">
+                          <span className="past-session-mode">
+                            {s.mode === "teach" ? "Teaching" : "Interview"}
+                            {s.audience ? ` \u00B7 ${AUDIENCES.find((a) => a.id === s.audience)?.label || ""}` : ""}
+                          </span>
+                          <span className="past-session-date">{dateStr}</span>
+                        </div>
+                      </div>
+                      <span className="past-session-verdict">
+                        {sc >= 8 ? "Strong" : sc >= 5 ? "Solid" : "Growing"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.section>
+        )}
+
         <footer className="home-footer">
           <p className="home-footer-text">
             AI-powered communication coaching
@@ -577,11 +664,7 @@ function AudienceScreen({ onSelect, onBack }) {
               transition={{ duration: 0.3, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
             >
               <span className="audience-icon">
-                {a.id === "child" && <User size={20} weight="duotone" />}
-                {a.id === "recruiter" && <Briefcase size={20} weight="duotone" />}
-                {a.id === "junior" && <Laptop size={20} weight="duotone" />}
-                {a.id === "executive" && <ChartBar size={20} weight="duotone" />}
-                {a.id === "engineer" && <Cpu size={20} weight="duotone" />}
+                <AudienceIcon id={a.id} />
               </span>
               <div className="audience-content">
                 <span className="audience-label">{a.label}</span>
@@ -846,12 +929,14 @@ function SessionScreen({
   onChange,
   onSubmit,
   loading,
+  evaluationError,
+  onClearError,
   showEval,
   evaluation,
   onNext,
   isLast,
 }) {
-  const aud = AUDIENCES.find((a) => a.id === audience);
+  const aud = useMemo(() => AUDIENCES.find((a) => a.id === audience), [audience]);
   const voice = useVoice(onChange, answer);
   const displayText =
     voice.recording && voice.interim
@@ -885,11 +970,7 @@ function SessionScreen({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            {aud.id === "child" && <User size={14} weight="duotone" />}
-            {aud.id === "recruiter" && <Briefcase size={14} weight="duotone" />}
-            {aud.id === "junior" && <Laptop size={14} weight="duotone" />}
-            {aud.id === "executive" && <ChartBar size={14} weight="duotone" />}
-            {aud.id === "engineer" && <Cpu size={14} weight="duotone" />}
+            <AudienceIcon id={aud.id} size={14} />
             <span>To: {aud.label}</span>
           </motion.div>
         )}
@@ -949,7 +1030,6 @@ function SessionScreen({
                   background: voice.recording ? "var(--color-accent)" : undefined,
                   color: voice.recording ? "white" : undefined,
                   animation: voice.recording ? "micPulse 1.5s ease-in-out infinite" : "none",
-                  opacity: voice.supported ? 1 : 0.4,
                 }}
               >
                 {voice.recording ? (
@@ -958,6 +1038,11 @@ function SessionScreen({
                   <Microphone size={18} weight="duotone" />
                 )}
               </button>
+              {!voice.supported && (
+                <div className="voice-unsupported-hint" role="status">
+                  Voice input not supported in your browser. Type your answer instead.
+                </div>
+              )}
             </div>
 
             {voice.recording && (
@@ -995,6 +1080,24 @@ function SessionScreen({
                 "Submit Answer"
               )}
             </button>
+            {evaluationError && (
+              <motion.div
+                className="error-banner"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="error-banner-content">
+                  <span>{evaluationError}</span>
+                  <button className="btn btn-ghost" onClick={onClearError}>
+                    Dismiss
+                  </button>
+                </div>
+                <button className="btn btn-primary" onClick={onSubmit}>
+                  Try Again
+                </button>
+              </motion.div>
+            )}
           </motion.div>
         )}
 
@@ -1263,6 +1366,20 @@ function AppInner() {
   const [curEv, setCurEv] = useState(null);
   const [report, setReport] = useState(null);
   const [wheelSpin, setWheelSpin] = useState(false);
+  const [evaluationError, setEvaluationError] = useState(null);
+  const { sessions, addSession } = useSessionHistory();
+
+  useEffect(() => {
+    if (report && evals.length === N) {
+      addSession({
+        date: new Date().toISOString(),
+        mode,
+        audience: aud,
+        overallScore: report.overallScore,
+        evals: evals.map((e) => ({ q: e.q.slice(0, 80), score: e.ev.overallScore })),
+      });
+    }
+  }, [report]);
 
   const gotoMode = (m) => {
     setMode(m);
@@ -1288,6 +1405,7 @@ function AppInner() {
     setEvals([]);
     setShowEv(false);
     setCurEv(null);
+    setEvaluationError(null);
     setReport(null);
     setScreen("session");
   };
@@ -1295,6 +1413,7 @@ function AppInner() {
   const submit = async () => {
     if (!ans.trim() || loading) return;
     setLoading(true);
+    setEvaluationError(null);
     const audLabel =
       mode === "teach"
         ? AUDIENCES.find((a) => a.id === aud)?.label
@@ -1311,7 +1430,7 @@ function AppInner() {
           .catch(console.error);
       }
     } catch (err) {
-      console.error("Eval error:", err);
+      setEvaluationError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -1323,6 +1442,7 @@ function AppInner() {
       setAns("");
       setShowEv(false);
       setCurEv(null);
+      setEvaluationError(null);
       setWheelSpin(true);
       setScreen("wheel-session");
     } else {
@@ -1345,6 +1465,7 @@ function AppInner() {
     setLoading(false);
     setShowEv(false);
     setCurEv(null);
+    setEvaluationError(null);
     setReport(null);
     setWheelSpin(false);
   };
@@ -1358,7 +1479,7 @@ function AppInner() {
         <AnimatePresence mode="wait">
           {screen === "home" && (
             <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-              <HomeScreen onMode={gotoMode} />
+              <HomeScreen onMode={gotoMode} pastSessions={sessions.slice(0, 5)} />
             </motion.div>
           )}
           {screen === "audience" && (
@@ -1401,9 +1522,11 @@ function AppInner() {
                 onChange={setAns}
                 onSubmit={submit}
                 loading={loading}
+                evaluationError={evaluationError}
                 showEval={showEv}
                 evaluation={curEv}
                 onNext={next}
+                onClearError={() => setEvaluationError(null)}
                 isLast={idx === N - 1}
               />
             </motion.div>
