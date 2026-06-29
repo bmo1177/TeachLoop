@@ -1,6 +1,30 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, createContext, useContext } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import {
+  GraduationCap,
+  ChatCircle,
+  ArrowRight,
+  ArrowUp,
+  ArrowDown,
+  PushPin,
+  Check,
+  Lightning,
+  User,
+  Briefcase,
+  Laptop,
+  ChartBar,
+  Cpu,
+  ChalkboardTeacher,
+  Microphone,
+  MicrophoneSlash,
+  SpeakerSimpleHigh,
+  SpeakerSimpleSlash,
+  CaretLeft,
+  CaretDown,
+  CaretRight,
+} from "@phosphor-icons/react";
 
 /* ─── DATA ─────────────────────────────────────────────────────────────────── */
 
@@ -29,11 +53,11 @@ const SWE_QUESTIONS = [
 ];
 
 const AUDIENCES = [
-  { id: "child",     label: "A curious 10-year-old",     hint: "No jargon. Use everyday analogies." },
+  { id: "child", label: "A curious 10-year-old", hint: "No jargon. Use everyday analogies." },
   { id: "recruiter", label: "A non-technical recruiter", hint: "Focus on impact, not mechanisms." },
-  { id: "junior",    label: "A junior developer",        hint: "Foundations first, then depth." },
-  { id: "executive", label: "A C-suite executive",       hint: "Business value over implementation." },
-  { id: "engineer",  label: "A senior AI engineer",      hint: "Go deep. Skip the basics." },
+  { id: "junior", label: "A junior developer", hint: "Foundations first, then depth." },
+  { id: "executive", label: "A C-suite executive", hint: "Business value over implementation." },
+  { id: "engineer", label: "A senior AI engineer", hint: "Go deep. Skip the basics." },
 ];
 
 const N = 5;
@@ -94,131 +118,6 @@ Return ONLY valid JSON (no fences):
 {"communicationStyle":"<2-3 sentence description of their overall communication style and personality>","recurringStrength":"<pattern that kept working across answers>","recurringFlaw":"<habit that kept holding them back — phrase it gently>","weeklyPractice":"<one specific actionable practice for this week>","overallScore":<average of the 5 scores as a decimal number>}`;
 };
 
-/* ─── ICONS ─────────────────────────────────────────────────────────────────── */
-
-const Icon = ({ name, size = 20, color = "currentColor", ...props }) => {
-  const icons = {
-    refresh: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-        <path d="M3 3v5h5" />
-      </svg>
-    ),
-    graduationCap: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-        <path d="M6 12v5c3 3 6 3 12 0v-5" />
-      </svg>
-    ),
-    messageCircle: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
-      </svg>
-    ),
-    user: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    ),
-    briefcase: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
-        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-      </svg>
-    ),
-    laptop: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16" />
-      </svg>
-    ),
-    barChart: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <line x1="12" x2="12" y1="20" y2="10" />
-        <line x1="18" x2="18" y1="20" y2="4" />
-        <line x1="6" x2="6" y1="20" y2="16" />
-      </svg>
-    ),
-    cpu: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <rect width="16" height="16" x="4" y="4" rx="2" />
-        <rect width="6" height="6" x="9" y="9" rx="1" />
-        <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
-      </svg>
-    ),
-    dice: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <rect width="18" height="18" x="3" y="3" rx="3" />
-        <circle cx="8" cy="8" r="1" fill={color} />
-        <circle cx="16" cy="8" r="1" fill={color} />
-        <circle cx="8" cy="16" r="1" fill={color} />
-        <circle cx="16" cy="16" r="1" fill={color} />
-        <circle cx="12" cy="12" r="1" fill={color} />
-      </svg>
-    ),
-    arrowUp: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m18 15-6-6-6 6" />
-      </svg>
-    ),
-    arrowDown: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m6 9 6 6 6-6" />
-      </svg>
-    ),
-    pin: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <line x1="12" x2="12" y1="17" y2="22" />
-        <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
-      </svg>
-    ),
-    check: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M20 6 9 17l-5-5" />
-      </svg>
-    ),
-    arrowRight: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-      </svg>
-    ),
-    chevronLeft: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m15 18-6-6 6-6" />
-      </svg>
-    ),
-    chevronDown: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m6 9 6 6 6-6" />
-      </svg>
-    ),
-    chevronRight: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m9 18 6-6-6-6" />
-      </svg>
-    ),
-
-  };
-
-  return icons[name] || null;
-};
-
-const AUDIENCE_ICONS = {
-  child: "user",
-  recruiter: "briefcase",
-  junior: "laptop",
-  executive: "barChart",
-  engineer: "cpu",
-};
-
-const WHEEL_COLORS_DEFAULT = [
-  { bg: "#D94A0D", text: "#FFFFFF" },
-  { bg: "#7C3AED", text: "#FFFFFF" },
-  { bg: "#16A34A", text: "#FFFFFF" },
-  { bg: "#C2420B", text: "#FFFFFF" },
-  { bg: "#6D28D9", text: "#FFFFFF" },
-];
-
 /* ─── THEME ────────────────────────────────────────────────────────────────── */
 
 const ThemeContext = createContext({ theme: "sunrise", switchTheme: () => {} });
@@ -249,16 +148,22 @@ function ThemeProvider({ children }) {
 
 function useWheelColors() {
   const { theme } = useContext(ThemeContext);
-  const [colors, setColors] = useState(WHEEL_COLORS_DEFAULT);
+  const [colors, setColors] = useState([
+    { bg: "#C2410C", text: "#FFFFFF" },
+    { bg: "#7C3AED", text: "#FFFFFF" },
+    { bg: "#16A34A", text: "#FFFFFF" },
+    { bg: "#B45309", text: "#FFFFFF" },
+    { bg: "#6D28D9", text: "#FFFFFF" },
+  ]);
 
   useEffect(() => {
     const style = getComputedStyle(document.documentElement);
     const get = (v) => style.getPropertyValue(v).trim();
     setColors([
-      { bg: get("--wheel-1") || "#D94A0D", text: "#FFFFFF" },
+      { bg: get("--wheel-1") || "#C2410C", text: "#FFFFFF" },
       { bg: get("--wheel-2") || "#7C3AED", text: "#FFFFFF" },
       { bg: get("--wheel-3") || "#16A34A", text: "#FFFFFF" },
-      { bg: get("--wheel-4") || "#C2420B", text: "#FFFFFF" },
+      { bg: get("--wheel-4") || "#B45309", text: "#FFFFFF" },
       { bg: get("--wheel-5") || "#6D28D9", text: "#FFFFFF" },
     ]);
   }, [theme]);
@@ -425,6 +330,7 @@ function ScoreRing({ score, size = 64, label, delay = 0 }) {
           fill="var(--color-text-primary)"
           fontSize={s >= 10 ? 11 : 13}
           fontWeight="700"
+          fontFamily="var(--font-family)"
         >
           {s}
         </text>
@@ -451,41 +357,17 @@ function ProgressBar({ current, total }) {
   );
 }
 
-function ModeCard({ icon, title, desc, color, onClick }) {
-  const [hovered, setHovered] = useState(false);
-
+function Nav({ onHome }) {
   return (
-    <button
-      className="mode-card"
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        "--card-color": color,
-        transform: hovered ? "translateY(-2px)" : "none",
-        boxShadow: hovered ? `var(--shadow-md)` : "var(--shadow-xs)",
-      }}
-    >
-      <div className="mode-card-icon" style={{ background: `color-mix(in oklch, ${color} 12%, transparent)` }}>
-        <Icon name={icon} size={22} color={color} />
-      </div>
-      <div className="mode-card-content">
-        <h3 className="mode-card-title">{title}</h3>
-        <p className="mode-card-desc">{desc}</p>
-      </div>
-      <div className="mode-card-arrow" style={{ color }}>
-        <Icon name="arrowRight" size={20} />
-      </div>
-    </button>
-  );
-}
-
-function BackButton({ onClick }) {
-  return (
-    <button className="back-button" onClick={onClick} aria-label="Go back">
-      <Icon name="chevronLeft" size={18} />
-      <span>Back</span>
-    </button>
+    <nav className="nav">
+      <button className="logo" onClick={onHome} aria-label="TeachLoop home">
+        <div className="logo-icon">
+          <ChalkboardTeacher size={20} weight="fill" />
+        </div>
+        <span className="logo-text">TeachLoop</span>
+      </button>
+      <ThemeSwitcher />
+    </nav>
   );
 }
 
@@ -493,137 +375,297 @@ function BackButton({ onClick }) {
 
 function HomeScreen({ onMode }) {
   return (
-    <div className="screen screen-center">
-      <div className="container">
-        <header className="home-header">
-          <div className="logo">
-            <div className="logo-icon">
-              <Icon name="refresh" size={24} color="white" />
-            </div>
-            <span className="logo-text">TeachLoop</span>
+    <>
+      <Nav onHome={() => {}} />
+      <main className="container">
+        <section className="home-hero">
+          <div className="home-hero-content">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="home-hero-eyebrow">
+                AI-Powered Coaching
+              </span>
+            </motion.div>
+
+            <motion.h1
+              className="home-title"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Train how you{" "}
+              <span className="home-title-accent">communicate,</span>
+              <br />
+              not just what you know.
+            </motion.h1>
+
+            <motion.p
+              className="home-subtitle"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              5 questions. Real AI feedback on your communication style.
+              Build clarity, confidence, and the right vocabulary for any audience.
+            </motion.p>
+
+            <motion.div
+              className="home-actions"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <button className="btn btn-primary btn-lg" onClick={() => onMode("teach")}>
+                Start Practicing
+                <ArrowRight size={18} weight="bold" />
+              </button>
+              <button className="btn btn-secondary btn-lg" onClick={() => onMode("interview")}>
+                Interview Mode
+              </button>
+            </motion.div>
           </div>
 
-          <h1 className="home-title">
-            Train how you communicate,
-            <br />
-            not just what you know.
-          </h1>
-          <p className="home-subtitle">
-            5 questions. Real AI feedback on your communication style.
+          <motion.div
+            className="home-hero-visual"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="hero-visual">
+              <div className="hero-visual-orb hero-visual-orb-1" />
+              <div className="hero-visual-orb hero-visual-orb-2" />
+              <div className="hero-visual-orb hero-visual-orb-3" />
+              <div className="hero-visual-center">
+                <ChalkboardTeacher size={48} weight="duotone" />
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        <motion.section
+          className="mode-section"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="mode-section-header">
+            <h2 className="mode-section-title">Choose your practice</h2>
+            <p className="mode-section-subtitle">
+              Two modes, both with AI-powered feedback on how you communicate.
+            </p>
+          </div>
+
+          <div className="mode-cards">
+            <button className="mode-card" onClick={() => onMode("teach")}>
+              <div className="mode-card-icon">
+                <GraduationCap size={24} weight="duotone" />
+              </div>
+              <div className="mode-card-content">
+                <h3 className="mode-card-title">Teaching Mode</h3>
+                <p className="mode-card-desc">
+                  Explain an AI/ML concept to a chosen audience. Get rated on clarity, analogies, and vocabulary fit.
+                </p>
+              </div>
+              <div className="mode-card-arrow">
+                <ArrowRight size={18} weight="bold" />
+              </div>
+            </button>
+
+            <button className="mode-card" onClick={() => onMode("interview")}>
+              <div className="mode-card-icon" style={{ background: "var(--color-secondary-subtle)", color: "var(--color-secondary)" }}>
+                <ChatCircle size={24} weight="duotone" />
+              </div>
+              <div className="mode-card-content">
+                <h3 className="mode-card-title">Interview Mode</h3>
+                <p className="mode-card-desc">
+                  Answer system design and AI engineering questions. Evaluated like a real senior technical panel.
+                </p>
+              </div>
+              <div className="mode-card-arrow">
+                <ArrowRight size={18} weight="bold" />
+              </div>
+            </button>
+          </div>
+        </motion.section>
+
+        <motion.section
+          className="features-section"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <div className="container-wide">
+            <div className="features-grid">
+              <div className="feature-card">
+                <div className="feature-icon feature-icon-1">
+                  <ChatCircle size={22} weight="duotone" />
+                </div>
+                <h3 className="feature-title">Audience-Aware Feedback</h3>
+                <p className="feature-desc">
+                  Practice explaining to a child, recruiter, or senior engineer. Feedback adapts to who you're talking to.
+                </p>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon feature-icon-2">
+                  <ChartBar size={22} weight="duotone" />
+                </div>
+                <h3 className="feature-title">Communication Scoring</h3>
+                <p className="feature-desc">
+                  Clarity, analogies, vocabulary fit, confidence, structure. See exactly where you shine and where to improve.
+                </p>
+              </div>
+
+              <div className="feature-card">
+                <div className="feature-icon feature-icon-3">
+                  <GraduationCap size={22} weight="duotone" />
+                </div>
+                <h3 className="feature-title">Style Reports</h3>
+                <p className="feature-desc">
+                  After each session, get a full communication style analysis with recurring patterns and weekly practice tips.
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        <footer className="home-footer">
+          <p className="home-footer-text">
+            AI-powered communication coaching
           </p>
-        </header>
-
-        <ThemeSwitcher />
-
-        <div className="mode-cards">
-          <ModeCard
-            icon="graduationCap"
-            title="Teaching Mode"
-            desc="Explain an AI/ML concept to a chosen audience. Get rated on clarity, analogies, and vocabulary fit."
-            color="var(--color-accent)"
-            onClick={() => onMode("teach")}
-          />
-          <ModeCard
-            icon="messageCircle"
-            title="Interview Mode"
-            desc="Answer system design and AI engineering questions. Evaluated like a real senior technical panel."
-            color="var(--color-secondary)"
-            onClick={() => onMode("interview")}
-          />
-        </div>
-
-        <p className="home-footer">
-          AI-powered communication coaching
-        </p>
-      </div>
-    </div>
+        </footer>
+      </main>
+    </>
   );
 }
 
 function AudienceScreen({ onSelect, onBack }) {
   return (
-    <div className="screen screen-top">
-      <div className="container">
-        <BackButton onClick={onBack} />
+    <>
+      <Nav onHome={onBack} />
+      <main className="container screen-top">
+        <button className="back-button" onClick={onBack} aria-label="Go back">
+          <CaretLeft size={16} weight="bold" />
+          <span>Back</span>
+        </button>
 
-        <div className="audience-header">
+        <motion.div
+          className="audience-header"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h1 className="screen-title">Who are you explaining to?</h1>
           <p className="screen-subtitle">
             Your audience determines vocabulary, depth, and which analogies will land.
           </p>
-        </div>
+        </motion.div>
 
         <div className="audience-list" role="radiogroup" aria-label="Select audience">
-          {AUDIENCES.map((a) => (
-            <button
+          {AUDIENCES.map((a, i) => (
+            <motion.button
               key={a.id}
               className="audience-option"
               onClick={() => onSelect(a.id)}
               role="radio"
               aria-checked={false}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
             >
               <span className="audience-icon">
-                <Icon name={AUDIENCE_ICONS[a.id]} size={22} color="var(--color-text-secondary)" />
+                {a.id === "child" && <User size={20} weight="duotone" />}
+                {a.id === "recruiter" && <Briefcase size={20} weight="duotone" />}
+                {a.id === "junior" && <Laptop size={20} weight="duotone" />}
+                {a.id === "executive" && <ChartBar size={20} weight="duotone" />}
+                {a.id === "engineer" && <Cpu size={20} weight="duotone" />}
               </span>
               <div className="audience-content">
                 <span className="audience-label">{a.label}</span>
                 <span className="audience-hint">{a.hint}</span>
               </div>
-              <Icon name="chevronRight" size={18} className="audience-chevron" />
-            </button>
+              <CaretRight size={16} weight="bold" className="audience-chevron" />
+            </motion.button>
           ))}
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
 
 function RevealScreen({ mode, firstQ, revealed, onReveal, onStart }) {
   return (
-    <div className="screen screen-center">
-      <div className="container">
-        <div className="reveal-content">
-          <div className="reveal-icon">
-            <Icon name="dice" size={48} color="var(--color-accent)" />
-          </div>
-          <h1 className="reveal-title">Your session is ready.</h1>
-          <p className="reveal-subtitle">
-            {mode === "teach"
-              ? "5 concepts to explain. Feedback after each."
-              : "5 interview questions. Feedback after each."}
-            <br />
-            Full communication style report at the end.
-          </p>
-        </div>
-
-        <div className={`reveal-card ${revealed ? "revealed" : ""}`}>
-          <span className="reveal-card-label">
-            {mode === "teach" ? "Concept to explain" : "Question 1 of 5"}
-          </span>
-          <div className="reveal-card-text">
-            {firstQ || "Loading…"}
-          </div>
-          {!revealed && (
-            <div className="reveal-card-overlay">
-              <span>Tap to reveal</span>
+    <>
+      <Nav onHome={() => {}} />
+      <main className="container screen-center">
+        <div style={{ width: "100%", maxWidth: "28rem" }}>
+          <motion.div
+            className="reveal-content"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="reveal-icon">
+              <Lightning size={36} weight="duotone" />
             </div>
+            <h1 className="reveal-title">Your session is ready.</h1>
+            <p className="reveal-subtitle">
+              {mode === "teach"
+                ? "5 concepts to explain. Feedback after each."
+                : "5 interview questions. Feedback after each."}
+              <br />
+              Full communication style report at the end.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className={`reveal-card ${revealed ? "revealed" : ""}`}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="reveal-card-label">
+              {mode === "teach" ? "Concept to explain" : "Question 1 of 5"}
+            </span>
+            <div className="reveal-card-text">
+              {firstQ || "Loading..."}
+            </div>
+            {!revealed && (
+              <div className="reveal-card-overlay">
+                <span>Tap to reveal</span>
+              </div>
+            )}
+          </motion.div>
+
+          {!revealed ? (
+            <motion.button
+              className="btn btn-primary btn-full btn-lg"
+              onClick={onReveal}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              Reveal
+            </motion.button>
+          ) : (
+            <motion.div
+              className="reveal-actions"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <button className="btn btn-primary btn-full btn-lg" onClick={onStart}>
+                Begin Session
+              </button>
+              <p className="reveal-hint">Questions 2-5 reveal as you go</p>
+            </motion.div>
           )}
         </div>
-
-        {!revealed ? (
-          <button className="btn btn-primary btn-lg" onClick={onReveal}>
-            Reveal
-          </button>
-        ) : (
-          <div className="reveal-actions">
-            <button className="btn btn-primary btn-full" onClick={onStart}>
-              Begin Session
-            </button>
-            <p className="reveal-hint">Questions 2–5 reveal as you go</p>
-          </div>
-        )}
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
 
@@ -702,78 +744,96 @@ function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone })
   }).join(", ");
 
   return (
-    <div className="screen screen-center">
-      <div className="container">
-        <div className="wheel-header">
-          <h1 className="wheel-title">
-            {phase === "stopped"
-              ? "Your question is ready!"
-              : "Spinning the wheel..."}
-          </h1>
-          <p className="wheel-subtitle">
-            {mode === "teach"
-              ? `Question ${questionIdx + 1} of ${questions.length}`
-              : `Interview question ${questionIdx + 1} of ${questions.length}`}
-          </p>
-        </div>
-
-        <div className="wheel-container">
-          <div className="wheel-pointer">
-            <svg width="32" height="28" viewBox="0 0 32 28">
-              <polygon points="16,28 0,0 32,0" fill="var(--color-text-primary)" />
-            </svg>
-          </div>
-          <div
-            className={`wheel-circle ${phase === "spinning" ? "wheel-spinning" : ""} ${phase === "stopped" ? "wheel-stopped" : ""}`}
+    <>
+      <Nav onHome={() => {}} />
+      <main className="container screen-center">
+        <div style={{ width: "100%", maxWidth: "28rem" }}>
+          <motion.div
+            className="wheel-header"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div
-              className="wheel-inner"
-              style={{
-                background: `conic-gradient(from 0deg, ${gradientStops})`,
-                transform: `rotate(${rotation}deg)`,
-              }}
-            >
-              {questions.map((q, i) => {
-                const angle = i * segAngle + segAngle / 2;
-                const rad = (angle * Math.PI) / 180;
-                const labelR = 55;
-                const tx = Math.cos(rad) * labelR;
-                const ty = Math.sin(rad) * labelR;
-                const truncated = q.length > 40 ? q.slice(0, 38) + "…" : q;
-                return (
-                  <div
-                    key={i}
-                    className={`wheel-label ${activeIdx === i && phase === "stopped" ? "wheel-label-active" : ""}`}
-                    style={{
-                      transform: `translate(${tx - 50}%, ${ty - 50}%) rotate(${angle + 90}deg)`,
-                    }}
-                  >
-                    <span className="wheel-label-num">{i + 1}</span>
-                    <span className="wheel-label-text">{truncated}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="wheel-center-dot" />
-          </div>
-          {phase === "spinning" && <div className="wheel-glow" />}
-        </div>
+            <h1 className="wheel-title">
+              {phase === "stopped"
+                ? "Your question is ready!"
+                : "Spinning the wheel..."}
+            </h1>
+            <p className="wheel-subtitle">
+              {mode === "teach"
+                ? `Question ${questionIdx + 1} of ${questions.length}`
+                : `Interview question ${questionIdx + 1} of ${questions.length}`}
+            </p>
+          </motion.div>
 
-        {phase === "stopped" && (
-          <div className="wheel-result">
-            <div className="wheel-result-card">
-              <span className="wheel-result-label">
-                {mode === "teach" ? "Concept to explain" : "Your question"}
-              </span>
-              <p className="wheel-result-text">{activeQuestion}</p>
+          <motion.div
+            className="wheel-container"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="wheel-pointer">
+              <svg width="32" height="28" viewBox="0 0 32 28">
+                <polygon points="16,28 0,0 32,0" fill="var(--color-text-primary)" />
+              </svg>
             </div>
-            <button className="btn btn-primary btn-full" onClick={onDone}>
-              Begin Session
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+            <div
+              className={`wheel-circle ${phase === "spinning" ? "wheel-spinning" : ""} ${phase === "stopped" ? "wheel-stopped" : ""}`}
+            >
+              <div
+                className="wheel-inner"
+                style={{
+                  background: `conic-gradient(from 0deg, ${gradientStops})`,
+                  transform: `rotate(${rotation}deg)`,
+                }}
+              >
+                {questions.map((q, i) => {
+                  const angle = i * segAngle + segAngle / 2;
+                  const rad = (angle * Math.PI) / 180;
+                  const labelR = 55;
+                  const tx = Math.cos(rad) * labelR;
+                  const ty = Math.sin(rad) * labelR;
+                  const truncated = q.length > 40 ? q.slice(0, 38) + "..." : q;
+                  return (
+                    <div
+                      key={i}
+                      className={`wheel-label ${activeIdx === i && phase === "stopped" ? "wheel-label-active" : ""}`}
+                      style={{
+                        transform: `translate(${tx - 50}%, ${ty - 50}%) rotate(${angle + 90}deg)`,
+                      }}
+                    >
+                      <span className="wheel-label-num">{i + 1}</span>
+                      <span className="wheel-label-text">{truncated}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="wheel-center-dot" />
+            </div>
+            {phase === "spinning" && <div className="wheel-glow" />}
+          </motion.div>
+
+          {phase === "stopped" && (
+            <motion.div
+              className="wheel-result"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="wheel-result-card">
+                <span className="wheel-result-label">
+                  {mode === "teach" ? "Concept to explain" : "Your question"}
+                </span>
+                <p className="wheel-result-text">{activeQuestion}</p>
+              </div>
+              <button className="btn btn-primary btn-full btn-lg" onClick={onDone}>
+                Begin Session
+              </button>
+            </motion.div>
+          )}
+        </div>
+      </main>
+    </>
   );
 }
 
@@ -813,26 +873,46 @@ function SessionScreen({
   };
 
   return (
-    <div className="screen screen-top">
-      <div className="container">
+    <>
+      <Nav onHome={() => {}} />
+      <main className="container screen-top">
         <ProgressBar current={qIdx + 1} total={N} />
 
         {mode === "teach" && aud && (
-          <div className="audience-badge">
-            <Icon name={AUDIENCE_ICONS[aud.id]} size={16} color="var(--color-accent)" />
+          <motion.div
+            className="audience-badge"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {aud.id === "child" && <User size={14} weight="duotone" />}
+            {aud.id === "recruiter" && <Briefcase size={14} weight="duotone" />}
+            {aud.id === "junior" && <Laptop size={14} weight="duotone" />}
+            {aud.id === "executive" && <ChartBar size={14} weight="duotone" />}
+            {aud.id === "engineer" && <Cpu size={14} weight="duotone" />}
             <span>To: {aud.label}</span>
-          </div>
+          </motion.div>
         )}
 
-        <div className="question-card" style={{ borderColor: `color-mix(in oklch, ${modeColor} 30%, transparent)` }}>
+        <motion.div
+          className="question-card"
+          key={q}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        >
           <span className="question-label" style={{ color: modeColor }}>
             {mode === "teach" ? "Explain this concept" : "Interview question"}
           </span>
           <h2 className="question-text">{q}</h2>
-        </div>
+        </motion.div>
 
         {!showEval && (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
             <div className="textarea-wrapper">
               <textarea
                 value={voice.recording ? displayText : answer}
@@ -840,13 +920,13 @@ function SessionScreen({
                 disabled={loading || voice.recording}
                 placeholder={
                   mode === "teach"
-                    ? `Explain to ${aud?.label || "your audience"}…`
-                    : "Write your answer here…"
+                    ? `Explain to ${aud?.label || "your audience"}...`
+                    : "Write your answer here..."
                 }
                 className="textarea"
                 style={{
                   borderColor: voice.recording ? "var(--color-accent)" : undefined,
-                  background: voice.recording ? "var(--color-accent-subtle)" : undefined,
+                  boxShadow: voice.recording ? "0 0 0 3px var(--color-accent-muted)" : undefined,
                 }}
                 aria-label="Your answer"
               />
@@ -867,114 +947,121 @@ function SessionScreen({
                 }
                 style={{
                   background: voice.recording ? "var(--color-accent)" : undefined,
+                  color: voice.recording ? "white" : undefined,
                   animation: voice.recording ? "micPulse 1.5s ease-in-out infinite" : "none",
                   opacity: voice.supported ? 1 : 0.4,
                 }}
               >
                 {voice.recording ? (
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="white">
-                    <rect x="3" y="3" width="10" height="10" rx="2" />
-                  </svg>
+                  <MicrophoneSlash size={18} weight="bold" />
                 ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                    <line x1="12" y1="19" x2="12" y2="23" />
-                    <line x1="8" y1="23" x2="16" y2="23" />
-                  </svg>
+                  <Microphone size={18} weight="duotone" />
                 )}
               </button>
             </div>
 
             {voice.recording && (
-              <div className="recording-indicator">
+              <motion.div
+                className="recording-indicator"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
                 <span className="recording-dot" />
                 <span>
-                  {voice.interim || "Listening — speak clearly…"}
+                  {voice.interim || "Listening — speak clearly..."}
                 </span>
-              </div>
+              </motion.div>
             )}
 
             <div className="textarea-meta">
               <span className={`word-count ${wc >= 15 ? "" : "warning"}`}>
                 {wc} words{wc < 15 ? ` — ${15 - wc} more to unlock` : ""}
               </span>
-              <span className="word-ideal">80–200 words ideal</span>
+              <span className="word-ideal">80-200 words ideal</span>
             </div>
 
             <button
-              className="btn btn-primary btn-full"
+              className="btn btn-primary btn-full btn-lg"
               onClick={onSubmit}
               disabled={!canSubmit}
-              style={{ opacity: canSubmit ? 1 : 0.5 }}
             >
               {loading ? (
                 <span className="btn-loading">
                   <span className="spinner" />
-                  Evaluating…
+                  Evaluating...
                 </span>
               ) : (
                 "Submit Answer"
               )}
             </button>
-          </>
+          </motion.div>
         )}
 
-        {showEval && evaluation && (
-          <div className="evaluation-card">
-            <div className="evaluation-header">
-              <div className="evaluation-score">
-                <span className="evaluation-score-label">Communication Score</span>
-                <div className="evaluation-score-value">
-                  {evaluation.overallScore}
-                  <span className="evaluation-score-max">/10</span>
+        <AnimatePresence mode="wait">
+          {showEval && evaluation && (
+            <motion.div
+              className="evaluation-card"
+              key="evaluation"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="evaluation-header">
+                <div className="evaluation-score">
+                  <span className="evaluation-score-label">Communication Score</span>
+                  <div className="evaluation-score-value">
+                    {evaluation.overallScore}
+                    <span className="evaluation-score-max">/10</span>
+                  </div>
+                </div>
+                <div className="evaluation-rings">
+                  {Object.entries(evaluation.scores)
+                    .slice(0, 4)
+                    .map(([k, v], i) => (
+                      <ScoreRing
+                        key={k}
+                        score={v}
+                        size={48}
+                        label={scoreLabels[k] || k}
+                        delay={i * 80}
+                      />
+                    ))}
                 </div>
               </div>
-              <div className="evaluation-rings">
-                {Object.entries(evaluation.scores)
-                  .slice(0, 4)
-                  .map(([k, v], i) => (
-                    <ScoreRing
-                      key={k}
-                      score={v}
-                      size={48}
-                      label={scoreLabels[k] || k}
-                      delay={i * 80}
-                    />
-                  ))}
-              </div>
-            </div>
 
-            <blockquote className="evaluation-quote">
-              &ldquo;{evaluation.styleObservation}&rdquo;
-            </blockquote>
+              <blockquote className="evaluation-quote">
+                &ldquo;{evaluation.styleObservation}&rdquo;
+              </blockquote>
 
-            <div className="evaluation-feedback">
-              <div className="feedback-item feedback-success">
-                <span className="feedback-icon">
-                  <Icon name="check" size={16} color="var(--color-success)" />
-                </span>
-                <div>
-                  <strong>Worked well:</strong> {evaluation.strongPoint}
+              <div className="evaluation-feedback">
+                <div className="feedback-item feedback-success">
+                  <span className="feedback-icon">
+                    <Check size={16} weight="bold" color="var(--color-success)" />
+                  </span>
+                  <div>
+                    <strong>Worked well:</strong> {evaluation.strongPoint}
+                  </div>
+                </div>
+                <div className="feedback-item feedback-improve">
+                  <span className="feedback-icon">
+                    <ArrowRight size={16} weight="bold" color="var(--color-accent)" />
+                  </span>
+                  <div>
+                    <strong>Fix this:</strong> {evaluation.flawToFix}
+                  </div>
                 </div>
               </div>
-              <div className="feedback-item feedback-improve">
-                <span className="feedback-icon">
-                  <Icon name="arrowRight" size={16} color="var(--color-accent)" />
-                </span>
-                <div>
-                  <strong>Fix this:</strong> {evaluation.flawToFix}
-                </div>
-              </div>
-            </div>
 
-            <button className="btn btn-primary btn-full" onClick={onNext}>
-              {isLast ? "See Full Report" : `Next: Question ${qIdx + 2} of ${N}`}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+              <button className="btn btn-primary btn-full btn-lg" onClick={onNext}>
+                {isLast ? "See Full Report" : `Next: Question ${qIdx + 2} of ${N}`}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+    </>
   );
 }
 
@@ -983,14 +1070,17 @@ function FeedbackScreen({ evals, report, onReset }) {
 
   if (!report) {
     return (
-      <div className="screen screen-center">
-        <div className="loading-state">
-          <div className="loading-icon">
-            <Icon name="refresh" size={48} color="var(--color-accent)" />
+      <>
+        <Nav onHome={() => {}} />
+        <main className="container screen-center">
+          <div className="loading-state">
+            <div className="loading-icon">
+              <ChalkboardTeacher size={48} weight="duotone" />
+            </div>
+            <p>Analyzing your communication style...</p>
           </div>
-          <p>Analyzing your communication style…</p>
-        </div>
-      </div>
+        </main>
+      </>
     );
   }
 
@@ -1004,52 +1094,87 @@ function FeedbackScreen({ evals, report, onReset }) {
       : "Room to grow.";
 
   return (
-    <div className="screen screen-top">
-      <div className="container">
-        <header className="feedback-hero">
+    <>
+      <Nav onHome={onReset} />
+      <main className="container screen-top">
+        <motion.header
+          className="feedback-hero"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
           <span className="feedback-eyebrow">Session Complete</span>
           <ScoreRing score={rounded} size={100} />
           <h1 className="feedback-verdict">
             {verdict} {rounded}/10
           </h1>
-        </header>
+        </motion.header>
 
-        <section className="feedback-style" aria-labelledby="style-heading">
+        <motion.section
+          className="feedback-style"
+          aria-labelledby="style-heading"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h2 id="style-heading" className="section-label">Your Communication Style</h2>
           <p className="style-description">{report.communicationStyle}</p>
 
           <div className="style-insights">
-            <div className="insight-card insight-strength">
+            <motion.div
+              className="insight-card insight-strength"
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
               <span className="insight-icon">
-                <Icon name="arrowUp" size={20} color="var(--color-success)" />
+                <ArrowUp size={18} weight="bold" />
               </span>
               <div>
                 <strong>Recurring Strength</strong>
                 <p>{report.recurringStrength}</p>
               </div>
-            </div>
-            <div className="insight-card insight-flaw">
+            </motion.div>
+
+            <motion.div
+              className="insight-card insight-flaw"
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.25 }}
+            >
               <span className="insight-icon">
-                <Icon name="arrowDown" size={20} color="var(--color-accent)" />
+                <ArrowDown size={18} weight="bold" />
               </span>
               <div>
                 <strong>Recurring Flaw</strong>
                 <p>{report.recurringFlaw}</p>
               </div>
-            </div>
-            <div className="insight-card insight-practice">
+            </motion.div>
+
+            <motion.div
+              className="insight-card insight-practice"
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
               <span className="insight-icon">
-                <Icon name="pin" size={20} color="var(--color-accent)" />
+                <PushPin size={18} weight="bold" />
               </span>
               <div>
                 <strong>This Week&apos;s Practice</strong>
                 <p>{report.weeklyPractice}</p>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        <section className="feedback-breakdown" aria-labelledby="breakdown-heading">
+        <motion.section
+          className="feedback-breakdown"
+          aria-labelledby="breakdown-heading"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h2 id="breakdown-heading" className="section-label">Question Breakdown</h2>
           <div className="breakdown-list">
             {evals.map((e, i) => {
@@ -1076,42 +1201,50 @@ function FeedbackScreen({ evals, report, onReset }) {
                       {s}/10
                     </span>
                     <span className="breakdown-question">
-                      {e.q.length > 50 ? e.q.slice(0, 50) + "…" : e.q}
+                      {e.q.length > 50 ? e.q.slice(0, 50) + "..." : e.q}
                     </span>
-                    <Icon
-                      name="chevronDown"
+                    <CaretDown
                       size={16}
+                      weight="bold"
                       className={`breakdown-chevron ${isOpen ? "open" : ""}`}
                     />
                   </button>
-                  {isOpen && (
-                    <div className="breakdown-content">
-                      <blockquote className="breakdown-quote">
-                        &ldquo;{e.ev.styleObservation}&rdquo;
-                      </blockquote>
-                      <div className="breakdown-feedback">
-                        <span className="feedback-success">
-                          <Icon name="check" size={14} color="var(--color-success)" /> {e.ev.strongPoint}
-                        </span>
-                        <span className="feedback-improve">
-                          <Icon name="arrowRight" size={14} color="var(--color-accent)" /> {e.ev.flawToFix}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        className="breakdown-content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        <blockquote className="breakdown-quote">
+                          &ldquo;{e.ev.styleObservation}&rdquo;
+                        </blockquote>
+                        <div className="breakdown-feedback">
+                          <span className="feedback-success">
+                            <Check size={14} weight="bold" color="var(--color-success)" /> {e.ev.strongPoint}
+                          </span>
+                          <span className="feedback-improve">
+                            <ArrowRight size={14} weight="bold" color="var(--color-accent)" /> {e.ev.flawToFix}
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
           </div>
-        </section>
+        </motion.section>
 
         <div className="feedback-actions">
-          <button className="btn btn-primary btn-full" onClick={onReset}>
+          <button className="btn btn-primary btn-full btn-lg" onClick={onReset}>
             Try Again
           </button>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
 
@@ -1221,51 +1354,67 @@ function AppInner() {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      <main id="main-content">
-        {screen === "home" && <HomeScreen onMode={gotoMode} />}
-        {screen === "audience" && (
-          <AudienceScreen onSelect={gotoAud} onBack={() => setScreen("home")} />
-        )}
-        {screen === "wheel" && (
-          <WheelScreen
-            questions={qs}
-            mode={mode}
-            questionIdx={0}
-            spinning={wheelSpin}
-            onSpin={() => setWheelSpin(false)}
-            onDone={startSession}
-          />
-        )}
-        {screen === "wheel-session" && (
-          <WheelScreen
-            questions={qs}
-            mode={mode}
-            questionIdx={idx}
-            spinning={wheelSpin}
-            onSpin={() => setWheelSpin(false)}
-            onDone={finishWheelTransition}
-          />
-        )}
-        {screen === "session" && (
-          <SessionScreen
-            mode={mode}
-            q={qs[idx]}
-            qIdx={idx}
-            audience={aud}
-            answer={ans}
-            onChange={setAns}
-            onSubmit={submit}
-            loading={loading}
-            showEval={showEv}
-            evaluation={curEv}
-            onNext={next}
-            isLast={idx === N - 1}
-          />
-        )}
-        {screen === "feedback" && (
-          <FeedbackScreen evals={evals} report={report} onReset={reset} />
-        )}
-      </main>
+      <div id="main-content">
+        <AnimatePresence mode="wait">
+          {screen === "home" && (
+            <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <HomeScreen onMode={gotoMode} />
+            </motion.div>
+          )}
+          {screen === "audience" && (
+            <motion.div key="audience" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <AudienceScreen onSelect={gotoAud} onBack={() => setScreen("home")} />
+            </motion.div>
+          )}
+          {screen === "wheel" && (
+            <motion.div key="wheel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <WheelScreen
+                questions={qs}
+                mode={mode}
+                questionIdx={0}
+                spinning={wheelSpin}
+                onSpin={() => setWheelSpin(false)}
+                onDone={startSession}
+              />
+            </motion.div>
+          )}
+          {screen === "wheel-session" && (
+            <motion.div key="wheel-session" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <WheelScreen
+                questions={qs}
+                mode={mode}
+                questionIdx={idx}
+                spinning={wheelSpin}
+                onSpin={() => setWheelSpin(false)}
+                onDone={finishWheelTransition}
+              />
+            </motion.div>
+          )}
+          {screen === "session" && (
+            <motion.div key="session" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <SessionScreen
+                mode={mode}
+                q={qs[idx]}
+                qIdx={idx}
+                audience={aud}
+                answer={ans}
+                onChange={setAns}
+                onSubmit={submit}
+                loading={loading}
+                showEval={showEv}
+                evaluation={curEv}
+                onNext={next}
+                isLast={idx === N - 1}
+              />
+            </motion.div>
+          )}
+          {screen === "feedback" && (
+            <motion.div key="feedback" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <FeedbackScreen evals={evals} report={report} onReset={reset} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </>
   );
 }
