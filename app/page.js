@@ -25,6 +25,7 @@ import {
   CaretLeft,
   CaretDown,
   CaretRight,
+  House,
 } from "@phosphor-icons/react";
 
 /* ─── DATA ─────────────────────────────────────────────────────────────────── */
@@ -92,44 +93,25 @@ async function callEval(prompt) {
   return data;
 }
 
-const SCORING_GUIDE = `
-SCORING RUBRIC — grade generously, focusing on ideas and communication:
-- 10: Exceptional — publishable quality, would impress any audience
-- 8-9: Excellent — clear, well-structured, engaging, minor tweaks only
-- 7: Good — solid answer that gets the point across well, some room to polish
-- 5-6: Okay — understandable but rough edges, needs more clarity or depth
-- 1-4: Weak — confusing, missing key points, or off-target
-Most well-intentioned answers deserve 7-9. Spoken/transcribed answers lose points for rough edges that are artifacts of speech-to-text (missing punctuation, filler words, minor misrecognitions) — ignore those and grade the underlying ideas. Only award 1-4 for genuinely poor responses.`;
-
 const evalPrompt = (mode, question, answer, audLabel) =>
   mode === "teach"
-    ? `You are a warm, encouraging communication coach. Evaluate how this person explains "${question}" to ${audLabel}.
-FOCUS ON COMMUNICATION STYLE — HOW they say it, not just whether it's technically correct.
-Note: This answer may have been spoken and transcribed via voice-to-text. Ignore transcription artifacts (missing punctuation, filler words, minor misrecognitions) and grade the underlying ideas and communication quality.
-Explanation: """${answer}"""
-${SCORING_GUIDE}
-Return ONLY valid JSON (no fences or preamble):
-{"scores":{"clarity":<1-10>,"analogies":<1-10>,"vocabularyFit":<1-10>,"confidence":<1-10>,"structure":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence on their communication pattern>","strongPoint":"<specific thing that worked>","flawToFix":"<single most impactful fix>"}`
-    : `You are a senior technical interviewer who is fair but encouraging. Evaluate this answer to: "${question}"
-FOCUS ON COMMUNICATION QUALITY — clarity, structure, how confidently ideas are articulated.
-Note: This answer may have been spoken and transcribed via voice-to-text. Ignore transcription artifacts (missing punctuation, filler words, minor misrecognitions) and grade the underlying ideas and communication quality.
+    ? `Evaluate explaining "${question}" to ${audLabel}.
 Answer: """${answer}"""
-${SCORING_GUIDE}
-Return ONLY valid JSON (no fences or preamble):
-{"scores":{"clarity":<1-10>,"depth":<1-10>,"structure":<1-10>,"confidence":<1-10>,"examples":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence on their communication pattern>","strongPoint":"<specific thing that worked>","flawToFix":"<single most impactful fix>"}`;
+Return JSON: {"scores":{"clarity":<1-10>,"analogies":<1-10>,"vocabularyFit":<1-10>,"confidence":<1-10>,"structure":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence>","strongPoint":"<specific thing>","flawToFix":"<single most impactful fix>"}`
+    : `Evaluate answer to: "${question}"
+Answer: """${answer}"""
+Return JSON: {"scores":{"clarity":<1-10>,"depth":<1-10>,"structure":<1-10>,"confidence":<1-10>,"examples":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence>","strongPoint":"<specific thing>","flawToFix":"<single most impactful fix>"}`;
 
 const reportPrompt = (evals) => {
   const summary = evals
     .map(
       (e, i) =>
-        `Q${i + 1} ("${e.q.slice(0, 60)}"): ${e.ev.overallScore}/10 — ${e.ev.styleObservation}`
+        `Q${i + 1}: ${e.ev.overallScore}/10 — ${e.ev.styleObservation}`
     )
     .join("\n");
-  return `Analyze the communication style pattern across this 5-answer session. Be encouraging and constructive:
+  return `Analyze this 5-answer session:
 ${summary}
-SCORING RUBRIC: 10=exceptional, 8-9=excellent, 7=good, 5-6=okay, 1-4=weak. Most well-intentioned answers deserve 7-9. Answers may have been spoken and transcribed — ignore transcription artifacts and grade the underlying ideas.
-Return ONLY valid JSON (no fences):
-{"communicationStyle":"<2-3 sentence description of their overall communication style and personality>","recurringStrength":"<pattern that kept working across answers>","recurringFlaw":"<habit that kept holding them back — phrase it gently>","weeklyPractice":"<one specific actionable practice for this week>","overallScore":<average of the 5 scores as a decimal number>}`;
+Return JSON: {"communicationStyle":"<2-3 sentences>","recurringStrength":"<pattern>","recurringFlaw":"<habit>","weeklyPractice":"<actionable practice>","overallScore":<average score>}`;
 };
 
 /* ─── THEME ────────────────────────────────────────────────────────────────── */
@@ -371,14 +353,29 @@ function ProgressBar({ current, total }) {
   );
 }
 
-function Nav({ onHome }) {
+function LogoMark() {
+  return (
+    <div className="logo-icon">
+      <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+        <rect className="logo-icon-shape" x="0" y="0" width="36" height="36" rx="10" />
+        <path className="logo-icon-stroke" d="M6 14 C6 7 12 5 18 11 C24 5 30 7 30 14 C30 21 24 25 18 19 C12 25 6 21 6 14 Z" />
+        <line className="logo-icon-spine" x1="18" y1="11" x2="18" y2="19" />
+      </svg>
+    </div>
+  );
+}
+
+function Nav({ onHome, screen }) {
+  const isHome = screen === "home";
   return (
     <nav className="nav">
-      <button className="logo" onClick={onHome} aria-label="TeachLoop home">
-        <div className="logo-icon">
-          <ChalkboardTeacher size={20} weight="fill" />
-        </div>
+      <button className={`logo ${!isHome ? "logo-home-visible" : ""}`} onClick={onHome} aria-label={isHome ? "TeachLoop" : "Go to home"}>
+        <LogoMark />
         <span className="logo-text">TeachLoop</span>
+        <span className="logo-home-hint">
+          <House size={12} weight="fill" />
+          Home
+        </span>
       </button>
       <ThemeSwitcher />
     </nav>
@@ -409,7 +406,7 @@ function Sparkline({ data, width = 80, height = 24 }) {
 function HomeScreen({ onMode, pastSessions }) {
   return (
     <>
-      <Nav onHome={() => {}} />
+      <Nav onHome={() => {}} screen="home" />
       <main className="container">
         <section className="home-hero">
           <div className="home-hero-content">
@@ -565,22 +562,24 @@ function HomeScreen({ onMode, pastSessions }) {
           </div>
         </motion.section>
 
-        {pastSessions && pastSessions.length > 0 && (
-          <motion.section
-            className="past-sessions-section"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <div className="container-wide">
-              <div className="past-sessions-header">
-                <h2 className="past-sessions-title">Your Past Sessions</h2>
+        <motion.section
+          className="past-sessions-section"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <div className="container-wide">
+            <div className="past-sessions-header">
+              <h2 className="past-sessions-title">Your Past Sessions</h2>
+              {pastSessions && pastSessions.length > 1 && (
                 <Sparkline
                   data={pastSessions.map((s) => Number(s.overallScore)).reverse()}
                   width={120}
                   height={32}
                 />
-              </div>
+              )}
+            </div>
+            {pastSessions && pastSessions.length > 0 ? (
               <div className="past-sessions-list">
                 {pastSessions.slice(0, 5).map((s) => {
                   const sc = Number(s.overallScore) || 0;
@@ -615,9 +614,16 @@ function HomeScreen({ onMode, pastSessions }) {
                   );
                 })}
               </div>
-            </div>
-          </motion.section>
-        )}
+            ) : (
+              <div className="past-sessions-empty">
+                <span className="past-sessions-empty-icon">
+                  <GraduationCap size={24} weight="duotone" />
+                </span>
+                <p className="past-sessions-empty-text">No sessions yet. Complete your first practice to see it here.</p>
+              </div>
+            )}
+          </div>
+        </motion.section>
 
         <footer className="home-footer">
           <p className="home-footer-text">
@@ -632,7 +638,7 @@ function HomeScreen({ onMode, pastSessions }) {
 function AudienceScreen({ onSelect, onBack }) {
   return (
     <>
-      <Nav onHome={onBack} />
+      <Nav onHome={onBack} screen="audience" />
       <main className="container screen-top">
         <button className="back-button" onClick={onBack} aria-label="Go back">
           <CaretLeft size={16} weight="bold" />
@@ -682,7 +688,7 @@ function AudienceScreen({ onSelect, onBack }) {
 function RevealScreen({ mode, firstQ, revealed, onReveal, onStart }) {
   return (
     <>
-      <Nav onHome={() => {}} />
+      <Nav onHome={() => {}} screen="reveal" />
       <main className="container screen-center">
         <div style={{ width: "100%", maxWidth: "28rem" }}>
           <motion.div
@@ -752,7 +758,7 @@ function RevealScreen({ mode, firstQ, revealed, onReveal, onStart }) {
   );
 }
 
-function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone }) {
+function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone, screenName }) {
   const [rotation, setRotation] = useState(0);
   const [activeIdx, setActiveIdx] = useState(0);
   const [phase, setPhase] = useState("idle");
@@ -828,7 +834,7 @@ function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone })
 
   return (
     <>
-      <Nav onHome={() => {}} />
+      <Nav onHome={() => {}} screen={screenName || "wheel"} />
       <main className="container screen-center">
         <div style={{ width: "100%", maxWidth: "28rem" }}>
           <motion.div
@@ -920,6 +926,63 @@ function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone })
   );
 }
 
+function LoadingEval({ hasError, onRetry, onDismiss }) {
+  return (
+    <motion.div
+      className="loading-eval"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <div className="loading-eval-header">
+        <div className="loading-eval-status">
+          <div className="loading-eval-icon">
+            <ChalkboardTeacher size={20} weight="duotone" />
+          </div>
+          <div className="loading-eval-status-text">
+            <span className="loading-eval-status-label">Your Coach</span>
+            <span className="loading-eval-status-message">
+              {hasError ? "Something went wrong" : "Reviewing your answer"}
+              {!hasError && (
+                <>
+                  <span className="loading-eval-status-dot" />
+                  <span className="loading-eval-status-dot" />
+                  <span className="loading-eval-status-dot" />
+                </>
+              )}
+            </span>
+          </div>
+        </div>
+        <div className="loading-eval-rings">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="loading-ring-skeleton">
+              <div className="loading-ring-circle" />
+              <div className="loading-ring-label-skeleton" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="loading-eval-block" />
+      <div className="loading-eval-feedback">
+        <div className="loading-eval-line loading-eval-line-success" />
+        <div className="loading-eval-line loading-eval-line-improve" />
+      </div>
+      {hasError ? (
+        <div className="loading-eval-actions">
+          <button className="btn btn-primary btn-full btn-lg" onClick={onRetry}>
+            Try Again
+          </button>
+          <button className="btn btn-ghost btn-full" onClick={onDismiss}>
+            Dismiss
+          </button>
+        </div>
+      ) : (
+        <div className="loading-eval-btn" />
+      )}
+    </motion.div>
+  );
+}
+
 function SessionScreen({
   mode,
   q,
@@ -959,7 +1022,7 @@ function SessionScreen({
 
   return (
     <>
-      <Nav onHome={() => {}} />
+      <Nav onHome={() => {}} screen="session" />
       <main className="container screen-top">
         <ProgressBar current={qIdx + 1} total={N} />
 
@@ -988,7 +1051,15 @@ function SessionScreen({
           <h2 className="question-text">{q}</h2>
         </motion.div>
 
-        {!showEval && (
+        {loading && !showEval && (
+          <LoadingEval
+            hasError={!!evaluationError}
+            onRetry={onSubmit}
+            onDismiss={onClearError}
+          />
+        )}
+
+        {!showEval && !loading && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1071,33 +1142,8 @@ function SessionScreen({
               onClick={onSubmit}
               disabled={!canSubmit}
             >
-              {loading ? (
-                <span className="btn-loading">
-                  <span className="spinner" />
-                  Evaluating...
-                </span>
-              ) : (
-                "Submit Answer"
-              )}
+              Submit Answer
             </button>
-            {evaluationError && (
-              <motion.div
-                className="error-banner"
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="error-banner-content">
-                  <span>{evaluationError}</span>
-                  <button className="btn btn-ghost" onClick={onClearError}>
-                    Dismiss
-                  </button>
-                </div>
-                <button className="btn btn-primary" onClick={onSubmit}>
-                  Try Again
-                </button>
-              </motion.div>
-            )}
           </motion.div>
         )}
 
@@ -1121,7 +1167,6 @@ function SessionScreen({
                 </div>
                 <div className="evaluation-rings">
                   {Object.entries(evaluation.scores)
-                    .slice(0, 4)
                     .map(([k, v], i) => (
                       <ScoreRing
                         key={k}
@@ -1174,7 +1219,7 @@ function FeedbackScreen({ evals, report, onReset }) {
   if (!report) {
     return (
       <>
-        <Nav onHome={() => {}} />
+        <Nav onHome={() => {}} screen="feedback" />
         <main className="container screen-center">
           <div className="loading-state">
             <div className="loading-icon">
@@ -1198,7 +1243,7 @@ function FeedbackScreen({ evals, report, onReset }) {
 
   return (
     <>
-      <Nav onHome={onReset} />
+      <Nav onHome={onReset} screen="feedback" />
       <main className="container screen-top">
         <motion.header
           className="feedback-hero"
@@ -1496,6 +1541,7 @@ function AppInner() {
                 spinning={wheelSpin}
                 onSpin={() => setWheelSpin(false)}
                 onDone={startSession}
+                screenName="wheel"
               />
             </motion.div>
           )}
@@ -1508,6 +1554,7 @@ function AppInner() {
                 spinning={wheelSpin}
                 onSpin={() => setWheelSpin(false)}
                 onDone={finishWheelTransition}
+                screenName="wheel-session"
               />
             </motion.div>
           )}
