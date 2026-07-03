@@ -2,9 +2,45 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 
+const FILLER_PATTERN =
+  /\b(um+|uh+|er+|ah+|like,?\s*you know,?|you know,?|I mean,?|basically,?|actually,?|sort of,?|kind of,?|right\?*)\b/gi;
+
+function removeFillers(text) {
+  return text.replace(FILLER_PATTERN, "").replace(/\s{2,}/g, " ").trim();
+}
+
+function deduplicateWords(text) {
+  return text
+    .split(/(\s+)/)
+    .reduce((acc, token) => {
+      if (/^\s+$/.test(token)) {
+        acc.push(token);
+      } else {
+        const prev = acc.length > 1 ? acc[acc.length - 2] : "";
+        if (token.toLowerCase() !== prev.toLowerCase()) {
+          acc.push(token);
+        }
+      }
+      return acc;
+    }, [])
+    .join("");
+}
+
+function fixPunctuation(text) {
+  let t = text.replace(/\s{2,}/g, " ").trim();
+  if (t && !/[.!?;:]$/.test(t)) t += ".";
+  return t;
+}
+
+function cleanTranscript(text) {
+  if (!text) return text;
+  return fixPunctuation(deduplicateWords(removeFillers(text)));
+}
+
 function useVoice(onChange, answer) {
   const [recording, setRecording] = useState(false);
   const [interim, setInterim] = useState("");
+  const [wasSpoken, setWasSpoken] = useState(false);
   const recRef = useRef(null);
   const ansRef = useRef(answer);
   const restartRef = useRef(false);
@@ -44,9 +80,12 @@ function useVoice(onChange, answer) {
         }
       }
       if (finalText.trim()) {
+        const cleaned = cleanTranscript(finalText);
+        if (!cleaned) return;
         const cur = ansRef.current;
         const sep = cur && !cur.endsWith(" ") ? " " : "";
-        onChange(cur + sep + finalText.trim() + " ");
+        onChange(cur + sep + cleaned + " ");
+        setWasSpoken(true);
         setInterim("");
       } else if (interimText) {
         setInterim(interimText);
@@ -103,6 +142,7 @@ function useVoice(onChange, answer) {
     recording,
     supported,
     interim,
+    wasSpoken,
     toggle: () => (recording ? stop() : start()),
   };
 }

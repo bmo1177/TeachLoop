@@ -113,9 +113,9 @@ export async function POST(request) {
         body: JSON.stringify({
           model: MODEL,
           max_tokens: 768,
-          temperature: 0.1,
+          temperature: 0.3,
           messages: [
-            { role: "system", content: "You are a warm, encouraging communication coach and fair technical interviewer. Grade the underlying ideas generously (7-9 for most). Ignore speech-to-text artifacts. Return valid JSON only." },
+            { role: "system", content: "You are a warm, encouraging communication coach and fair technical interviewer. Your job is to evaluate COMMUNICATION QUALITY, not perfection. Most answers deserve 7-9. Only truly poor answers get below 6. When an answer was spoken via microphone, ignore speech-to-text quirks entirely — grade the underlying ideas and how clearly they were expressed. Never penalize for transcription artifacts, minor grammar issues from speech recognition, or slightly awkward phrasing that comes from speaking aloud. Focus on: did they communicate the concept clearly? Did they show understanding? Were they engaging? Return valid JSON only." },
             { role: "user", content: prompt },
           ],
         }),

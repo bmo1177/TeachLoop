@@ -43,9 +43,14 @@ const SessionScreen = memo(function SessionScreen({
   evaluation,
   onNext,
   isLast,
+  onVoiceUsed,
 }) {
   const aud = useMemo(() => AUDIENCES.find((a) => a.id === audience), [audience]);
   const voice = useVoice(onChange, answer);
+
+  useEffect(() => {
+    if (voice.wasSpoken && onVoiceUsed) onVoiceUsed();
+  }, [voice.wasSpoken, onVoiceUsed]);
   const displayText =
     voice.recording && voice.interim
       ? answer + (answer && !answer.endsWith(" ") ? " " : "") + voice.interim

@@ -19,14 +19,18 @@ export async function callEval(prompt) {
   return data;
 }
 
-export const evalPrompt = (mode, question, answer, audLabel) =>
-  mode === "teach"
+export const evalPrompt = (mode, question, answer, audLabel, wasSpoken = false) => {
+  const spokenNote = wasSpoken
+    ? "\n\n[This answer was spoken via microphone and transcribed automatically. Grade the ideas and communication, not the transcription quality. Ignore any awkward phrasing caused by speech-to-text conversion.]"
+    : "";
+  return mode === "teach"
     ? `Evaluate explaining "${question}" to ${audLabel}.
 Answer: """${answer}"""
-Return JSON: {"scores":{"clarity":<1-10>,"analogies":<1-10>,"vocabularyFit":<1-10>,"confidence":<1-10>,"structure":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence>","strongPoint":"<specific thing>","flawToFix":"<single most impactful fix>"}`
+Return JSON: {"scores":{"clarity":<1-10>,"analogies":<1-10>,"vocabularyFit":<1-10>,"confidence":<1-10>,"structure":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence>","strongPoint":"<specific thing>","flawToFix":"<single most impactful fix>"}${spokenNote}`
     : `Evaluate answer to: "${question}"
 Answer: """${answer}"""
-Return JSON: {"scores":{"clarity":<1-10>,"depth":<1-10>,"structure":<1-10>,"confidence":<1-10>,"examples":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence>","strongPoint":"<specific thing>","flawToFix":"<single most impactful fix>"}`;
+Return JSON: {"scores":{"clarity":<1-10>,"depth":<1-10>,"structure":<1-10>,"confidence":<1-10>,"examples":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence>","strongPoint":"<specific thing>","flawToFix":"<single most impactful fix>"}${spokenNote}`;
+};
 
 export const reportPrompt = (evals) => {
   const summary = evals

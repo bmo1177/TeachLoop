@@ -54,6 +54,7 @@ function AppInner() {
   const [wheelSpin, setWheelSpin] = useState(false);
   const [evaluationError, setEvaluationError] = useState(null);
   const [reportError, setReportError] = useState(null);
+  const [wasVoiceUsed, setWasVoiceUsed] = useState(false);
   const { sessions, addSession } = useSessionHistory();
 
   useEffect(() => {
@@ -106,6 +107,7 @@ function AppInner() {
     setEvaluationError(null);
     setReportError(null);
     setReport(null);
+    setWasVoiceUsed(false);
     setScreen("session");
   };
 
@@ -118,7 +120,7 @@ function AppInner() {
         ? AUDIENCES.find((a) => a.id === aud)?.label
         : "a technical interviewer";
     try {
-      const ev = await callEval(evalPrompt(mode, qs[idx], ans, audLabel));
+      const ev = await callEval(evalPrompt(mode, qs[idx], ans, audLabel, wasVoiceUsed));
       const newEvals = [...evals, { q: qs[idx], ev }];
       setEvals(newEvals);
       setCurEv(ev);
@@ -146,6 +148,7 @@ function AppInner() {
       setShowEv(false);
       setCurEv(null);
       setEvaluationError(null);
+      setWasVoiceUsed(false);
       setWheelSpin(true);
       setScreen("wheel-session");
     } else {
@@ -172,6 +175,7 @@ function AppInner() {
     setReportError(null);
     setReport(null);
     setWheelSpin(false);
+    setWasVoiceUsed(false);
   };
 
   return (
@@ -234,6 +238,7 @@ function AppInner() {
                 onNext={next}
                 onClearError={() => setEvaluationError(null)}
                 isLast={idx === N - 1}
+                onVoiceUsed={() => setWasVoiceUsed(true)}
               />
             </motion.div>
           )}
