@@ -4,6 +4,48 @@ const MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
 const MAX_PROMPT_LENGTH = 12000;
 const MAX_ATTEMPTS = 2;
 const FETCH_TIMEOUT = 15000;
+const RATE_LIMIT_WINDOW = 60000;
+const RATE_LIMIT_MAX = 30;
+
+const rateLimitMap = new Map();
+
+function getRateLimitKey(request) {
+  const forwarded = request.headers.get("x-forwarded-for");
+  const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
+  return ip;
+}
+
+function checkRateLimit(key) {
+  const now = Date.now();
+  const record = rateLimitMap.get(key);
+  if (!record || now - record.windowStart > RATE_LIMIT_WINDOW) {
+    rateLimitMap.set(key, { windowStart: now, count: 1 });
+    return true;
+  }
+  record.count++;
+  return record.count <= RATE_LIMIT_MAX;
+}
+
+function getAllowedOrigin(request) {
+  const origin = request.headers.get("origin");
+  const host = request.headers.get("host");
+  if (!origin) return null;
+  try {
+    const originHost = new URL(origin).host;
+    if (originHost === host) return origin;
+  } catch {}
+  return null;
+}
+
+function validateResponseSchema(data) {
+  if (!data || typeof data !== "object") return false;
+  if (typeof data.overallScore !== "number") return false;
+  if (typeof data.styleObservation !== "string") return false;
+  if (typeof data.strongPoint !== "string") return false;
+  if (typeof data.flawToFix !== "string") return false;
+  if (!data.scores || typeof data.scores !== "object") return false;
+  return true;
+}
 
 function extractJSON(text) {
   const fence = text.replace(/```json\n?|```/g, "").trim();
@@ -19,9 +61,31 @@ function extractJSON(text) {
 }
 
 export async function POST(request) {
-  const { prompt } = await request.json();
+  const rateKey = getRateLimitKey(request);
+  if (!checkRateLimit(rateKey)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a moment." },
+      { status: 429 }
+    );
+  }
 
-  if (!prompt) {
+  const allowedOrigin = getAllowedOrigin(request);
+  if (allowedOrigin === null) {
+    const origin = request.headers.get("origin");
+    if (origin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  }
+
+  let prompt;
+  try {
+    const body = await request.json();
+    prompt = body.prompt;
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  if (!prompt || typeof prompt !== "string") {
     return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
   }
 
@@ -31,7 +95,7 @@ export async function POST(request) {
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: "Missing OPENROUTER_API_KEY" }, { status: 500 });
+    return NextResponse.json({ error: "Service configuration error" }, { status: 500 });
   }
 
   const controller = new AbortController();
@@ -58,28 +122,31 @@ export async function POST(request) {
         signal: controller.signal,
       });
 
-    if (res.ok) {
-      clearTimeout(timeout);
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content || "";
+      if (res.ok) {
+        clearTimeout(timeout);
+        const data = await res.json();
+        const text = data.choices?.[0]?.message?.content || "";
 
-      const parsed = extractJSON(text);
-      if (parsed) return NextResponse.json(parsed);
+        const parsed = extractJSON(text);
+        if (parsed && validateResponseSchema(parsed)) {
+          return NextResponse.json(parsed);
+        }
 
-      return NextResponse.json(
-        { error: "Failed to parse model response" },
-        { status: 502 }
-      );
-    }
-
-    lastError = await res.text();
-    if (res.status === 429 || res.status >= 500) {
-      if (attempt < MAX_ATTEMPTS - 1) {
-        await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)));
-        continue;
+        return NextResponse.json(
+          { error: "Failed to parse model response" },
+          { status: 502 }
+        );
       }
-    }
-    return NextResponse.json({ error: "Request failed" }, { status: res.status });
+
+      lastError = await res.text();
+      if (res.status === 429 || res.status >= 500) {
+        if (attempt < MAX_ATTEMPTS - 1) {
+          await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt)));
+          continue;
+        }
+      }
+      clearTimeout(timeout);
+      return NextResponse.json({ error: "Request failed" }, { status: res.status });
     } catch (err) {
       clearTimeout(timeout);
       if (err.name === "AbortError") {
