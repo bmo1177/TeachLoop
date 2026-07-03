@@ -736,6 +736,39 @@ p {
   animation: float 6s ease-in-out infinite;
 }
 
+@media (max-width: 479px) {
+  .hero-visual-orb {
+    opacity: 0.3;
+    filter: blur(30px);
+  }
+
+  .hero-visual-orb-1 {
+    width: 140px;
+    height: 140px;
+  }
+
+  .hero-visual-orb-2 {
+    width: 110px;
+    height: 110px;
+  }
+
+  .hero-visual-orb-3 {
+    width: 90px;
+    height: 90px;
+  }
+
+  .hero-visual-center {
+    width: 88px;
+    height: 88px;
+    border-radius: var(--radius-2xl);
+  }
+
+  .hero-visual-center svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 .hero-visual-orb-1 {
   width: 200px;
   height: 200px;
@@ -838,6 +871,8 @@ p {
               transform var(--duration-slow) var(--ease-out-quart);
   position: relative;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 @media (min-width: 640px) {
@@ -911,8 +946,8 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   background: var(--color-accent-subtle);
   color: var(--color-accent);
@@ -1213,6 +1248,8 @@ p {
   transition: border-color var(--duration-slow) var(--ease-out-quart),
               box-shadow var(--duration-slow) var(--ease-out-quart),
               transform var(--duration-slow) var(--ease-out-quart);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .audience-option:hover,
@@ -1592,6 +1629,8 @@ p {
   transition: all var(--duration-normal) var(--ease-out-quart);
   position: relative;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .btn:focus-visible {
@@ -1808,6 +1847,8 @@ p {
   color: var(--color-text-secondary);
   transition: all var(--duration-normal) var(--ease-out-quart);
   width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .hint-button:hover:not(:disabled) {
@@ -2614,6 +2655,8 @@ p {
   cursor: pointer;
   text-align: left;
   font-family: var(--font-family);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .breakdown-score {
@@ -2709,6 +2752,8 @@ p {
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-spring);
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .theme-dot:hover {
@@ -2736,6 +2781,216 @@ p {
 
 .theme-dot-blue-hour {
   background: linear-gradient(135deg, #2563EB, #3B82F6);
+}
+
+/* ─── MOBILE-FIRST IMPROVEMENTS ──────────────────────────────────────────────── */
+
+@media (max-width: 479px) {
+  .home-hero {
+    padding: var(--space-6) 0 var(--space-4);
+    gap: var(--space-6);
+  }
+
+  .home-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .home-subtitle {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--space-6);
+  }
+
+  .home-actions {
+    flex-direction: column;
+  }
+
+  .home-actions .btn {
+    width: 100%;
+  }
+
+  .mode-card {
+    padding: var(--space-3);
+  }
+
+  .mode-card-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .past-session-card {
+    padding: var(--space-3);
+  }
+
+  .past-session-score {
+    font-size: var(--font-size-base);
+    min-width: 2.5rem;
+  }
+
+  .feature-card {
+    padding: var(--space-3);
+  }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: var(--space-3);
+  }
+
+  .screen-top {
+    padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .textarea {
+    min-height: 160px;
+    font-size: 16px;
+  }
+
+  .mic-button {
+    width: 44px;
+    height: 44px;
+    bottom: 14px;
+    right: 14px;
+  }
+
+  .hint-button {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .question-card {
+    padding: var(--space-3);
+  }
+
+  .question-text {
+    font-size: var(--font-size-base);
+  }
+
+  .evaluation-card {
+    padding: var(--space-3);
+  }
+
+  .evaluation-score-value {
+    font-size: var(--font-size-3xl);
+  }
+
+  .score-ring svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .score-ring-label {
+    font-size: 8px;
+    max-width: 44px;
+  }
+
+  .evaluation-feedback {
+    gap: var(--space-2);
+  }
+
+  .feedback-item {
+    padding: var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .audience-badge {
+    font-size: var(--font-size-2xs);
+  }
+
+  .btn-full.btn-lg {
+    min-height: 48px;
+  }
+
+  .recording-indicator {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .textarea-meta {
+    margin-bottom: var(--space-3);
+  }
+
+  .evaluation-header {
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .feedback-hero {
+    margin-bottom: var(--space-8);
+  }
+
+  .feedback-verdict {
+    font-size: var(--font-size-xl);
+    margin-top: var(--space-3);
+  }
+
+  .feedback-style {
+    margin-bottom: var(--space-8);
+  }
+
+  .insight-card {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .insight-card strong {
+    font-size: var(--font-size-xs);
+  }
+
+  .insight-card p {
+    font-size: var(--font-size-xs);
+  }
+
+  .insight-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .breakdown-toggle {
+    padding: var(--space-3);
+    min-height: 44px;
+  }
+
+  .breakdown-question {
+    font-size: var(--font-size-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .breakdown-content {
+    padding: 0 var(--space-3) var(--space-3);
+  }
+
+  .breakdown-score {
+    font-size: var(--font-size-xs);
+  }
+
+  .feedback-actions {
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .audience-option {
+    padding: var(--space-3);
+    min-height: 44px;
+  }
+
+  .theme-dot {
+    width: 32px;
+    height: 32px;
+  }
+
+  .wheel-container {
+    width: 240px;
+    height: 240px;
+  }
+
+  .home-footer {
+    padding: var(--space-8) 0 calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .past-sessions-section {
+    padding-bottom: var(--space-4);
+  }
 }
 
 /* ─── RESPONSIVE ADJUSTMENTS ────────────────────────────────────────────────── */
