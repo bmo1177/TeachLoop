@@ -24,10 +24,10 @@ import { TEACH_CONCEPTS, SWE_QUESTIONS } from "@/app/data/questions";
 import { TEACH_HINTS, SWE_HINTS } from "@/app/data/hints";
 import { AUDIENCES, AudienceIcon } from "@/app/data/audiences";
 import { QUESTIONS_PER_SESSION, pick, callEval, evalPrompt, reportPrompt } from "@/app/lib/api";
-import { ThemeProvider, ThemeContext, useTheme, useWheelColors, THEMES, ThemeSwitcher } from "@/app/providers/ThemeProvider";
-import { ScoreRing, ProgressBar, LogoMark, Nav, Sparkline } from "@/app/components/UIComponents";
-import useVoice from "@/app/hooks/useVoice";
-import { HomeScreen, AudienceScreen, RevealScreen, WheelScreen, LoadingEval, SessionScreen, FeedbackScreen } from "@/app/components/Screens";
+import { ThemeProvider } from "@/app/providers/ThemeProvider";
+import { ScoreRing, ProgressBar, Nav, Sparkline } from "@/app/components/UIComponents";
+import { useVoice } from "@/app/hooks/useVoice";
+import { HomeScreen, AudienceScreen, WheelScreen, LoadingEval, SessionScreen, FeedbackScreen } from "@/app/components/Screens";
 
 /* ─── ERROR BOUNDARY ──────────────────────────────────────────────────────── */
 

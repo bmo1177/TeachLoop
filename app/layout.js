@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
         <meta name="color-scheme" content="light dark" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('teachloop-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem('teachloop-theme');if(t){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t==='chalkboard'?'dark':'light'}}catch(e){}})()`,
           }}
         />
       </head>

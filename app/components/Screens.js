@@ -26,7 +26,7 @@ import { AUDIENCES, AudienceIcon } from "@/app/data/audiences";
 import { TEACH_HINTS, SWE_HINTS } from "@/app/data/hints";
 import { QUESTIONS_PER_SESSION, callEval, evalPrompt, reportPrompt } from "@/app/lib/api";
 import { ScoreRing, ProgressBar, Nav, Sparkline } from "./UIComponents";
-import useVoice from "@/app/hooks/useVoice";
+import { useVoice } from "@/app/hooks/useVoice";
 import { useTheme, useWheelColors } from "@/app/providers/ThemeProvider";
 
 const N = QUESTIONS_PER_SESSION;
@@ -564,7 +564,7 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
   );
 });
 
-function LoadingEval({ hasError, onRetry, onDismiss }) {
+const LoadingEval = memo(function LoadingEval({ hasError, onRetry, onDismiss }) {
   return (
     <motion.div
       className="loading-eval"
@@ -619,7 +619,7 @@ function LoadingEval({ hasError, onRetry, onDismiss }) {
       )}
     </motion.div>
   );
-}
+});
 
 const SessionScreen = memo(function SessionScreen({
   mode,
@@ -1115,4 +1115,4 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
   );
 });
 
-export { HomeScreen, AudienceScreen, RevealScreen, WheelScreen, LoadingEval, SessionScreen, FeedbackScreen };
+export { HomeScreen, AudienceScreen, WheelScreen, LoadingEval, SessionScreen, FeedbackScreen };

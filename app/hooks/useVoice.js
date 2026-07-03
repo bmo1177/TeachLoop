@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 function useVoice(onChange, answer) {
   const [recording, setRecording] = useState(false);
@@ -9,6 +9,16 @@ function useVoice(onChange, answer) {
   const ansRef = useRef(answer);
   const restartRef = useRef(false);
   ansRef.current = answer;
+
+  useEffect(() => {
+    return () => {
+      if (recRef.current) {
+        restartRef.current = false;
+        try { recRef.current.stop(); } catch (_) {}
+        recRef.current = null;
+      }
+    };
+  }, []);
 
   const SR =
     typeof window !== "undefined" &&

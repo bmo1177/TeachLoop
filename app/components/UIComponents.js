@@ -109,7 +109,7 @@ function Sparkline({ data, width = 80, height = 24 }) {
     .join(" ");
 
   return (
-    <svg width={width} height={height} className="sparkline">
+    <svg width={width} height={height} className="sparkline" role="img" aria-label="Score trend">
       <polyline points={points} fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );

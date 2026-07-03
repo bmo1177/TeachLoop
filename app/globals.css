@@ -112,6 +112,7 @@
   --color-success-subtle: #F0FDF4;
   --color-error: #DC2626;
   --color-error-subtle: #FEF2F2;
+  --color-error-bg: #FEF2F2;
 
   --color-border: #E7E5E4;
   --color-border-subtle: #F5F5F4;
@@ -164,6 +165,7 @@
   --color-success-subtle: rgba(52, 211, 153, 0.08);
   --color-error: #FB7185;
   --color-error-subtle: rgba(251, 113, 133, 0.08);
+  --color-error-bg: rgba(251, 113, 133, 0.12);
 
   --color-border: #3F3F46;
   --color-border-subtle: #2E2E33;
@@ -216,6 +218,7 @@
   --color-success-subtle: #F0FDF4;
   --color-error: #DC2626;
   --color-error-subtle: #FEF2F2;
+  --color-error-bg: #FEF2F2;
 
   --color-border: #E2E8F0;
   --color-border-subtle: #F1F5F9;
@@ -509,6 +512,40 @@ p {
     padding-inline: calc(var(--space-8) + env(safe-area-inset-right, 0px));
     padding-left: calc(var(--space-8) + env(safe-area-inset-left, 0px));
   }
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--color-text-primary);
+}
+
+.nav-back:hover {
+  opacity: 0.8;
+}
+
+.nav-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
 }
 
 /* ─── LOGO ──────────────────────────────────────────────────────────────────── */
@@ -1398,6 +1435,15 @@ p {
     0 0 0 8px var(--color-border),
     var(--shadow-lg);
   transition: box-shadow var(--duration-slow) var(--ease-out-quart);
+}
+
+.wheel-circle.wheel-spinning {
+  border-color: var(--color-accent);
+  box-shadow:
+    0 0 0 6px var(--color-surface),
+    0 0 0 8px var(--color-accent),
+    0 0 48px var(--color-accent-muted),
+    var(--shadow-lg);
 }
 
 .wheel-circle.wheel-stopped {
@@ -2301,6 +2347,21 @@ p {
   align-items: center;
   gap: 2px;
   animation: scoreReveal 0.5s var(--ease-out-quart) both;
+}
+
+.score-ring-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-ring-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  color: var(--color-text-primary);
 }
 
 .score-ring-label {
