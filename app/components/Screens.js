@@ -173,7 +173,7 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions }) {
                 </div>
                 <h3 className="feature-title">Audience-Aware Feedback</h3>
                 <p className="feature-desc">
-                  Practice explaining to a child, recruiter, or senior engineer. Feedback adapts to who you're talking to.
+                  Practice explaining to a child, recruiter, or senior engineer. Feedback adapts to who you&apos;re talking to.
                 </p>
               </div>
 
@@ -271,7 +271,7 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions }) {
       </main>
     </>
   );
-}
+});
 
 const AudienceScreen = memo(function AudienceScreen({ onSelect, onBack }) {
   return (
@@ -321,7 +321,7 @@ const AudienceScreen = memo(function AudienceScreen({ onSelect, onBack }) {
       </main>
     </>
   );
-}
+});
 
 const RevealScreen = memo(function RevealScreen({ mode, firstQ, revealed, onReveal, onStart }) {
   return (
@@ -394,7 +394,7 @@ const RevealScreen = memo(function RevealScreen({ mode, firstQ, revealed, onReve
       </main>
     </>
   );
-}
+});
 
 const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone, screenName }) {
   const [rotation, setRotation] = useState(0);
@@ -562,7 +562,7 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
       </main>
     </>
   );
-}
+});
 
 function LoadingEval({ hasError, onRetry, onDismiss }) {
   return (
@@ -662,16 +662,6 @@ const SessionScreen = memo(function SessionScreen({
   useEffect(() => {
     setHintLevel(0);
   }, [q]);
-
-  const scoreLabels = {
-    clarity: "Clarity",
-    analogies: "Analogies",
-    vocabularyFit: "Vocab Fit",
-    confidence: "Confidence",
-    structure: "Structure",
-    depth: "Depth",
-    examples: "Examples",
-  };
 
   return (
     <>
@@ -920,7 +910,7 @@ const SessionScreen = memo(function SessionScreen({
       </main>
     </>
   );
-}
+});
 
 const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError, onReset }) {
   const [open, setOpen] = useState(null);
@@ -1123,6 +1113,6 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
       </main>
     </>
   );
-}
+});
 
 export { HomeScreen, AudienceScreen, RevealScreen, WheelScreen, LoadingEval, SessionScreen, FeedbackScreen };
