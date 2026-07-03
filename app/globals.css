@@ -95,7 +95,6 @@
 
   --color-text-primary: #1C1917;
   --color-text-secondary: #78716C;
-  --color-text-tertiary: #78716C;
   --color-text-muted: #A8A29E;
   --color-on-accent: #FFFFFF;
 
@@ -148,7 +147,6 @@
 
   --color-text-primary: #FAFAFA;
   --color-text-secondary: #A1A1AA;
-  --color-text-tertiary: #A1A1AA;
   --color-text-muted: #71717A;
   --color-on-accent: #18181B;
 
@@ -201,7 +199,6 @@
 
   --color-text-primary: #0F172A;
   --color-text-secondary: #64748B;
-  --color-text-tertiary: #64748B;
   --color-text-muted: #94A3B8;
   --color-on-accent: #FFFFFF;
 
@@ -537,7 +534,7 @@ p {
 }
 
 .nav-title {
-  font-family: var(--font-display);
+  font-family: var(--font-family);
   font-weight: 600;
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
@@ -606,7 +603,7 @@ p {
   gap: var(--space-1);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   opacity: 0;
   transform: translateX(-4px);
   transition: opacity var(--duration-normal) var(--ease-out-quart),
@@ -1153,7 +1150,7 @@ p {
 
 .home-footer-text {
   font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
 }
 
 /* ─── BACK BUTTON ───────────────────────────────────────────────────────────── */
@@ -2090,7 +2087,7 @@ p {
 .loading-eval-status-message {
   display: block;
   font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
 }
 
@@ -2357,7 +2354,7 @@ p {
 }
 
 .score-ring-value {
-  font-family: var(--font-display);
+  font-family: var(--font-family);
   font-weight: 700;
   font-size: var(--font-size-xl);
   line-height: 1;
@@ -2698,7 +2695,7 @@ p {
 .theme-switcher-label {
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-wider);
   margin-right: var(--space-1);

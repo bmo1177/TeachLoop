@@ -1,33 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo, Component } from "react";
+import { useState, useEffect, Component } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useSessionHistory } from "@/app/_hooks/useSessionHistory";
-import {
-  GraduationCap,
-  ChatCircle,
-  ArrowRight,
-  ArrowDown,
-  PushPin,
-  Check,
-  Lightning,
-  User,
-  ChalkboardTeacher,
-  Microphone,
-  MicrophoneSlash,
-  SpeakerSimpleHigh,
-  CaretDown,
-  CaretUp,
-  Lightbulb,
-} from "@phosphor-icons/react";
+import { useSessionHistory } from "@/app/hooks/useSessionHistory";
 import { TEACH_CONCEPTS, SWE_QUESTIONS } from "@/app/data/questions";
-import { TEACH_HINTS, SWE_HINTS } from "@/app/data/hints";
-import { AUDIENCES, AudienceIcon } from "@/app/data/audiences";
+import { AUDIENCES } from "@/app/data/audiences";
 import { QUESTIONS_PER_SESSION, pick, callEval, evalPrompt, reportPrompt } from "@/app/lib/api";
 import { ThemeProvider } from "@/app/providers/ThemeProvider";
-import { ScoreRing, ProgressBar, Nav, Sparkline } from "@/app/components/UIComponents";
-import { useVoice } from "@/app/hooks/useVoice";
-import { HomeScreen, AudienceScreen, WheelScreen, LoadingEval, SessionScreen, FeedbackScreen } from "@/app/components/Screens";
+import { HomeScreen, AudienceScreen, WheelScreen, SessionScreen, FeedbackScreen } from "@/app/components/screens";
 
 /* ─── ERROR BOUNDARY ──────────────────────────────────────────────────────── */
 
