@@ -1,0 +1,25 @@
+/* ─── PRINT STYLES ──────────────────────────────────────────────────────────── */
+
+@media print {
+  .btn,
+  .mic-button,
+  .back-button,
+  .skip-link,
+  .nav,
+  .theme-switcher {
+    display: none;
+  }
+
+  .screen {
+    min-height: auto;
+    padding: 0;
+  }
+
+  body {
+    background: white;
+  }
+
+  body::after {
+    display: none;
+  }
+}

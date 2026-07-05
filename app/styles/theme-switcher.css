@@ -1,0 +1,58 @@
+/* ─── THEME SWITCHER ────────────────────────────────────────────────────────── */
+
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-content: center;
+  margin-bottom: var(--space-8);
+}
+
+.theme-switcher-label {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  margin-right: var(--space-1);
+}
+
+.theme-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-spring);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.theme-dot:hover {
+  transform: scale(1.2);
+}
+
+.theme-dot:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.theme-dot[aria-checked="true"] {
+  border-color: var(--color-text-primary);
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+.theme-dot-sunrise {
+  background: linear-gradient(135deg, #C2410C, #EA580C);
+}
+
+.theme-dot-chalkboard {
+  background: linear-gradient(135deg, #27272A, #3F3F46);
+}
+
+.theme-dot-blue-hour {
+  background: linear-gradient(135deg, #2563EB, #3B82F6);
+}
+

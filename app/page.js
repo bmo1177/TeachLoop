@@ -1,13 +1,19 @@
 "use client";
 
-import { useState, useEffect, Component } from "react";
+import { useState, useEffect, Component, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import dynamic from "next/dynamic";
 import { useSessionHistory } from "@/app/hooks/useSessionHistory";
 import { TEACH_CONCEPTS, SWE_QUESTIONS } from "@/app/data/questions";
 import { AUDIENCES } from "@/app/data/audiences";
 import { QUESTIONS_PER_SESSION, pick, callEval, evalPrompt, reportPrompt } from "@/app/lib/api";
 import { ThemeProvider } from "@/app/providers/ThemeProvider";
-import { HomeScreen, AudienceScreen, WheelScreen, SessionScreen, FeedbackScreen } from "@/app/components/screens";
+import { HomeScreen } from "@/app/components/screens";
+
+const AudienceScreen = dynamic(() => import("@/app/components/screens/AudienceScreen").then((m) => m.AudienceScreen), { loading: () => null });
+const WheelScreen = dynamic(() => import("@/app/components/screens/WheelScreen").then((m) => m.WheelScreen), { loading: () => null });
+const SessionScreen = dynamic(() => import("@/app/components/screens/SessionScreen").then((m) => m.SessionScreen), { loading: () => null });
+const FeedbackScreen = dynamic(() => import("@/app/components/screens/FeedbackScreen").then((m) => m.FeedbackScreen), { loading: () => null });
 
 /* ─── ERROR BOUNDARY ──────────────────────────────────────────────────────── */
 

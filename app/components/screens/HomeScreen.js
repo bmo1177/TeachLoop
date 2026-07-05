@@ -12,10 +12,14 @@ import {
 } from "@phosphor-icons/react";
 import { AUDIENCES } from "@/app/data/audiences";
 import { Nav, Sparkline } from "@/app/components/ui";
+import { OnboardingOverlay } from "@/app/components/ui/OnboardingOverlay";
+import { useOnboarding } from "@/app/hooks/useOnboarding";
 
 const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSession, sessionLength, sessionLengthOptions, onSessionLengthChange }) {
+  const onboarding = useOnboarding();
   return (
     <>
+      {onboarding.show && <OnboardingOverlay onDismiss={onboarding.dismiss} />}
       <Nav onHome={() => {}} screen="home" />
       <main className="container">
         <section className="home-hero">

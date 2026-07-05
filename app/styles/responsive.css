@@ -1,0 +1,259 @@
+/* ─── MOBILE-FIRST IMPROVEMENTS ──────────────────────────────────────────────── */
+
+@media (max-width: 479px) {
+  .home-hero {
+    padding: var(--space-6) 0 var(--space-4);
+    gap: var(--space-6);
+  }
+
+  .home-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .home-subtitle {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--space-6);
+  }
+
+  .session-length-picker {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .home-actions {
+    flex-direction: column;
+  }
+
+  .home-actions .btn {
+    width: 100%;
+  }
+
+  .mode-card {
+    padding: var(--space-3);
+  }
+
+  .mode-card-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .past-session-card {
+    padding: var(--space-3);
+  }
+
+  .past-session-delete {
+    opacity: 1;
+  }
+
+  .past-session-score {
+    font-size: var(--font-size-base);
+    min-width: 2.5rem;
+  }
+
+  .feature-card {
+    padding: var(--space-3);
+  }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: var(--space-3);
+  }
+
+  .screen-top {
+    padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .textarea {
+    min-height: 160px;
+    font-size: 16px;
+  }
+
+  .mic-button {
+    width: 44px;
+    height: 44px;
+    bottom: 14px;
+    right: 14px;
+  }
+
+  .hint-button {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .question-card {
+    padding: var(--space-3);
+  }
+
+  .question-text {
+    font-size: var(--font-size-base);
+  }
+
+  .evaluation-card {
+    padding: var(--space-3);
+  }
+
+  .evaluation-score-value {
+    font-size: var(--font-size-3xl);
+  }
+
+  .score-ring svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .score-ring-label {
+    font-size: 8px;
+    max-width: 44px;
+  }
+
+  .evaluation-feedback {
+    gap: var(--space-2);
+  }
+
+  .feedback-item {
+    padding: var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .audience-badge {
+    font-size: var(--font-size-2xs);
+  }
+
+  .btn-full.btn-lg {
+    min-height: 48px;
+  }
+
+  .recording-indicator {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .textarea-meta {
+    margin-bottom: var(--space-3);
+  }
+
+  .evaluation-header {
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .feedback-hero {
+    margin-bottom: var(--space-8);
+  }
+
+  .feedback-verdict {
+    font-size: var(--font-size-xl);
+    margin-top: var(--space-3);
+  }
+
+  .feedback-style {
+    margin-bottom: var(--space-8);
+  }
+
+  .insight-card {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .insight-card strong {
+    font-size: var(--font-size-xs);
+  }
+
+  .insight-card p {
+    font-size: var(--font-size-xs);
+  }
+
+  .insight-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .breakdown-toggle {
+    padding: var(--space-3);
+    min-height: 44px;
+  }
+
+  .breakdown-question {
+    font-size: var(--font-size-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .breakdown-content {
+    padding: 0 var(--space-3) var(--space-3);
+  }
+
+  .breakdown-score {
+    font-size: var(--font-size-xs);
+  }
+
+  .feedback-actions {
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .audience-option {
+    padding: var(--space-3);
+    min-height: 44px;
+  }
+
+  .theme-dot {
+    width: 32px;
+    height: 32px;
+  }
+
+  .wheel-container {
+    width: 240px;
+    height: 240px;
+  }
+
+  .home-footer {
+    padding: var(--space-8) 0 calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .past-sessions-section {
+    padding-bottom: var(--space-4);
+  }
+}
+
+/* ─── RESPONSIVE ADJUSTMENTS ────────────────────────────────────────────────── */
+
+@media (min-width: 640px) {
+  .evaluation-rings {
+    justify-content: flex-end;
+  }
+
+  .feedback-actions {
+    max-width: 280px;
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .evaluation-rings {
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 639px) {
+  .evaluation-rings {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .score-ring {
+    gap: 1px;
+  }
+
+  .score-ring svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feedback-actions {
+    flex-direction: column;
+  }
+}
+
