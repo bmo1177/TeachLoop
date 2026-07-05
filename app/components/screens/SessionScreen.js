@@ -16,8 +16,6 @@ import { ScoreRing, ProgressBar, Nav } from "@/app/components/ui";
 import { useVoice } from "@/app/hooks/useVoice";
 import { LoadingEval } from "./LoadingEval";
 
-const N = QUESTIONS_PER_SESSION;
-
 const scoreLabels = {
   clarity: "Clarity",
   analogies: "Use of Analogies",
@@ -32,6 +30,7 @@ const SessionScreen = memo(function SessionScreen({
   mode,
   q,
   qIdx,
+  totalQuestions,
   audience,
   answer,
   onChange,
@@ -47,6 +46,7 @@ const SessionScreen = memo(function SessionScreen({
 }) {
   const aud = useMemo(() => AUDIENCES.find((a) => a.id === audience), [audience]);
   const voice = useVoice(onChange, answer);
+  const N = totalQuestions || QUESTIONS_PER_SESSION;
 
   useEffect(() => {
     if (voice.wasSpoken && onVoiceUsed) onVoiceUsed();

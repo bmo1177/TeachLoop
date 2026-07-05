@@ -13,7 +13,7 @@ import {
 import { AUDIENCES } from "@/app/data/audiences";
 import { Nav, Sparkline } from "@/app/components/ui";
 
-const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSession }) {
+const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSession, sessionLength, sessionLengthOptions, onSessionLengthChange }) {
   return (
     <>
       <Nav onHome={() => {}} screen="home" />
@@ -48,9 +48,31 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              5 questions. Real AI feedback on your communication style.
+              {sessionLength} questions. Real AI feedback on your communication style.
               Build clarity, confidence, and the right vocabulary for any audience.
             </motion.p>
+
+            <motion.div
+              className="session-length-picker"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="session-length-label">Questions per session</span>
+              <div className="session-length-options" role="radiogroup" aria-label="Questions per session">
+                {sessionLengthOptions.map((len) => (
+                  <button
+                    key={len}
+                    className={`session-length-option ${sessionLength === len ? "active" : ""}`}
+                    role="radio"
+                    aria-checked={sessionLength === len}
+                    onClick={() => onSessionLengthChange(len)}
+                  >
+                    {len}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
 
             <motion.div
               className="home-actions"
@@ -58,11 +80,11 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
-              <button className="btn btn-primary btn-lg" onClick={() => onMode("teach")}>
+              <button className="btn btn-primary btn-lg" onClick={() => onMode("teach", sessionLength)}>
                 Start Practicing
                 <ArrowRight size={18} weight="bold" />
               </button>
-              <button className="btn btn-secondary btn-lg" onClick={() => onMode("interview")}>
+              <button className="btn btn-secondary btn-lg" onClick={() => onMode("interview", sessionLength)}>
                 Interview Mode
               </button>
             </motion.div>
@@ -99,7 +121,7 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
           </div>
 
           <div className="mode-cards">
-            <button className="mode-card" onClick={() => onMode("teach")}>
+            <button className="mode-card" onClick={() => onMode("teach", sessionLength)}>
               <div className="mode-card-icon">
                 <GraduationCap size={24} weight="duotone" />
               </div>
@@ -114,7 +136,7 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
               </div>
             </button>
 
-            <button className="mode-card" onClick={() => onMode("interview")}>
+            <button className="mode-card" onClick={() => onMode("interview", sessionLength)}>
               <div className="mode-card-icon" style={{ background: "var(--color-secondary-subtle)", color: "var(--color-secondary)" }}>
                 <ChatCircle size={24} weight="duotone" />
               </div>

@@ -13,7 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { ScoreRing, Nav } from "@/app/components/ui";
 
-const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError, onReset }) {
+const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError, onReset, onRetryReport }) {
   const [open, setOpen] = useState(null);
 
   if (!report && !reportError) {
@@ -44,6 +44,9 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
             <p style={{ color: "var(--color-error)", fontWeight: 500 }}>Report generation failed</p>
             <p style={{ color: "var(--color-text-secondary)", fontSize: "var(--font-size-sm)" }}>{reportError}</p>
             <div style={{ marginTop: "var(--space-4)", display: "flex", gap: "var(--space-3)" }}>
+              {onRetryReport && (
+                <button className="btn btn-secondary" onClick={onRetryReport}>Retry</button>
+              )}
               <button className="btn btn-primary" onClick={onReset}>Start New Session</button>
             </div>
           </div>

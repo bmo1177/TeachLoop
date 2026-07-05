@@ -9,6 +9,16 @@ export const TEACH_CONCEPTS = [
   "Retrieval-Augmented Generation (RAG)",
   "The Bias-Variance Tradeoff",
   "Reinforcement Learning from Human Feedback (RLHF)",
+  "Generative Adversarial Networks (GANs)",
+  "Dropout Regularization",
+  "Batch Normalization",
+  "The Transformer Architecture",
+  "Word Embeddings",
+  "Long Short-Term Memory (LSTM) Networks",
+  "Precision vs Recall",
+  "Random Forests vs Gradient Boosting",
+  "The Vanishing Gradient Problem",
+  "Mixture of Experts (MoE)",
 ];
 
 export const SWE_QUESTIONS = [
@@ -20,4 +30,12 @@ export const SWE_QUESTIONS = [
   "Explain eventual consistency. Where is it acceptable and where is it dangerous?",
   "SQL vs NoSQL — how do you decide which to use for a new product?",
   "How would you design the backend for a live collaborative document editor?",
+  "Design a distributed rate limiter. What data structures and algorithms would you use?",
+  "How would you approach migrating a monolithic database to a microservices architecture?",
+  "Explain the difference between horizontal and vertical scaling. When do you choose each?",
+  "Design a ride-sharing matching system like Uber or Lyft. What are the hard problems?",
+  "How would you ensure zero downtime during a major database schema migration?",
+  "Design a content delivery network (CDN) from scratch. What are the key components?",
+  "Explain consensus algorithms (Raft, Paxos). Why are they necessary in distributed systems?",
+  "How would you design a real-time analytics dashboard that processes billions of events per day?",
 ];

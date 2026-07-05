@@ -35,7 +35,8 @@ class ErrorBoundary extends Component {
 
 /* ─── HELPERS ──────────────────────────────────────────────────────────────── */
 
-const N = QUESTIONS_PER_SESSION;
+const DEFAULT_SESSION_LENGTH = QUESTIONS_PER_SESSION;
+const SESSION_LENGTH_OPTIONS = [3, 5, 7];
 
 /* ─── THEME ────────────────────────────────────────────────────────────────── */
 
@@ -55,10 +56,13 @@ function AppInner() {
   const [evaluationError, setEvaluationError] = useState(null);
   const [reportError, setReportError] = useState(null);
   const [wasVoiceUsed, setWasVoiceUsed] = useState(false);
+  const [sessionLength, setSessionLength] = useState(DEFAULT_SESSION_LENGTH);
   const { sessions, addSession, deleteSession } = useSessionHistory();
 
+  const N = sessionLength;
+
   useEffect(() => {
-    if (report && evals.length === N) {
+    if (report && evals.length === sessionLength) {
       addSession({
         date: new Date().toISOString(),
         mode,
@@ -67,7 +71,7 @@ function AppInner() {
         evals: evals.map((e) => ({ q: e.q.slice(0, 80), score: e.ev.overallScore })),
       });
     }
-  }, [report, evals, mode, aud, addSession]);
+  }, [report, evals, mode, aud, addSession, sessionLength]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -80,12 +84,13 @@ function AppInner() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [screen]);
 
-  const gotoMode = (m) => {
+  const gotoMode = (m, length) => {
     setMode(m);
+    setSessionLength(length || DEFAULT_SESSION_LENGTH);
     if (m === "teach") {
       setScreen("audience");
     } else {
-      setQs(pick(SWE_QUESTIONS, N));
+      setQs(pick(SWE_QUESTIONS, length || DEFAULT_SESSION_LENGTH));
       setScreen("wheel");
       setWheelSpin(true);
     }
@@ -93,7 +98,7 @@ function AppInner() {
 
   const gotoAud = (a) => {
     setAud(a);
-    setQs(pick(TEACH_CONCEPTS, N));
+    setQs(pick(TEACH_CONCEPTS, sessionLength));
     setScreen("wheel");
     setWheelSpin(true);
   };
@@ -156,6 +161,17 @@ function AppInner() {
     }
   };
 
+  const retryReport = () => {
+    setReportError(null);
+    setReport(null);
+    callEval(reportPrompt(evals))
+      .then((r) => setReport(r))
+      .catch((err) => {
+        console.error("Report retry failed:", err);
+        setReportError("Failed to generate session report. You can still view your answers.");
+      });
+  };
+
   const finishWheelTransition = () => {
     setScreen("session");
   };
@@ -187,7 +203,14 @@ function AppInner() {
         <AnimatePresence mode="wait">
           {screen === "home" && (
             <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-              <HomeScreen onMode={gotoMode} pastSessions={sessions.slice(0, 5)} onDeleteSession={deleteSession} />
+              <HomeScreen
+                onMode={gotoMode}
+                pastSessions={sessions.slice(0, 5)}
+                onDeleteSession={deleteSession}
+                sessionLength={sessionLength}
+                sessionLengthOptions={SESSION_LENGTH_OPTIONS}
+                onSessionLengthChange={setSessionLength}
+              />
             </motion.div>
           )}
           {screen === "audience" && (
@@ -227,6 +250,7 @@ function AppInner() {
                 mode={mode}
                 q={qs[idx]}
                 qIdx={idx}
+                totalQuestions={N}
                 audience={aud}
                 answer={ans}
                 onChange={setAns}
@@ -244,7 +268,7 @@ function AppInner() {
           )}
           {screen === "feedback" && (
             <motion.div key="feedback" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-              <FeedbackScreen evals={evals} report={report} reportError={reportError} onReset={reset} />
+              <FeedbackScreen evals={evals} report={report} reportError={reportError} onReset={reset} onRetryReport={retryReport} />
             </motion.div>
           )}
         </AnimatePresence>
