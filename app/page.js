@@ -55,7 +55,7 @@ function AppInner() {
   const [evaluationError, setEvaluationError] = useState(null);
   const [reportError, setReportError] = useState(null);
   const [wasVoiceUsed, setWasVoiceUsed] = useState(false);
-  const { sessions, addSession } = useSessionHistory();
+  const { sessions, addSession, deleteSession } = useSessionHistory();
 
   useEffect(() => {
     if (report && evals.length === N) {
@@ -187,7 +187,7 @@ function AppInner() {
         <AnimatePresence mode="wait">
           {screen === "home" && (
             <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-              <HomeScreen onMode={gotoMode} pastSessions={sessions.slice(0, 5)} />
+              <HomeScreen onMode={gotoMode} pastSessions={sessions.slice(0, 5)} onDeleteSession={deleteSession} />
             </motion.div>
           )}
           {screen === "audience" && (

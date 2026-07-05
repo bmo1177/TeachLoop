@@ -11,11 +11,9 @@ function Nav({ onHome, screen }) {
           <LogoMark />
           <span className="nav-title">TeachLoop</span>
         </button>
-        {screen !== "home" && (
-          <div className="nav-actions">
-            <ThemeSwitcher />
-          </div>
-        )}
+        <div className="nav-actions">
+          <ThemeSwitcher />
+        </div>
       </div>
     </nav>
   );

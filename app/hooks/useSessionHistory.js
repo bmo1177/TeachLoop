@@ -25,10 +25,24 @@ export function useSessionHistory() {
     });
   }, []);
 
+  const deleteSession = useCallback((id) => {
+    setSessions((prev) => {
+      const next = prev.filter((s) => s.id !== id);
+      try {
+        if (next.length === 0) {
+          localStorage.removeItem(STORAGE_KEY);
+        } else {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        }
+      } catch {}
+      return next;
+    });
+  }, []);
+
   const clearHistory = useCallback(() => {
     setSessions([]);
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
   }, []);
 
-  return { sessions, addSession, clearHistory };
+  return { sessions, addSession, deleteSession, clearHistory };
 }

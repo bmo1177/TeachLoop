@@ -8,11 +8,12 @@ import {
   ArrowRight,
   ChalkboardTeacher,
   ChartBar,
+  Trash,
 } from "@phosphor-icons/react";
 import { AUDIENCES } from "@/app/data/audiences";
 import { Nav, Sparkline } from "@/app/components/ui";
 
-const HomeScreen = memo(function HomeScreen({ onMode, pastSessions }) {
+const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSession }) {
   return (
     <>
       <Nav onHome={() => {}} screen="home" />
@@ -216,9 +217,24 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions }) {
                           <span className="past-session-date">{dateStr}</span>
                         </div>
                       </div>
-                      <span className="past-session-verdict">
-                        {sc >= 8 ? "Strong" : sc >= 5 ? "Solid" : "Growing"}
-                      </span>
+                      <div className="past-session-right">
+                        <span className="past-session-verdict">
+                          {sc >= 8 ? "Strong" : sc >= 5 ? "Solid" : "Growing"}
+                        </span>
+                        {onDeleteSession && (
+                          <button
+                            className="past-session-delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteSession(s.id);
+                            }}
+                            aria-label={`Delete session from ${dateStr}`}
+                            title="Delete session"
+                          >
+                            <Trash size={14} weight="bold" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
