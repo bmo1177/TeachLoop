@@ -22,12 +22,19 @@ export const metadata = {
     description: "AI-powered communication coaching for technical professionals.",
     type: "website",
   },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "TeachLoop",
+  },
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#C2410C",
 };
 
 export default function RootLayout({ children }) {
@@ -39,9 +46,15 @@ export default function RootLayout({ children }) {
     >
       <head>
         <meta name="color-scheme" content="light dark" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('teachloop-theme');if(t){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t==='chalkboard'?'dark':'light'}}catch(e){}})()`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})})}`,
           }}
         />
       </head>
