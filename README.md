@@ -114,7 +114,7 @@ After each 5-question session, receive a comprehensive report:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/teachloop.git
+git clone https://github.com/bmo1177/TeachLoop.git
 cd teachloop
 
 # Install dependencies
@@ -135,9 +135,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - **Node.js** 18+
 - **OpenRouter API Key** — Get one free at [openrouter.ai/keys](https://openrouter.ai/keys)
 
----
-
-## Environment Variables
+### Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -250,6 +248,19 @@ TeachLoop is built to be usable by everyone:
 
 ---
 
+## Browser Support
+
+| Browser | Voice Input | Notes |
+|---------|-------------|-------|
+| **Chrome** | Full support | Best experience — recommended |
+| **Edge** | Full support | Same Chromium engine |
+| **Safari** | Limited | Web Speech API support varies by version |
+| **Firefox** | Limited | Web Speech API support varies by version |
+
+Keyboard input works everywhere. Voice input is a progressive enhancement.
+
+---
+
 ## Security
 
 - Rate limiting: 30 requests per minute per IP
@@ -258,6 +269,36 @@ TeachLoop is built to be usable by everyone:
 - Response schema validation before processing
 - Security headers configured: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`
 - `X-Powered-By` header disabled
+
+---
+
+## Contributing
+
+This is a private project. For access or questions, reach out via [GitHub Issues](https://github.com/bmo1177/TeachLoop/issues) or contact the maintainer directly.
+
+---
+
+## Roadmap
+
+- [ ] User accounts and cloud-synced session history
+- [ ] TypeScript migration
+- [ ] Test suite (unit + integration)
+- [ ] More question banks and audiences
+- [ ] Custom audience creator
+- [ ] Session export (PDF / markdown)
+- [ ] Dark mode improvements and theme customization
+- [ ] Mobile-optimized voice experience
+- [ ] PWA support for offline hint browsing
+
+---
+
+## Known Limitations
+
+- **localStorage only** — Sessions are stored in the browser. Clearing storage wipes history. No cloud sync.
+- **Voice input varies** — Web Speech API works best in Chrome. Safari/Firefox support is inconsistent.
+- **No user accounts** — Single-user, no authentication.
+- **Free AI model** — Uses NVIDIA Nemotron (free tier via OpenRouter). Evaluation quality may vary compared to paid models.
+- **5 questions per session** — Fixed session length, not configurable yet.
 
 ---
 
