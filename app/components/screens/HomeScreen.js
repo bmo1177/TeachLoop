@@ -15,6 +15,12 @@ import { Nav, Sparkline } from "@/app/components/ui";
 import { OnboardingOverlay } from "@/app/components/ui/OnboardingOverlay";
 import { useOnboarding } from "@/app/hooks/useOnboarding";
 
+const SESSION_LENGTH_META = {
+  3: "Quick",
+  5: "Standard",
+  7: "Deep",
+};
+
 const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSession, sessionLength, sessionLengthOptions, onSessionLengthChange }) {
   const onboarding = useOnboarding();
   return (
@@ -72,7 +78,8 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
                     aria-checked={sessionLength === len}
                     onClick={() => onSessionLengthChange(len)}
                   >
-                    {len}
+                    <span className="session-length-option-count">{len}</span>
+                    <span className="session-length-option-label">{SESSION_LENGTH_META[len]}</span>
                   </button>
                 ))}
               </div>
