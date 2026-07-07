@@ -1,17 +1,17 @@
 \documentclass[conference]{IEEEtran}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc,decorations.pathreplacing}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc,decorations.pathreplacing,chains}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{caption}
-\usepackage{subcaption}
 \usepackage{float}
 \usepackage{balance}
-\usepackage{multicol}
 \usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath}
 
 \hypersetup{colorlinks=true, linkcolor=blue!70!black, urlcolor=blue!70!black}
 
@@ -26,6 +26,13 @@
 \definecolor{l1}{HTML}{EAB308}
 \definecolor{l2}{HTML}{EA580C}
 \definecolor{l3}{HTML}{DC2626}
+\definecolor{teal}{HTML}{0D9488}
+\definecolor{indigo}{HTML}{4F46E5}
+\definecolor{rose}{HTML}{E11D48}
+\definecolor{amber}{HTML}{D97706}
+\definecolor{sky}{HTML}{0284C7}
+\definecolor{emerald}{HTML}{059669}
+\definecolor{violet}{HTML}{7C3AED}
 
 \lstset{
   basicstyle=\ttfamily\scriptsize,
@@ -64,6 +71,61 @@ Existing tools focus on technical skill assessment---coding challenges, system d
 
 The platform presents users with technical concepts (e.g., backpropagation, CAP theorem, transformer architecture, ride-sharing system design) and asks them to explain these concepts to various audiences---from a curious 10-year-old to a senior AI engineer. An AI model evaluates each explanation across five communication dimensions and provides actionable feedback. The system is designed around four explicit principles: coach over critic, focus on the human, progress is visible, and warmth through craft.
 
+Fig.~\ref{fig:userflow} illustrates the complete user journey through the platform, from initial concept selection through AI evaluation and feedback delivery.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  node distance=0.5cm,
+  startstop/.style={rectangle, rounded corners, minimum width=1.2cm, minimum height=0.4cm, text centered, draw=txt!60, fill=txt!5, font=\tiny\bfseries},
+  process/.style={rectangle, minimum width=1.4cm, minimum height=0.4cm, text centered, draw=accent!60, fill=accent!8, font=\tiny, rounded corners=3pt},
+  decision/.style={diamond, minimum width=1.2cm, minimum height=0.4cm, text centered, draw=secondary!60, fill=secondary!8, font=\tiny, aspect=2.5},
+  io/.style={trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=1.4cm, minimum height=0.4cm, text centered, draw=bluea!60, fill=bluea!8, font=\tiny},
+  arr/.style={->, thick, color=txt2!70},
+  lbl/.style={font=\tiny, text=txt2, fill=white, inner sep=1pt},
+]
+
+\node[startstop] (start) {Start};
+\node[process, right=0.4cm of start] (mode) {Select Mode};
+\node[decision, right=0.4cm of mode] (custom) {Custom?};
+\node[process, right=0.4cm of custom] (genq) {Generate Q};
+\node[io, right=0.4cm of genq] (pick) {Pick Concept};
+
+\node[process, below=0.8cm of pick] (aud) {Choose Audience};
+\node[process, left=0.4cm of aud] (spin) {Spin Wheel};
+\node[process, left=0.4cm of spin] (explain) {Explain};
+\node[decision, left=0.4cm of explain] (voice) {Voice?};
+\node[process, left=0.4cm of voice] (record) {Record};
+
+\node[process, below=0.8cm of record] (eval) {AI Evaluate};
+\node[process, right=0.4cm of eval] (score) {Score 1--10};
+\node[process, right=0.4cm of score] (fb) {Feedback};
+\node[decision, right=0.4cm of fb] (more) {More Q?};
+\node[process, right=0.4cm of more] (report) {Session Report};
+
+\draw[arr] (start) -- (mode);
+\draw[arr] (mode) -- (custom);
+\draw[arr] (custom) -- node[lbl, above] {Yes} (genq);
+\draw[arr] (custom) -- node[lbl, above] {No} (pick);
+\draw[arr] (genq) -- (pick);
+\draw[arr] (pick.south) -- ++(0,-0.3) -| (aud.north);
+\draw[arr] (aud) -- (spin);
+\draw[arr] (spin) -- (explain);
+\draw[arr] (explain) -- (voice);
+\draw[arr] (voice) -- node[lbl, above] {Yes} (record);
+\draw[arr] (record.south) -- ++(0,-0.3) -| (eval.north);
+\draw[arr] (eval) -- (score);
+\draw[arr] (score) -- (fb);
+\draw[arr] (fb) -- (more);
+\draw[arr] (more) -- node[lbl, above] {No} (report);
+\draw[arr] (report.south) -- ++(0,-0.3) node[below, font=\tiny\bfseries, text=success!70!black] {Complete};
+
+\end{tikzpicture}
+\caption{Complete user flow through TeachLoop showing mode selection, concept explanation, AI evaluation, and session reporting.}
+\label{fig:userflow}
+\end{figure}
+
 The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work on scaffolding and AI-assisted feedback. Section~\ref{sec:design} describes the system architecture, state machine, and AI evaluation pipeline. Section~\ref{sec:design-system} details the design system and theme architecture. Section~\ref{sec:implementation} covers implementation details including code splitting, voice input, security, and accessibility. Section~\ref{sec:discussion} discusses trade-offs and limitations. Section~\ref{sec:conclusion} concludes.
 
 % ══════════════════════════════════════════════════════════
@@ -74,6 +136,22 @@ The remainder of this paper is organized as follows. Section~\ref{sec:related} r
 
 Vygotsky's Zone of Proximal Development (ZPD) establishes that learners achieve more with structured support than alone~\cite{vygotsky}. The ZPD is the gap between what a learner can do independently and what they can achieve with guidance. Hint systems in intelligent tutoring employ progressive revelation---from vague prompts to detailed explanations---to keep learners within their ZPD~\cite{vanlehn}. This scaffolding approach has been validated across domains from mathematics to programming education. TeachLoop adapts this pattern: each concept offers three hint levels (nudge, concept outline, full explanation), allowing users to self-select their scaffolding depth.
 
+\begin{table}[!t]
+\centering
+\caption{Comparison of Scaffolding Approaches in Intelligent Tutoring Systems}
+\label{tab:scaffolding}
+\begin{tabularx}{\columnwidth}{lXXX}
+\toprule
+\textbf{System} & \textbf{Levels} & \textbf{Adaptation} & \textbf{Domain} \\
+\midrule
+AutoTutor~\cite{auto} & 5 & Dynamic & Science \\
+Carnegie Learn. & 4 & Performance & Mathematics \\
+\textbf{TeachLoop} & \textbf{3} & \textbf{Self-select} & \textbf{Communication} \\
+Knewton & Variable & Algorithmic & Various \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{AI-Powered Feedback}
 
 Recent work on AI-assisted writing feedback demonstrates that large language models can provide structured, dimension-specific evaluation when given carefully engineered prompts~\cite{deeplearning}. TeachLoop extends this to oral and written technical explanations, scoring across clarity, analogies, vocabulary fit, confidence, and structure. The evaluation prompt is designed to produce consistent JSON output, enabling programmatic aggregation into session-level reports.
@@ -81,6 +159,24 @@ Recent work on AI-assisted writing feedback demonstrates that large language mod
 \subsection{Spaced Repetition and Practice}
 
 Effective skill acquisition requires repeated practice with increasing difficulty. The Leitner system~\cite{leitner} formalizes spaced repetition through progressive intervals. While TeachLoop tracks session history and score trends to make progress visible, adaptive difficulty and spaced repetition remain future work. The current system uses random question selection from curated pools.
+
+\begin{table}[!t]
+\centering
+\caption{Comparison of Communication Training Platforms}
+\label{tab:comparison}
+\begin{tabularx}{\columnwidth}{lXXXX}
+\toprule
+\textbf{Feature} & \textbf{TeachLoop} & \textbf{Toastmasters} & \textbf{Orai} & \textbf{Speeko} \\
+\midrule
+AI Feedback & Yes & No & Yes & Yes \\
+Tech Focus & Yes & No & No & No \\
+Scaffolding & 3-level & Manual & None & None \\
+Audience & 5 levels & 1 & 1 & 1 \\
+Offline & Yes & No & No & No \\
+Cost & Free & \$ & \$\$ & \$\$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 % ══════════════════════════════════════════════════════════
 \section{System Design}
@@ -101,13 +197,11 @@ TeachLoop follows a client-side-first architecture with four layers (Fig.~\ref{f
   data/.style={font=\tiny, text=txt2, align=center},
 ]
 
-% Layer boxes
 \node[layer, fill=accent!6] (pres) at (0, 3.6) {Presentation Layer};
 \node[layer, fill=secondary!6, draw=secondary!70!black] (state) at (0, 2.5) {State Machine};
 \node[layer, fill=bluea!6, draw=bluea!70!black] (dataL) at (0, 1.4) {Data \& Hooks};
 \node[layer, fill=success!6, draw=success!70!black] (api) at (0, 0.3) {API Layer};
 
-% Components inside layers
 \node[comp] (s1) at (-2.8, 3.6) {Home};
 \node[comp] (s2) at (-1.6, 3.6) {Audience};
 \node[comp] (s3) at (-0.4, 3.6) {Wheel};
@@ -127,23 +221,19 @@ TeachLoop follows a client-side-first architecture with four layers (Fig.~\ref{f
 
 \node[ext] (llm) at (0, -0.5) {Nemotron 120B (via OpenRouter)};
 
-% Data flow labels
-\node[data] at (-4.2, 3.6) {Motion\\transitions};
-\node[data] at (4.2, 3.6) {Web Speech\\API};
-\node[data] at (-4.2, 2.5) {Single source\\of truth};
-\node[data] at (4.2, 2.5) {Accumulated\\results};
-\node[data] at (-4.2, 1.4) {Static\\bundle};
-\node[data] at (4.2, 1.4) {localStorage\\max 20};
+\node[data, align=center] at (-4.2, 3.6) {Motion\\transitions};
+\node[data, align=center] at (4.2, 3.6) {Web Speech\\API};
+\node[data, align=center] at (-4.2, 2.5) {Single source\\of truth};
+\node[data, align=center] at (4.2, 2.5) {Accumulated\\results};
+\node[data, align=center] at (-4.2, 1.4) {Static\\bundle};
+\node[data, align=center] at (4.2, 1.4) {localStorage\\max 20};
 
-% Arrows between layers
 \draw[arrow] (pres.south) -- node[right, font=\tiny, xshift=-0.3cm] {state updates} (state.north);
 \draw[arrow] (state.south) -- node[right, font=\tiny, xshift=-0.3cm] {reads/writes} (dataL.north);
 \draw[arrow] (dataL.south) -- node[right, font=\tiny, xshift=-0.3cm] {callEval()} (api.north);
 \draw[arrow, dashed, color=secondary!60] (api.south) -- node[right, font=\tiny, color=secondary] {JSON response} (llm.north);
 
-% Data store icon
 \node[draw=success!50!black, fill=success!10, rounded corners=2pt, minimum width=1.2cm, minimum height=0.3cm, font=\tiny\bfseries] (ls) at (0, -1.2) {localStorage};
-
 \draw[arrow, color=success!60] (api.south) -- ++(0,-0.2) -| (ls.north);
 
 \end{tikzpicture}
@@ -161,47 +251,69 @@ The application operates as a finite state machine with 8 screens (Fig.~\ref{fig
 \centering
 \begin{tikzpicture}[
   >=Stealth,
-  lvl/.style={draw=#1!60!black, fill=#1!10, rounded corners=4pt, minimum width=6.8cm, minimum height=0.5cm, align=left, font=\tiny},
-  ex/.style={font=\tiny, text=txt2, align=left, inner sep=2pt},
+  scrn/.style={rectangle, rounded corners=4pt, minimum width=1.1cm, minimum height=0.45cm, text centered, font=\tiny\bfseries},
   arr/.style={->, thick, color=txt2!60},
+  lbl/.style={font=\tiny, text=txt2, fill=white, inner sep=1pt},
 ]
 
-% Level 1
-\node[lvl=l1, minimum width=6.8cm] (L1) at (0, 3.0) {};
-\node[font=\tiny\bfseries, text=l1!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L1.north west) {Level 1 --- Nudge};
-\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L1.north west) {``Have you tried thinking about which layer would be responsible?''};
-\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L1.south east) {score $< 1$, 1st wrong};
+\node[scrn, draw=accent!60, fill=accent!10] (home) at (0, 3) {Home};
+\node[scrn, draw=secondary!60, fill=secondary!10] (audience) at (2.2, 3) {Audience};
+\node[scrn, draw=bluea!60, fill=bluea!10] (wheel) at (4.4, 3) {Wheel};
+\node[scrn, draw=teal!60, fill=teal!10] (session) at (4.4, 1.5) {Session};
+\node[scrn, draw=emerald!60, fill=emerald!10] (feedback) at (2.2, 1.5) {Feedback};
+\node[scrn, draw=indigo!60, fill=indigo!10] (custom) at (0, 1.5) {Custom};
+\node[scrn, draw=rose!60, fill=rose!10, align=center] (customreview) at (-2.2, 1.5) {Custom Review};
+\node[scrn, draw=violet!60, fill=violet!10] (report) at (-2.2, 3) {Report};
 
-% Level 2
-\node[lvl=l2, minimum width=6.8cm] (L2) at (0, 2.0) {};
-\node[font=\tiny\bfseries, text=l2!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L2.north west) {Level 2 --- Outline};
-\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L2.north west) {``The presentation layer... The state machine layer...' (bullet points)};
-\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L2.south east) {score $< 1$, 2nd+ wrong};
+\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, font=\tiny, align=center] (modes) at (0, 0.3) {Three Modes: Teach $\mid$ Interview $\mid$ Custom};
 
-% Level 3
-\node[lvl=l3, minimum width=6.8cm] (L3) at (0, 1.0) {};
-\node[font=\tiny\bfseries, text=l3!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L3.north west) {Level 3 --- Full Explanation};
-\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L3.north west) {``The presentation layer is responsible for... because...' (complete answer)};
-\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L3.south east) {score $< 1$, 3rd+ wrong};
+\draw[arr] (home) -- node[lbl, above] {mode} (audience);
+\draw[arr] (audience) -- node[lbl, above] {audience} (wheel);
+\draw[arr] (wheel) -- node[lbl, right] {concept} (session);
+\draw[arr] (session) -- node[lbl, below] {answer} (feedback);
+\draw[arr] (feedback) -- node[lbl, below] {next} (custom);
+\draw[arr] (custom) -- node[lbl, below] {custom} (customreview);
+\draw[arr] (customreview) -- node[lbl, above] {review} (report);
+\draw[arr] (report) -- node[lbl, above] {done} (home);
 
-% Flow arrows
-\draw[arr] (L1.south) -- node[right, font=\tiny, xshift=0.1cm] {still wrong} (L2.north);
-\draw[arr] (L2.south) -- node[right, font=\tiny, xshift=0.1cm] {still wrong} (L3.north);
+\draw[arr, dashed, color=teal!60] (modes.north) -- (session.south);
+\draw[arr, dashed, color=indigo!60] (modes.north) -- (custom.south);
 
-% Right side: success path
-\draw[arr, color=success!60] (L1.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
-\draw[arr, color=success!60] (L2.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
-\draw[arr, color=success!60] (L3.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
-
-% Source annotation
-\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, minimum width=6.8cm, minimum height=0.3cm, font=\tiny, align=center] at (0, 0.2) {36 concepts $\times$ 3 levels = 108 hand-crafted hint sets (hints.js)};
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=left] at (6.5, 2.25) {
+  \textbf{Screen Count:} 8\\
+  \textbf{State Variable:} screen\\
+  \textbf{Router:} None (single /)\\
+  \textbf{Transitions:} Motion
+};
 
 \end{tikzpicture}
-\caption{Three-level progressive hint system. Each level adds cognitive scaffolding.}
-\label{fig:hints}
+\caption{Screen state machine with 8 screens. The \texttt{screen} state variable controls navigation without URL routing.}
+\label{fig:state}
 \end{figure}
 
-The root component maintains 18 state variables that collectively encode the full application state. Key variables include: \texttt{screen} (current screen), \texttt{mode} (teach/interview/custom), \texttt{qs} (question array for current session), \texttt{idx} (current question index), \texttt{ans} (current answer text), \texttt{evals} (accumulated evaluation results), \texttt{report} (session-level summary), \texttt{wheelSpin} (animation state), and \texttt{wasVoiceUsed} (microphone flag). Session history is managed by the \texttt{useSessionHistory} hook, which persists up to 20 sessions in localStorage.
+The root component maintains 18 state variables that collectively encode the full application state. Table~\ref{tab:state} enumerates the key state variables and their roles.
+
+\begin{table}[!t]
+\centering
+\caption{Key Application State Variables}
+\label{tab:state}
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{Variable} & \textbf{Role} \\
+\midrule
+\texttt{screen} & Current screen (8 values) \\
+\texttt{mode} & teach / interview / custom \\
+\texttt{qs} & Question array for session \\
+\texttt{idx} & Current question index \\
+\texttt{ans} & Current answer text \\
+\texttt{evals} & Accumulated evaluations \\
+\texttt{report} & Session summary \\
+\texttt{wheelSpin} & Animation state \\
+\texttt{wasVoiceUsed} & Microphone flag \\
+\texttt{hintLevel} & 0 / 1 / 2 / 3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \subsection{AI Evaluation Pipeline}
 
@@ -215,20 +327,25 @@ Each user answer is evaluated by an LLM through a structured pipeline (Fig.~\ref
   api/.style={draw=success!60!black, fill=success!8, rounded corners=3pt, minimum width=2.4cm, minimum height=0.4cm, align=center, font=\tiny\bfseries},
   arr/.style={->, thick, color=txt2!80},
   elbl/.style={font=\tiny, text=txt2, fill=white, inner sep=1pt, pos=0.55},
+  guard/.style={draw=err!50!black, fill=err!5, rounded corners=2pt, minimum width=1.0cm, minimum height=0.3cm, align=center, font=\tiny},
 ]
 
-\node[evalStep] (q) at (0, 2.8) {Quiz 36Q};
-\node[evalStep] (a) at (0, 2.1) {Answer};
-\node[evalStep] (s) at (0, 1.4) {Score};
-\node[evalStep] (h) at (0, 0.7) {Hint};
-\node[evalStep] (p) at (0, 0) {Prompt};
-\node[api] (api) at (0, -0.8) {OpenRouter};
-\node[evalStep] (r) at (0, -1.5) {JSON};
-\node[evalStep] (re) at (0, -2.2) {report[]};
+\node[evalStep] (q) at (0, 3.2) {Quiz 36Q};
+\node[evalStep] (a) at (0, 2.5) {Answer};
+\node[guard] (g1) at (1.8, 2.5) {Length $\leq$ 12K};
+\node[evalStep] (s) at (0, 1.8) {Score};
+\node[guard] (g2) at (1.8, 1.8) {Rate $\leq$ 30/min};
+\node[evalStep] (h) at (0, 1.1) {Hint};
+\node[evalStep] (p) at (0, 0.4) {Prompt};
+\node[guard] (g3) at (1.8, 0.4) {Origin Check};
+\node[api] (api) at (0, -0.4) {OpenRouter};
+\node[evalStep] (r) at (0, -1.1) {JSON};
+\node[guard] (g4) at (1.8, -1.1) {Schema Valid};
+\node[evalStep] (re) at (0, -1.8) {report[]};
 
-\node[draw=secondary!40, fill=secondary!5, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (t) at (4.2, 0.7) {Text-to-speech};
-\node[draw=bluea!40, fill=bluea!5, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (v) at (4.2, 1.4) {Chart data};
-\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (l) at (4.2, -1.5) {Score log};
+\node[draw=secondary!40, fill=secondary!5, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (t) at (4.2, 1.1) {Text-to-speech};
+\node[draw=bluea!40, fill=bluea!5, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (v) at (4.2, 1.8) {Chart data};
+\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (l) at (4.2, -1.1) {Score log};
 
 \draw[arr] (q.south) -- (a.north);
 \draw[arr] (a.south) -- (s.north);
@@ -238,18 +355,55 @@ Each user answer is evaluated by an LLM through a structured pipeline (Fig.~\ref
 \draw[arr] (api.south) -- (r.north);
 \draw[arr] (r.south) -- (re.north);
 
+\draw[arr, dashed, color=err!40] (a.east) -- (g1.west);
+\draw[arr, dashed, color=err!40] (s.east) -- (g2.west);
+\draw[arr, dashed, color=err!40] (p.east) -- (g3.west);
+\draw[arr, dashed, color=err!40] (r.east) -- (g4.west);
+
 \draw[arr, dashed, color=secondary] (s.east) -- ++(0.3,0) |- node[elbl, near end] {audio} (t.west);
 \draw[arr, dashed, color=bluea] (s.east) -- ++(0.3,0) |- node[elbl, near end] {visual} (v.west);
 \draw[arr, dashed, color=txt2!60] (r.east) -- ++(0.3,0) |- node[elbl, near end] {log} (l.west);
 
-\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, minimum width=5.6cm, minimum height=0.2cm, font=\tiny, align=center] (loop) at (0, 1.75) {};
-
 \end{tikzpicture}
-\caption{Evaluation pipeline. Dashed lines = data consumers; the pipeline loops until session ends.}
-\label{fig:pipeline}
+\caption{Evaluation pipeline with four validation guards (right). Dashed lines indicate data consumers.}
+\label{fig:eval}
 \end{figure}
 
-The prompt construction stage builds a mode-specific evaluation prompt. Teaching mode evaluates: clarity, analogies, vocabulary fit, confidence, and structure. Interview mode evaluates: clarity, depth, structure, confidence, and examples. Each dimension is scored 1--10. The prompt also requests structured JSON output containing an \texttt{overallScore}, \texttt{styleObservation} (one sentence), \texttt{strongPoint}, and \texttt{flawToFix}.
+The prompt construction stage builds a mode-specific evaluation prompt (Fig.~\ref{fig:prompt}). Teaching mode evaluates: clarity, analogies, vocabulary fit, confidence, and structure. Interview mode evaluates: clarity, depth, structure, confidence, and examples. Each dimension is scored 1--10.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  block/.style={draw=txt2!40, fill=txt2!3, rounded corners=3pt, minimum width=6.8cm, minimum height=0.35cm, align=left, font=\tiny, inner sep=4pt},
+  field/.style={draw=accent!40, fill=accent!5, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!60},
+]
+
+\node[block] (header) at (0, 2.8) {\textbf{System Prompt:} ``You are a communication coach...''};
+\node[block] (dims) at (0, 2.2) {\textbf{Dimensions:} Clarity $\mid$ Analogies $\mid$ Vocabulary $\mid$ Confidence $\mid$ Structure};
+\node[block] (audience) at (0, 1.6) {\textbf{Audience Context:} ``Explain to a \{audience\}...''};
+\node[block] (answer) at (0, 1.0) {\textbf{User Answer:} ``\{answer\}''};
+\node[block] (format) at (0, 0.4) {\textbf{Output Format:} JSON \{ overallScore, styleObservation, strongPoint, flawToFix \}};
+
+\node[field, fill=success!5, draw=success!40] (os) at (-2.2, -0.4) {overallScore};
+\node[field, fill=bluea!5, draw=bluea!40] (so) at (0, -0.4) {styleObservation};
+\node[field, fill=secondary!5, draw=secondary!40] (sp) at (2.2, -0.4) {strongPoint};
+\node[field, fill=err!5, draw=err!40] (ff) at (0, -1.0) {flawToFix};
+
+\draw[arr] (header.south) -- (dims.north);
+\draw[arr] (dims.south) -- (audience.north);
+\draw[arr] (audience.south) -- (answer.north);
+\draw[arr] (answer.south) -- (format.north);
+\draw[arr] (format.south) -- ++(0,-0.2) -| (os.north);
+\draw[arr] (format.south) -- ++(0,-0.2) -| (so.north);
+\draw[arr] (format.south) -- ++(0,-0.2) -| (sp.north);
+\draw[arr] (format.south) -- ++(0,-0.2) -| (ff.north);
+
+\end{tikzpicture}
+\caption{AI evaluation prompt structure with system instructions, dimension scoring, and JSON output schema.}
+\label{fig:prompt}
+\end{figure}
 
 Input validation caps prompt length at 12,000 characters. Rate limiting enforces 30 requests per minute per IP address using an in-memory store. The API call uses a 15-second timeout via \texttt{AbortController} with exponential backoff retry (2 attempts). JSON extraction includes fallback parsing for malformed responses. Schema validation ensures the response matches the expected shape before returning to the client.
 
@@ -257,7 +411,45 @@ After all questions in a session are evaluated, a session report is generated by
 
 \subsection{Progressive Hint System}
 
-Each of the 36 static concepts offers three hint levels following scaffolding theory~\cite{vanlehn}:
+Each of the 36 static concepts offers three hint levels following scaffolding theory~\cite{vanlehn} (Fig.~\ref{fig:hints}):
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  lvl/.style={draw=#1!60!black, fill=#1!10, rounded corners=4pt, minimum width=6.8cm, minimum height=0.5cm, align=left, font=\tiny},
+  ex/.style={font=\tiny, text=txt2, align=left, inner sep=2pt},
+  arr/.style={->, thick, color=txt2!60},
+]
+
+\node[lvl=l1, minimum width=6.8cm] (L1) at (0, 3.0) {};
+\node[font=\tiny\bfseries, text=l1!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L1.north west) {Level 1 --- Nudge};
+\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L1.north west) {``Have you tried thinking about which layer would be responsible?''};
+\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L1.south east) {score $< 1$, 1st wrong};
+
+\node[lvl=l2, minimum width=6.8cm] (L2) at (0, 2.0) {};
+\node[font=\tiny\bfseries, text=l2!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L2.north west) {Level 2 --- Outline};
+\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L2.north west) {``The presentation layer... The state machine layer...' (bullet points)};
+\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L2.south east) {score $< 1$, 2nd+ wrong};
+
+\node[lvl=l3, minimum width=6.8cm] (L3) at (0, 1.0) {};
+\node[font=\tiny\bfseries, text=l3!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L3.north west) {Level 3 --- Full Explanation};
+\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L3.north west) {``The presentation layer is responsible for... because...' (complete answer)};
+\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L3.south east) {score $< 1$, 3rd+ wrong};
+
+\draw[arr] (L1.south) -- node[right, font=\tiny, xshift=0.1cm] {still wrong} (L2.north);
+\draw[arr] (L2.south) -- node[right, font=\tiny, xshift=0.1cm] {still wrong} (L3.north);
+
+\draw[arr, color=success!60] (L1.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
+\draw[arr, color=success!60] (L2.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
+\draw[arr, color=success!60] (L3.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
+
+\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, minimum width=6.8cm, minimum height=0.3cm, font=\tiny, align=center] at (0, 0.2) {36 concepts $\times$ 3 levels = 108 hand-crafted hint sets (hints.js)};
+
+\end{tikzpicture}
+\caption{Three-level progressive hint system. Each level adds cognitive scaffolding.}
+\label{fig:hints}
+\end{figure}
 
 \begin{enumerate}[leftmargin=*, label=\textbf{L\arabic*:}]
   \item \textbf{Nudge:} A gentle directional prompt that points toward the answer without revealing it. Example for ``Attention Mechanism'': ``Focus on the core idea of weighing how much each input word matters to every other word.''
@@ -269,7 +461,82 @@ The content database covers 20 AI/ML teaching concepts (from Backpropagation to 
 
 \subsection{Voice Input Pipeline}
 
-The \texttt{useVoice} hook captures speech via the Web Speech API and applies automatic post-processing. Filler words (``um,'' ``uh,'' ``like,'' ``you know,'' ``I mean,'' ``basically,'' ``literally,'' ``right'') are removed. Consecutive duplicate words are collapsed. Punctuation is normalized. A \texttt{wasVoiceUsed} flag annotates the evaluation prompt to excuse transcription artifacts: ``Grade the ideas and communication, not the transcription quality.''
+The \texttt{useVoice} hook captures speech via the Web Speech API and applies automatic post-processing (Fig.~\ref{fig:voice}). Filler words (``um,'' ``uh,'' ``like,'' ``you know,'' ``I mean,'' ``basically,'' ``literally,'' ``right'') are removed. Consecutive duplicate words are collapsed. Punctuation is normalized. A \texttt{wasVoiceUsed} flag annotates the evaluation prompt to excuse transcription artifacts: ``Grade the ideas and communication, not the transcription quality.''
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  vstep/.style={draw=teal!60!black, fill=teal!8, rounded corners=3pt, minimum width=1.3cm, minimum height=0.4cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!70},
+]
+
+\node[vstep] (mic) at (0, 2.5) {Microphone};
+\node[vstep] (api) at (0, 1.8) {Web Speech API};
+\node[vstep] (raw) at (0, 1.1) {Raw Transcript};
+\node[vstep] (filler) at (0, 0.4) {Filler Removal};
+\node[vstep] (dedup) at (0, -0.3) {Deduplication};
+\node[vstep] (punct) at (0, -1.0) {Punctuation};
+\node[vstep] (clean) at (0, -1.7) {Clean Text};
+
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=left] at (2.8, 2.5) {Browser-native \\ No dependencies};
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=left] at (2.8, 1.1) {``um, uh, like...''};
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=left] at (2.8, -0.3) {``the the'' $\to$ ``the''};
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=left] at (2.8, -1.7) {wasVoiceUsed=true};
+
+\draw[arr] (mic) -- (api);
+\draw[arr] (api) -- (raw);
+\draw[arr] (raw) -- (filler);
+\draw[arr] (filler) -- (dedup);
+\draw[arr] (dedup) -- (punct);
+\draw[arr] (punct) -- (clean);
+
+\draw[->, thin, color=txt2!30] (2.0, 2.5) -- (1.0, 2.5);
+\draw[->, thin, color=txt2!30] (2.0, 1.1) -- (1.0, 1.1);
+\draw[->, thin, color=txt2!30] (2.0, -0.3) -- (1.0, -0.3);
+\draw[->, thin, color=txt2!30] (2.0, -1.7) -- (1.0, -1.7);
+
+\end{tikzpicture}
+\caption{Voice input pipeline with automatic post-processing stages.}
+\label{fig:voice}
+\end{figure}
+
+\subsection{Data Architecture}
+
+All data is client-side (Fig.~\ref{fig:data}). Static content (36 questions, 108 hint sets, 5 audience definitions) is bundled as JavaScript modules. Session history (date, mode, audience, overall score, per-question scores) persists in localStorage with a 20-session cap. Theme preference and onboarding dismissal state also persist. There is no server-side database, no user authentication, and no cross-device synchronization.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  store/.style={draw=emerald!60!black, fill=emerald!8, rounded corners=4pt, minimum width=2.0cm, minimum height=0.5cm, align=center, font=\tiny\bfseries},
+  item/.style={draw=txt2!40, fill=txt2!3, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!60},
+]
+
+\node[store] (ls) at (0, 2.5) {localStorage};
+
+\node[item] (sess) at (-2.2, 1.6) {sessions[20]};
+\node[item] (theme) at (0, 1.6) {theme};
+\node[item] (onboard) at (2.2, 1.6) {onboarded};
+\node[item] (hist) at (0, 0.8) {history[]};
+
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=left] at (-2.2, 0.8) {
+  \{ date, mode, audience,\\
+  overallScore, questions[] \}
+};
+
+\draw[arr] (ls.south) -- ++(0,-0.3) -| (sess.north);
+\draw[arr] (ls.south) -- (theme.north);
+\draw[arr] (ls.south) -- ++(0,-0.3) -| (onboard.north);
+\draw[arr] (ls.south) -- (hist.north);
+
+\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, font=\tiny, align=center] at (0, 0.0) {Max 5MB browser limit};
+
+\end{tikzpicture}
+\caption{localStorage data architecture with schema and size constraints.}
+\label{fig:data}
+\end{figure}
 
 % ══════════════════════════════════════════════════════════
 \section{Design System}
@@ -278,6 +545,56 @@ The \texttt{useVoice} hook captures speech via the Web Speech API and applies au
 \subsection{Typography and Spacing}
 
 The typography follows a Perfect Fourth (1.333) modular scale with 10 defined steps from 0.6875rem (2xs) to 3.375rem (5xl). The primary typeface is Geist, a variable font optimized for screen reading. Spacing uses a 4pt base with 16 defined steps from 0.25rem to 8rem. Border radii range from 0.25rem (xs) to 9999px (full). Easing curves include quart, expo, spring, and in-out variants. A z-index scale from 0 (base) to 500 (toast) prevents stacking conflicts.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  type/.style={font=\tiny, text=txt, align=left},
+  size/.style={font=\tiny\ttfamily, text=accent},
+]
+
+\node[type, anchor=east] at (0, 3.5) {\textbf{5xl} --- Hero};
+\node[size, anchor=west] at (0.5, 3.5) {3.375rem / 54px};
+
+\node[type, anchor=east] at (0, 3.0) {\textbf{4xl} --- Sections};
+\node[size, anchor=west] at (0.5, 3.0) {2.5rem / 40px};
+
+\node[type, anchor=east] at (0, 2.5) {\textbf{3xl} --- Subsections};
+\node[size, anchor=west] at (0.5, 2.5) {1.875rem / 30px};
+
+\node[type, anchor=east] at (0, 2.0) {\textbf{2xl} --- Cards};
+\node[size, anchor=west] at (0.5, 2.0) {1.5rem / 24px};
+
+\node[type, anchor=east] at (0, 1.5) {\textbf{xl} --- Large};
+\node[size, anchor=west] at (0.5, 1.5) {1.25rem / 20px};
+
+\node[type, anchor=east] at (0, 1.0) {\textbf{lg} --- Body};
+\node[size, anchor=west] at (0.5, 1.0) {1.125rem / 18px};
+
+\node[type, anchor=east] at (0, 0.5) {\textbf{base} --- Default};
+\node[size, anchor=west] at (0.5, 0.5) {1rem / 16px};
+
+\node[type, anchor=east] at (0, 0.0) {\textbf{sm} --- Small};
+\node[size, anchor=west] at (0.5, 0.0) {0.875rem / 14px};
+
+\node[type, anchor=east] at (0, -0.5) {\textbf{xs} --- Captions};
+\node[size, anchor=west] at (0.5, -0.5) {0.75rem / 12px};
+
+\node[type, anchor=east] at (0, -1.0) {\textbf{2xs} --- Fine};
+\node[size, anchor=west] at (0.5, -1.0) {0.6875rem / 11px};
+
+\draw[thick, color=accent!40] (-0.3, -1.5) -- (-0.3, 3.8);
+\foreach \y in {3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.0, -0.5, -1.0} {
+  \draw[thick, color=accent!60] (-0.4, \y) -- (-0.2, \y);
+}
+
+\node[font=\tiny, text=txt2] at (2.5, -1.5) {Perfect Fourth (1.333)};
+
+\end{tikzpicture}
+\caption{Typography scale with Perfect Fourth modular ratio.}
+\label{fig:typography}
+\end{figure}
 
 \subsection{Theme System}
 
@@ -300,6 +617,40 @@ Blue Hour & Blue \#2563EB & Cool slate \#F8FAFC \\
 
 Theme selection persists in localStorage and is applied via the \texttt{data-theme} attribute on the document root. An inline script in the root layout runs before React hydration to prevent flash-of-unstyled-theme (FOUC). The \texttt{ThemeProvider} context exposes the current theme and a switcher component (three colored dots with spring-scale animation).
 
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  thm/.style={draw=#1!60!black, fill=#1!10, rounded corners=4pt, minimum width=2.0cm, minimum height=0.8cm, align=center, font=\tiny},
+  prop/.style={draw=txt2!30, fill=txt2!3, rounded corners=2pt, minimum width=1.2cm, minimum height=0.25cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!60},
+]
+
+\node[thm=accent, align=center] (sunrise) at (0, 2.0) {Sunrise\\Studio};
+\node[thm=l1] (chalk) at (0, 1.0) {Chalkboard};
+\node[thm=bluea] (blue) at (0, 0.0) {Blue Hour};
+
+\node[prop] (colors) at (3.0, 2.5) {40+ colors};
+\node[prop] (shadows) at (3.0, 2.0) {Shadows};
+\node[prop] (grain) at (3.0, 1.5) {Grain};
+\node[prop] (glass) at (3.0, 1.0) {Glass};
+\node[prop] (wheel) at (3.0, 0.5) {Wheel};
+\node[prop] (ease) at (3.0, 0.0) {Easing};
+
+\draw[arr] (sunrise.east) -- ++(0.5,0) |- (colors.west);
+\draw[arr] (sunrise.east) -- ++(0.5,0) |- (shadows.west);
+\draw[arr] (chalk.east) -- ++(0.5,0) |- (grain.west);
+\draw[arr] (chalk.east) -- ++(0.5,0) |- (glass.west);
+\draw[arr] (blue.east) -- ++(0.5,0) |- (wheel.west);
+\draw[arr] (blue.east) -- ++(0.5,0) |- (ease.west);
+
+\node[font=\tiny\bfseries, text=txt2] at (3.0, 3.0) {CSS Custom Properties};
+
+\end{tikzpicture}
+\caption{Theme architecture showing CSS custom property categories per theme.}
+\label{fig:themes}
+\end{figure}
+
 \subsection{Visual Effects}
 
 The design system employs seven layered visual effects:
@@ -313,6 +664,31 @@ The design system employs seven layered visual effects:
   \item \textbf{Page Transitions:} \texttt{AnimatePresence} with 250ms opacity fade between all screens.
   \item \textbf{Staggered Entrances:} Audience list items animate in with 50ms stagger delay for a polished reveal effect.
 \end{enumerate}
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  effect/.style={draw=txt2!40, fill=txt2!3, rounded corners=3pt, minimum width=1.5cm, minimum height=0.4cm, align=center, font=\tiny},
+]
+
+\node[effect] (grain) at (0, 2.5) {Grain};
+\node[effect] (glass) at (2.2, 2.5) {Glass};
+\node[effect] (ring) at (4.4, 2.5) {ScoreRing};
+\node[effect] (spark) at (0, 1.5) {Sparkline};
+\node[effect] (wheel) at (2.2, 1.5) {Wheel};
+\node[effect] (page) at (4.4, 1.5) {Page};
+\node[effect] (stagger) at (2.2, 0.5) {Stagger};
+
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=center] at (0, 0.5) {SVG noise \\ 2--4\% opacity};
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=center] at (4.4, 0.5) {250ms fade \\ AnimatePresence};
+
+\node[font=\tiny, text=txt2] at (2.2, 3.2) {7 Visual Effects Layer};
+
+\end{tikzpicture}
+\caption{Seven visual effects implemented in the design system.}
+\label{fig:effects}
+\end{figure}
 
 % ══════════════════════════════════════════════════════════
 \section{Implementation}
@@ -343,27 +719,236 @@ Deployment & Vercel (edge functions, zero-config Next.js) \\
 \end{tabularx}
 \end{table}
 
+\subsection{Component Hierarchy}
+
+The React component hierarchy follows a flat structure with the root \texttt{AppInner} component managing all state (Fig.~\ref{fig:components}).
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  comp/.style={draw=indigo!50!black, fill=indigo!8, rounded corners=3pt, minimum width=1.4cm, minimum height=0.35cm, align=center, font=\tiny},
+  scrn/.style={draw=accent!50!black, fill=accent!8, rounded corners=3pt, minimum width=1.2cm, minimum height=0.3cm, align=center, font=\tiny},
+  hook/.style={draw=teal!50!black, fill=teal!8, rounded corners=2pt, minimum width=1.0cm, minimum height=0.25cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!60},
+]
+
+\node[comp, minimum width=2.0cm] (root) at (0, 3) {AppInner};
+
+\node[scrn] (home) at (-2.5, 2) {HomeScreen};
+\node[scrn] (aud) at (-1.2, 2) {AudienceScreen};
+\node[scrn] (wheel) at (0.1, 2) {WheelScreen};
+\node[scrn] (sess) at (1.4, 2) {SessionScreen};
+\node[scrn] (fb) at (2.7, 2) {FeedbackScreen};
+\node[scrn] (custom) at (-1.2, 1.2) {CustomMode};
+\node[scrn] (crev) at (0.1, 1.2) {CustomReview};
+
+\node[hook] (voice) at (-2.5, 0.5) {useVoice};
+\node[hook] (hist) at (-1.2, 0.5) {useSessionHistory};
+\node[hook] (theme) at (0.1, 0.5) {useTheme};
+\node[hook] (anim) at (1.4, 0.5) {useAnimation};
+
+\draw[arr] (root) -- (home);
+\draw[arr] (root) -- (aud);
+\draw[arr] (root) -- (wheel);
+\draw[arr] (root) -- (sess);
+\draw[arr] (root) -- (fb);
+\draw[arr] (root) -- (custom);
+\draw[arr] (root) -- (crev);
+
+\draw[arr, dashed, color=teal!50] (root.south) -- (voice.north);
+\draw[arr, dashed, color=teal!50] (root.south) -- (hist.north);
+\draw[arr, dashed, color=teal!50] (root.south) -- (theme.north);
+\draw[arr, dashed, color=teal!50] (root.south) -- (anim.north);
+
+\end{tikzpicture}
+\caption{React component hierarchy showing screen components and custom hooks.}
+\label{fig:components}
+\end{figure}
+
 \subsection{Code Splitting and Dynamic Imports}
 
 Heavy screen components (AudienceScreen, WheelScreen, SessionScreen, FeedbackScreen) use Next.js \texttt{dynamic()} imports with no loading placeholder. The app shell (HomeScreen, CustomModeScreen) loads eagerly. This reduces the initial bundle from the full application to just the entry screen and shared utilities.
 
 \subsection{Error Handling}
 
-A class-based \texttt{ErrorBoundary} component wraps the entire application, catching React rendering errors and providing a recovery UI with a ``Try again'' button. API errors are caught at the call site and displayed in contextual error banners with retry options. The session report generation has independent error handling---if report generation fails, users can still view their individual answers.
+A class-based \texttt{ErrorBoundary} component wraps the entire application, catching React rendering errors and providing a recovery UI with a ``Try again'' button (Fig.~\ref{fig:error}). API errors are caught at the call site and displayed in contextual error banners with retry options. The session report generation has independent error handling---if report generation fails, users can still view their individual answers.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  state/.style={draw=txt2!40, fill=txt2!3, rounded corners=3pt, minimum width=1.4cm, minimum height=0.4cm, align=center, font=\tiny},
+  err/.style={draw=err!50!black, fill=err!8, rounded corners=3pt, minimum width=1.4cm, minimum height=0.4cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!60},
+  lbl/.style={font=\tiny, text=txt2},
+]
+
+\node[state] (normal) at (0, 2) {Normal};
+\node[err] (error) at (2.5, 2) {Error};
+\node[state] (recovered) at (2.5, 0.8) {Recovered};
+\node[state] (fallback) at (0, 0.8) {Fallback UI};
+
+\draw[arr] (normal) -- node[lbl, above] {throw} (error);
+\draw[arr] (error) -- node[lbl, right] {catch} (recovered);
+\draw[arr] (recovered) -- node[lbl, below] {retry} (fallback);
+\draw[arr] (fallback) -- node[lbl, left] {reset} (normal);
+
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, font=\tiny, align=center] at (1.25, 3) {ErrorBoundary wraps entire app};
+
+\end{tikzpicture}
+\caption{Error handling state machine with recovery flow.}
+\label{fig:error}
+\end{figure}
 
 \subsection{Security}
 
-The API route implements multiple security layers: IP-based rate limiting (30 requests/minute), origin validation against allowed origins, prompt length capping (12,000 characters), 15-second fetch timeout with \texttt{AbortController}, exponential backoff retry (2 attempts maximum), JSON extraction with regex fallback for malformed responses, and response schema validation. Security headers include X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, and Permissions-Policy with microphone=self.
+The API route implements multiple security layers (Fig.~\ref{fig:security}): IP-based rate limiting (30 requests/minute), origin validation against allowed origins, prompt length capping (12,000 characters), 15-second fetch timeout with \texttt{AbortController}, exponential backoff retry (2 attempts maximum), JSON extraction with regex fallback for malformed responses, and response schema validation. Security headers include X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, and Permissions-Policy with microphone=self.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  layer/.style={draw=#1!60!black, fill=#1!8, rounded corners=3pt, minimum width=6.8cm, minimum height=0.4cm, align=left, font=\tiny, inner sep=4pt},
+  arr/.style={->, thick, color=txt2!50},
+]
+
+\node[layer=err] (l1) at (0, 2.8) {\textbf{Layer 1:} Rate Limiting --- 30 req/min per IP};
+\node[layer=amber] (l2) at (0, 2.2) {\textbf{Layer 2:} Origin Validation --- allowed domains only};
+\node[layer=l1] (l3) at (0, 1.6) {\textbf{Layer 3:} Input Validation --- prompt $\leq$ 12K chars};
+\node[layer=teal] (l4) at (0, 1.0) {\textbf{Layer 4:} Timeout --- 15s AbortController};
+\node[layer=bluea] (l5) at (0, 0.4) {\textbf{Layer 5:} Schema Validation --- JSON shape check};
+\node[layer=violet] (l6) at (0, -0.2) {\textbf{Layer 6:} Security Headers --- DENY, nosniff};
+
+\draw[arr] (l1.south) -- (l2.north);
+\draw[arr] (l2.south) -- (l3.north);
+\draw[arr] (l3.south) -- (l4.north);
+\draw[arr] (l4.south) -- (l5.north);
+\draw[arr] (l5.south) -- (l6.north);
+
+\node[font=\tiny\bfseries, text=txt2] at (0, 3.3) {6-Layer Security Architecture};
+
+\end{tikzpicture}
+\caption{Six-layer security architecture for the API proxy route.}
+\label{fig:security}
+\end{figure}
 
 \subsection{Accessibility and PWA}
 
 The platform targets WCAG AAA compliance with: a skip link to \texttt{\#main-content}, screen reader text via \texttt{.sr-only} class, \texttt{:focus-visible} outlines with accent color, \texttt{prefers-reduced-motion} media query that disables all animations, semantic HTML with proper heading hierarchy, and full keyboard navigability.
 
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  feature/.style={draw=emerald!50!black, fill=emerald!8, rounded corners=3pt, minimum width=1.5cm, minimum height=0.4cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!50},
+]
+
+\node[feature] (skip) at (-2, 2) {Skip Link};
+\node[feature] (sr) at (0, 2) {Screen Reader};
+\node[feature] (focus) at (2, 2) {Focus Visible};
+\node[feature] (motion) at (-2, 1) {Reduced Motion};
+\node[feature] (semantic) at (0, 1) {Semantic HTML};
+\node[feature] (keyboard) at (2, 1) {Keyboard Nav};
+
+\node[draw=emerald!40, fill=emerald!5, rounded corners=3pt, minimum width=2.0cm, minimum height=0.5cm, align=center, font=\tiny\bfseries] at (0, 0) {WCAG AAA};
+
+\draw[arr] (skip.south) -- (0, 0.3);
+\draw[arr] (sr.south) -- (0, 0.3);
+\draw[arr] (focus.south) -- (0, 0.3);
+\draw[arr] (motion.north) -- (0, 0.3);
+\draw[arr] (semantic.north) -- (0, 0.3);
+\draw[arr] (keyboard.north) -- (0, 0.3);
+
+\end{tikzpicture}
+\caption{Six accessibility features targeting WCAG AAA compliance.}
+\label{fig:accessibility}
+\end{figure}
+
 PWA features include a web manifest with app name and theme color, a service worker implementing stale-while-revalidate caching, theme-color meta tag for mobile browser chrome, and a \texttt{beforeunload} handler to prevent accidental navigation during active sessions.
 
-\subsection{Data Architecture}
+\subsection{API Request/Response Flow}
 
-All data is client-side. Static content (36 questions, 108 hint sets, 5 audience definitions) is bundled as JavaScript modules. Session history (date, mode, audience, overall score, per-question scores) persists in localStorage with a 20-session cap. Theme preference and onboarding dismissal state also persist. There is no server-side database, no user authentication, and no cross-device synchronization.
+The complete API flow from client to LLM and back is shown in Fig.~\ref{fig:api}.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  astep/.style={draw=sky!60!black, fill=sky!8, rounded corners=3pt, minimum width=1.3cm, minimum height=0.4cm, align=center, font=\tiny},
+  arr/.style={->, thick, color=txt2!60},
+  lbl/.style={font=\tiny, text=txt2},
+]
+
+\node[astep] (client) at (0, 2.5) {Client};
+\node[astep] (validate) at (0, 1.8) {Validate};
+\node[astep] (build) at (0, 1.1) {Build Prompt};
+\node[astep] (fetch) at (0, 0.4) {fetch()};
+
+\node[astep] (api) at (3, 2.5) {API Route};
+\node[astep] (rate) at (3, 1.8) {Rate Limit};
+\node[astep] (origin) at (3, 1.1) {Origin Check};
+\node[astep] (proxy) at (3, 0.4) {Proxy};
+
+\node[astep] (llm) at (6, 1.5) {Nemotron};
+
+\node[astep] (json) at (6, 0.4) {JSON};
+\node[astep] (schema) at (3, -0.3) {Schema Check};
+\node[astep] (return) at (0, -0.3) {Return};
+
+\draw[arr] (client) -- (validate);
+\draw[arr] (validate) -- (build);
+\draw[arr] (build) -- (fetch);
+\draw[arr] (fetch) -- (api);
+\draw[arr] (api) -- (rate);
+\draw[arr] (rate) -- (origin);
+\draw[arr] (origin) -- (proxy);
+\draw[arr] (proxy) -- (llm);
+\draw[arr] (llm) -- (json);
+\draw[arr] (json) -- (schema);
+\draw[arr] (schema) -- (return);
+
+\node[lbl, above] at (1.5, 2.7) {Client};
+\node[lbl, above] at (4.5, 2.7) {Server};
+\node[lbl, above] at (6, 2.7) {External};
+
+\end{tikzpicture}
+\caption{Complete API request/response flow from client to LLM.}
+\label{fig:api}
+\end{figure}
+
+\subsection{Score Visualization and Analytics}
+
+The platform provides visual feedback through score rings and sparkline charts (Fig.~\ref{fig:score}).
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+]
+
+\node[draw=success!60!black, circle, minimum size=1.2cm] (r1) at (0, 2) {};
+\node[font=\tiny\bfseries, text=success!70!black] at (0, 2) {8.5};
+
+\node[draw=accent!60!black, circle, minimum size=1.2cm] (r2) at (1.8, 2) {};
+\node[font=\tiny\bfseries, text=accent!70!black] at (1.8, 2) {6.2};
+
+\node[draw=err!60!black, circle, minimum size=1.2cm] (r3) at (3.6, 2) {};
+\node[font=\tiny\bfseries, text=err!70!black] at (3.6, 2) {3.8};
+
+\node[font=\tiny, text=txt2] at (0, 1.2) {Excellent};
+\node[font=\tiny, text=txt2] at (1.8, 1.2) {Good};
+\node[font=\tiny, text=txt2] at (3.6, 1.2) {Needs Work};
+
+\node[draw=txt2!30, fill=txt2!2, rounded corners=2pt, minimum width=2.5cm, minimum height=0.8cm] (spark) at (1.8, 0) {};
+\draw[thick, color=accent] (0.5, 0) -- (1.0, 0.2) -- (1.5, -0.1) -- (2.0, 0.3) -- (2.5, 0.1) -- (3.1, 0);
+\node[font=\tiny, text=txt2] at (1.8, -0.6) {Score Trend (5 sessions)};
+
+\end{tikzpicture}
+\caption{Score visualization with color-coded rings and sparkline trend charts.}
+\label{fig:score}
+\end{figure}
 
 % ══════════════════════════════════════════════════════════
 \section{Discussion}
@@ -410,6 +995,9 @@ K. vanLehn, ``The relative effectiveness of human tutoring, intelligent tutoring
 
 \bibitem{leitner}
 S. Leitner, \emph{So lernt man lernen}. Freiburg: Herder, 1972.
+
+\bibitem{auto}
+A.\,C. Graesser et al., ``Autotutor: A tutor with dialogue in natural language,'' \emph{Behavior Research Methods, Instruments, \& Computers}, vol. 36, no. 2, pp. 303--312, 2004.
 
 \end{thebibliography}
 
