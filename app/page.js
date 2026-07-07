@@ -8,7 +8,7 @@ import { TEACH_CONCEPTS, SWE_QUESTIONS } from "@/app/data/questions";
 import { AUDIENCES } from "@/app/data/audiences";
 import { QUESTIONS_PER_SESSION, pick, callEval, evalPrompt, reportPrompt } from "@/app/lib/api";
 import { ThemeProvider } from "@/app/providers/ThemeProvider";
-import { HomeScreen } from "@/app/components/screens";
+import { HomeScreen, CustomModeScreen, CustomReviewScreen } from "@/app/components/screens";
 
 const AudienceScreen = dynamic(() => import("@/app/components/screens/AudienceScreen").then((m) => m.AudienceScreen), { loading: () => null });
 const WheelScreen = dynamic(() => import("@/app/components/screens/WheelScreen").then((m) => m.WheelScreen), { loading: () => null });
@@ -63,6 +63,8 @@ function AppInner() {
   const [reportError, setReportError] = useState(null);
   const [wasVoiceUsed, setWasVoiceUsed] = useState(false);
   const [sessionLength, setSessionLength] = useState(DEFAULT_SESSION_LENGTH);
+  const [customTopic, setCustomTopic] = useState("");
+  const [customAudience, setCustomAudience] = useState(null);
   const { sessions, addSession, deleteSession } = useSessionHistory();
 
   const N = sessionLength;
@@ -81,7 +83,7 @@ function AppInner() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (screen === "session" || screen === "wheel-session") {
+      if (screen === "session" || screen === "wheel-session" || screen === "custom" || screen === "custom-review") {
         e.preventDefault();
         e.returnValue = "";
       }
@@ -95,6 +97,8 @@ function AppInner() {
     setSessionLength(length || DEFAULT_SESSION_LENGTH);
     if (m === "teach") {
       setScreen("audience");
+    } else if (m === "custom") {
+      setScreen("custom");
     } else {
       setQs(pick(SWE_QUESTIONS, length || DEFAULT_SESSION_LENGTH));
       setScreen("wheel");
@@ -105,6 +109,30 @@ function AppInner() {
   const gotoAud = (a) => {
     setAud(a);
     setQs(pick(TEACH_CONCEPTS, sessionLength));
+    setScreen("wheel");
+    setWheelSpin(true);
+  };
+
+  const onCustomGenerated = ({ questions, topic, audience }) => {
+    setCustomTopic(topic);
+    setCustomAudience(audience);
+    setQs(questions);
+    setScreen("custom-review");
+  };
+
+  const startCustomSession = (validatedQuestions) => {
+    setMode("custom");
+    setQs(validatedQuestions);
+    setSessionLength(validatedQuestions.length);
+    setIdx(0);
+    setAns("");
+    setEvals([]);
+    setShowEv(false);
+    setCurEv(null);
+    setEvaluationError(null);
+    setReportError(null);
+    setReport(null);
+    setWasVoiceUsed(false);
     setScreen("wheel");
     setWheelSpin(true);
   };
@@ -129,9 +157,12 @@ function AppInner() {
     const audLabel =
       mode === "teach"
         ? AUDIENCES.find((a) => a.id === aud)?.label
+        : mode === "custom" && customAudience
+        ? AUDIENCES.find((a) => a.id === customAudience)?.label
         : "a technical interviewer";
+    const evalMode = mode === "custom" ? (customAudience ? "custom-teach" : "interview") : mode;
     try {
-      const ev = await callEval(evalPrompt(mode, qs[idx], ans, audLabel, wasVoiceUsed));
+      const ev = await callEval(evalPrompt(evalMode, qs[idx], ans, audLabel, wasVoiceUsed));
       const newEvals = [...evals, { q: qs[idx], ev }];
       setEvals(newEvals);
       setCurEv(ev);
@@ -198,6 +229,8 @@ function AppInner() {
     setReport(null);
     setWheelSpin(false);
     setWasVoiceUsed(false);
+    setCustomTopic("");
+    setCustomAudience(null);
   };
 
   return (
@@ -275,6 +308,22 @@ function AppInner() {
           {screen === "feedback" && (
             <motion.div key="feedback" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
               <FeedbackScreen evals={evals} report={report} reportError={reportError} onReset={reset} onRetryReport={retryReport} />
+            </motion.div>
+          )}
+          {screen === "custom" && (
+            <motion.div key="custom" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <CustomModeScreen onBack={() => setScreen("home")} onGenerated={onCustomGenerated} />
+            </motion.div>
+          )}
+          {screen === "custom-review" && (
+            <motion.div key="custom-review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <CustomReviewScreen
+                questions={qs}
+                topic={customTopic}
+                audience={customAudience}
+                onBack={() => setScreen("custom")}
+                onStart={startCustomSession}
+              />
             </motion.div>
           )}
         </AnimatePresence>

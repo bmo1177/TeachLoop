@@ -9,6 +9,7 @@ import {
   ChalkboardTeacher,
   ChartBar,
   Trash,
+  Sparkle,
 } from "@phosphor-icons/react";
 import { AUDIENCES } from "@/app/data/audiences";
 import { Nav, Sparkline } from "@/app/components/ui";
@@ -127,7 +128,7 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
           <div className="mode-section-header">
             <h2 className="mode-section-title">Choose your practice</h2>
             <p className="mode-section-subtitle">
-              Two modes, both with AI-powered feedback on how you communicate.
+              Three modes, all with AI-powered feedback on how you communicate.
             </p>
           </div>
 
@@ -155,6 +156,21 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
                 <h3 className="mode-card-title">Interview Mode</h3>
                 <p className="mode-card-desc">
                   Answer system design and AI engineering questions. Evaluated like a real senior technical panel.
+                </p>
+              </div>
+              <div className="mode-card-arrow">
+                <ArrowRight size={18} weight="bold" />
+              </div>
+            </button>
+
+            <button className="mode-card" onClick={() => onMode("custom", sessionLength)}>
+              <div className="mode-card-icon" style={{ background: "var(--color-success-subtle)", color: "var(--color-success)" }}>
+                <Sparkle size={24} weight="duotone" />
+              </div>
+              <div className="mode-card-content">
+                <h3 className="mode-card-title">Create Your Own</h3>
+                <p className="mode-card-desc">
+                  Tell AI what you want to practice, get custom questions generated just for you.
                 </p>
               </div>
               <div className="mode-card-arrow">
@@ -244,7 +260,7 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
                         </span>
                         <div className="past-session-info">
                           <span className="past-session-mode">
-                            {s.mode === "teach" ? "Teaching" : "Interview"}
+                            {s.mode === "teach" ? "Teaching" : s.mode === "custom" ? "Custom" : "Interview"}
                             {s.audience ? ` \u00B7 ${AUDIENCES.find((a) => a.id === s.audience)?.label || ""}` : ""}
                           </span>
                           <span className="past-session-date">{dateStr}</span>
