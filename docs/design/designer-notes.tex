@@ -1,4 +1,5 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc,decorations.pathreplacing,chains}
 \usepackage{booktabs}
@@ -8,10 +9,13 @@
 \usepackage{listings}
 \usepackage{caption}
 \usepackage{float}
-\usepackage{balance}
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\singlespacing
+\graphicspath{{../../screenshots/}}
 
 \hypersetup{colorlinks=true, linkcolor=blue!70!black, urlcolor=blue!70!black}
 
@@ -47,9 +51,7 @@
 
 \title{TeachLoop: An AI-Powered Communication Practice Platform for Technical Professionals}
 
-\author{
-\IEEEauthorblockN{Belalia Mohamed Oussama}
-}
+\author{Belalia Mohamed Oussama}
 
 \maketitle
 
@@ -57,9 +59,9 @@
 Effective communication of technical concepts is a critical professional skill rarely taught in formal education. This paper presents TeachLoop, a web-based platform that helps engineers practice explaining complex technical topics through AI-powered feedback. The system employs a three-mode architecture (Teaching, Interview, Custom) with audience-aware evaluation across five communication dimensions. A progressive hint system provides scaffolding from gentle nudges to comprehensive explanations, drawing on Vygotsky's Zone of Proximal Development. The platform uses a client-side state machine with localStorage persistence, proxying evaluations to a large language model via a single API route. We describe the system architecture, the AI evaluation pipeline with rate limiting and schema validation, the design system comprising three themes with 40+ CSS custom properties, and accessibility features targeting WCAG AAA compliance. A content database of 36 curated questions with 108 progressive hint sets covers AI/ML concepts and system design topics. TeachLoop demonstrates that effective AI-assisted communication practice can be delivered with zero backend infrastructure beyond the AI proxy.
 \end{abstract}
 
-\begin{IEEEkeywords}
-communication practice, AI feedback, scaffolding, web application, technical education, progressive hints
-\end{IEEEkeywords}
+\noindent\textbf{Keywords:} communication practice, AI feedback, scaffolding, web application, technical education, progressive hints
+
+\vspace{0.3cm}
 
 % ══════════════════════════════════════════════════════════
 \section{Introduction}
@@ -127,6 +129,13 @@ Fig.~\ref{fig:userflow} illustrates the complete user journey through the platfo
 \end{figure}
 
 The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work on scaffolding and AI-assisted feedback. Section~\ref{sec:design} describes the system architecture, state machine, and AI evaluation pipeline. Section~\ref{sec:design-system} details the design system and theme architecture. Section~\ref{sec:implementation} covers implementation details including code splitting, voice input, security, and accessibility. Section~\ref{sec:discussion} discusses trade-offs and limitations. Section~\ref{sec:conclusion} concludes.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_07.png}
+\caption{Screenshot 1 of the TeachLoop application interface.}
+\label{fig:s1}
+\end{figure}
 
 % ══════════════════════════════════════════════════════════
 \section{Related Work}
@@ -243,6 +252,13 @@ TeachLoop follows a client-side-first architecture with four layers (Fig.~\ref{f
 
 The Presentation layer contains seven screen components (Home, Audience, Wheel, Session, Feedback, CustomMode, CustomReview) with Motion-powered page transitions. The State Machine layer manages all application state via \texttt{useState} hooks in the root \texttt{AppInner} component---there is no client-side router; a \texttt{screen} state variable controls which screen is rendered. The Data \& Hooks layer provides static question banks, progressive hints, voice input via the Web Speech API, and localStorage session persistence. The API layer consists of a single Next.js API route that proxies evaluation requests to OpenRouter.
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_33.png}
+\caption{Screenshot 2 of the TeachLoop application interface.}
+\label{fig:s2}
+\end{figure}
+
 \subsection{Screen State Machine}
 
 The application operates as a finite state machine with 8 screens (Fig.~\ref{fig:state}). The \texttt{screen} state variable is the single source of truth for navigation state. There is no URL-based routing---the browser URL remains \texttt{/} throughout the entire session.
@@ -292,6 +308,13 @@ The application operates as a finite state machine with 8 screens (Fig.~\ref{fig
 \end{figure}
 
 The root component maintains 18 state variables that collectively encode the full application state. Table~\ref{tab:state} enumerates the key state variables and their roles.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_43.png}
+\caption{Screenshot 3 of the TeachLoop application interface.}
+\label{fig:s3}
+\end{figure}
 
 \begin{table}[!t]
 \centering
@@ -407,6 +430,13 @@ The prompt construction stage builds a mode-specific evaluation prompt (Fig.~\re
 
 Input validation caps prompt length at 12,000 characters. Rate limiting enforces 30 requests per minute per IP address using an in-memory store. The API call uses a 15-second timeout via \texttt{AbortController} with exponential backoff retry (2 attempts). JSON extraction includes fallback parsing for malformed responses. Schema validation ensures the response matches the expected shape before returning to the client.
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_24.png}
+\caption{Screenshot 4 of the TeachLoop application interface.}
+\label{fig:s4}
+\end{figure}
+
 After all questions in a session are evaluated, a session report is generated by aggregating individual evaluations into a communication style analysis, recurring strength, recurring flaw, and a weekly practice tip. This report is saved to localStorage as part of the session history.
 
 \subsection{Progressive Hint System}
@@ -459,9 +489,23 @@ Each of the 36 static concepts offers three hint levels following scaffolding th
 
 The content database covers 20 AI/ML teaching concepts (from Backpropagation to Mixture of Experts) and 16 system design/SWE interview questions (from URL shortening to consensus algorithms). Each hint set is hand-curated to ensure technical accuracy and pedagogical progression.
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_36.png}
+\caption{Screenshot 5 of the TeachLoop application interface.}
+\label{fig:s5}
+\end{figure}
+
 \subsection{Voice Input Pipeline}
 
 The \texttt{useVoice} hook captures speech via the Web Speech API and applies automatic post-processing (Fig.~\ref{fig:voice}). Filler words (``um,'' ``uh,'' ``like,'' ``you know,'' ``I mean,'' ``basically,'' ``literally,'' ``right'') are removed. Consecutive duplicate words are collapsed. Punctuation is normalized. A \texttt{wasVoiceUsed} flag annotates the evaluation prompt to excuse transcription artifacts: ``Grade the ideas and communication, not the transcription quality.''
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_55.png}
+\caption{Screenshot 6 of the TeachLoop application interface.}
+\label{fig:s6}
+\end{figure}
 
 \begin{figure}[!t]
 \centering
@@ -667,6 +711,13 @@ The design system employs seven layered visual effects:
 
 \begin{figure}[!t]
 \centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_16.png}
+\caption{Screenshot 7 of the TeachLoop application interface.}
+\label{fig:s7}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
 \begin{tikzpicture}[
   >=Stealth,
   effect/.style={draw=txt2!40, fill=txt2!3, rounded corners=3pt, minimum width=1.5cm, minimum height=0.4cm, align=center, font=\tiny},
@@ -769,6 +820,13 @@ The React component hierarchy follows a flat structure with the root \texttt{App
 \subsection{Code Splitting and Dynamic Imports}
 
 Heavy screen components (AudienceScreen, WheelScreen, SessionScreen, FeedbackScreen) use Next.js \texttt{dynamic()} imports with no loading placeholder. The app shell (HomeScreen, CustomModeScreen) loads eagerly. This reduces the initial bundle from the full application to just the entry screen and shared utilities.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_26.png}
+\caption{Screenshot 8 of the TeachLoop application interface.}
+\label{fig:s8}
+\end{figure}
 
 \subsection{Error Handling}
 
@@ -958,6 +1016,13 @@ The platform provides visual feedback through score rings and sparkline charts (
 
 Several deliberate trade-offs were made during development:
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\textwidth]{screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_38.png}
+\caption{Screenshot 9 of the TeachLoop application interface.}
+\label{fig:s9}
+\end{figure}
+
 \begin{enumerate}[leftmargin=*, label=(\Roman*)]
   \item \textbf{No client-side router:} Using a \texttt{screen} state variable instead of URL-based navigation simplifies state management but prevents deep linking, browser back-button support, and shareable URLs for specific screens.
   \item \textbf{Single-component state:} All 18 state variables live in \texttt{AppInner}, avoiding prop drilling complexity but creating a large component ($\sim$357 lines) that re-renders on any state change.
@@ -979,8 +1044,6 @@ Planned improvements include: adaptive question selection using evaluation score
 \label{sec:conclusion}
 
 TeachLoop demonstrates that effective AI-assisted communication practice can be delivered with a minimal, client-side-first architecture. By combining a curated content database (36 questions, 108 hint sets), structured AI evaluation (5-dimension scoring), and a craft-oriented design system (3 themes, Perfect Fourth typography, grain textures), the platform provides actionable feedback on \emph{how} engineers explain technical concepts. The key architectural decision---a single API route proxying to a free LLM with localStorage persistence---eliminates backend infrastructure while maintaining a polished user experience. The progressive hint system, grounded in scaffolding theory, provides entry points for users at different skill levels. Future work will focus on adaptive difficulty and spaced repetition to improve long-term learning outcomes.
-
-\balance
 
 \begin{thebibliography}{9}
 
