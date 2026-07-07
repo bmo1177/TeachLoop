@@ -22,12 +22,19 @@ test.describe("Whiteboard Feature", () => {
         body: JSON.stringify(MOCK_EVAL_RESPONSE),
       });
     });
-  });
 
-  test("TC-01: Navigate to whiteboard mode from home", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
+    // Dismiss onboarding overlay if present
+    const skipBtn = page.locator("text=Skip tour");
+    if (await skipBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await skipBtn.click();
+      await page.waitForTimeout(500);
+    }
+  });
+
+  test("TC-01: Navigate to whiteboard mode from home", async ({ page }) => {
     const sketchCard = page.locator(".mode-card", { hasText: "Sketch Mode" });
     await expect(sketchCard).toBeVisible({ timeout: 10000 });
     await sketchCard.click();
@@ -37,9 +44,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-02: Display exercise cards", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -58,9 +62,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-03: Select exercise shows template selector", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -71,9 +72,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-04: Select template opens editor", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -88,9 +86,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-05: Editor has notes panel and evaluate button", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -105,9 +100,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-06: Type notes in the notes panel", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -123,8 +115,16 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-07: Evaluate shows loading state then results", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    // Add delay to mock API to make loading state visible
+    await page.unroute("**/api/eval");
+    await page.route("**/api/eval", async (route) => {
+      await new Promise((r) => setTimeout(r, 500));
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_EVAL_RESPONSE),
+      });
+    });
 
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
@@ -146,9 +146,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-08: Evaluation shows score breakdown", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -168,9 +165,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-09: Evaluation shows strong point and flaw", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -188,9 +182,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-10: Save draft persists to history", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -217,9 +208,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-11: Exit returns to exercise selection", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -235,9 +223,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-12: Home button returns to main screen", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -247,9 +232,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-13: Freeform exercise selectable", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -259,9 +241,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-14: Multiple exercises can be selected sequentially", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -284,9 +263,6 @@ test.describe("Whiteboard Feature", () => {
   });
 
   test("TC-15: Empty canvas evaluation works", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-
     await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
     await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
 
@@ -299,5 +275,27 @@ test.describe("Whiteboard Feature", () => {
     await page.locator("button", { hasText: "Evaluate explanation" }).click();
 
     await expect(page.locator("text=AI Evaluation Results")).toBeVisible({ timeout: 15000 });
+  });
+
+  test("TC-16: Excalidraw canvas is interactive and draw-capable", async ({ page }) => {
+    await page.locator(".mode-card", { hasText: "Sketch Mode" }).click();
+    await expect(page.locator("text=Whiteboard Explainer")).toBeVisible({ timeout: 10000 });
+
+    await page.locator(".wb-exercise-card", { hasText: "Rate Limiter Architecture" }).click();
+    await expect(page.locator("text=Blank Canvas")).toBeVisible({ timeout: 10000 });
+
+    await page.locator(".template-card", { hasText: "Blank Canvas" }).click();
+    await expect(page.locator(".wb-editor-workspace")).toBeVisible({ timeout: 15000 });
+
+    // Wait for Excalidraw to fully initialize
+    await page.waitForTimeout(2000);
+
+    // Excalidraw canvas should be present
+    const canvas = page.locator("canvas").first();
+    await expect(canvas).toBeVisible({ timeout: 10000 });
+
+    // Excalidraw toolbar should be visible (indicates CSS loaded and UI is interactive)
+    const toolbar = page.locator(".excalidraw .ToolIcon, .excalidraw .App-toolbar, [class*='excalidraw'] button").first();
+    await expect(toolbar).toBeVisible({ timeout: 10000 });
   });
 });

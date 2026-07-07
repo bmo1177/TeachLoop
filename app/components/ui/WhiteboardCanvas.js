@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import "@excalidraw/excalidraw/index.css";
 
 function WhiteboardCanvas({ initialElements, onChange, theme = "light", excalidrawRef }) {
   const [Comp, setComp] = useState(null);
