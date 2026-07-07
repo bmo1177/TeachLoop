@@ -65,6 +65,7 @@ function AppInner() {
   const [sessionLength, setSessionLength] = useState(DEFAULT_SESSION_LENGTH);
   const [customTopic, setCustomTopic] = useState("");
   const [customAudience, setCustomAudience] = useState(null);
+  const [customHints, setCustomHints] = useState(null);
   const { sessions, addSession, deleteSession } = useSessionHistory();
 
   const N = sessionLength;
@@ -113,17 +114,25 @@ function AppInner() {
     setWheelSpin(true);
   };
 
-  const onCustomGenerated = ({ questions, topic, audience }) => {
+  const onCustomGenerated = ({ questions, hints, topic, audience }) => {
     setCustomTopic(topic);
     setCustomAudience(audience);
+    setCustomHints(hints);
     setQs(questions);
     setScreen("custom-review");
   };
 
-  const startCustomSession = (validatedQuestions) => {
+  const startCustomSession = (validatedQuestions, hintsForQuestions) => {
     setMode("custom");
     setQs(validatedQuestions);
     setSessionLength(validatedQuestions.length);
+    const hintsMap = {};
+    if (hintsForQuestions) {
+      validatedQuestions.forEach((q, i) => {
+        if (hintsForQuestions[i]) hintsMap[q] = hintsForQuestions[i];
+      });
+    }
+    setCustomHints(hintsMap);
     setIdx(0);
     setAns("");
     setEvals([]);
@@ -231,6 +240,7 @@ function AppInner() {
     setWasVoiceUsed(false);
     setCustomTopic("");
     setCustomAudience(null);
+    setCustomHints(null);
   };
 
   return (
@@ -304,6 +314,7 @@ function AppInner() {
                 onClearError={() => setEvaluationError(null)}
                 isLast={idx === N - 1}
                 onVoiceUsed={() => setWasVoiceUsed(true)}
+                hintsMap={mode === "custom" ? customHints : null}
               />
             </motion.div>
           )}
@@ -321,6 +332,7 @@ function AppInner() {
             <motion.div key="custom-review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
               <CustomReviewScreen
                 questions={qs}
+                hints={customHints}
                 topic={customTopic}
                 audience={customAudience}
                 onBack={() => setScreen("custom")}

@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { CaretLeft, Plus, Trash, ArrowRight, Pencil } from "@phosphor-icons/react";
 import { Nav } from "@/app/components/ui";
 
-const CustomReviewScreen = memo(function CustomReviewScreen({ questions, topic, audience, onBack, onStart }) {
-  const [items, setItems] = useState(questions.map((q) => ({ text: q, id: crypto.randomUUID() })));
+const CustomReviewScreen = memo(function CustomReviewScreen({ questions, hints, topic, audience, onBack, onStart }) {
+  const [items, setItems] = useState(() =>
+    questions.map((q, i) => ({ text: q, hints: hints?.[i] || null, id: crypto.randomUUID() }))
+  );
   const textareaRefs = useRef({});
 
   const removeItem = useCallback((id) => {
@@ -18,7 +20,7 @@ const CustomReviewScreen = memo(function CustomReviewScreen({ questions, topic, 
   }, []);
 
   const addItem = useCallback(() => {
-    const newItem = { text: "", id: crypto.randomUUID() };
+    const newItem = { text: "", hints: null, id: crypto.randomUUID() };
     setItems((prev) => [...prev, newItem]);
     setTimeout(() => {
       const textarea = textareaRefs.current[newItem.id];
@@ -27,9 +29,12 @@ const CustomReviewScreen = memo(function CustomReviewScreen({ questions, topic, 
   }, []);
 
   const handleStart = () => {
-    const validQuestions = items.map((item) => item.text.trim()).filter(Boolean);
-    if (validQuestions.length > 0) {
-      onStart(validQuestions);
+    const validItems = items.filter((item) => item.text.trim());
+    if (validItems.length > 0) {
+      onStart(
+        validItems.map((item) => item.text.trim()),
+        validItems.map((item) => item.hints)
+      );
     }
   };
 

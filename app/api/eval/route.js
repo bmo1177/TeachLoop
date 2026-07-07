@@ -41,7 +41,15 @@ function validateQuestionsSchema(data) {
   if (!data || typeof data !== "object") return false;
   if (!Array.isArray(data.questions)) return false;
   if (data.questions.length === 0) return false;
-  return data.questions.every((q) => typeof q === "string" && q.length > 0);
+  if (!data.questions.every((q) => typeof q === "string" && q.length > 0)) return false;
+  if (data.hints !== undefined) {
+    if (!Array.isArray(data.hints)) return false;
+    if (data.hints.length !== data.questions.length) return false;
+    return data.hints.every(
+      (h) => Array.isArray(h) && h.length === 3 && h.every((s) => typeof s === "string" && s.length > 0)
+    );
+  }
+  return true;
 }
 
 function validateEvalSchema(data) {
@@ -119,7 +127,7 @@ export async function POST(request) {
         },
         body: JSON.stringify({
           model: MODEL,
-          max_tokens: 768,
+          max_tokens: 1500,
           temperature: 0.3,
           messages: [
             { role: "system", content: "You are a warm, encouraging communication coach and fair technical interviewer. Your job is to evaluate COMMUNICATION QUALITY, not perfection. Most answers deserve 7-9. Only truly poor answers get below 6. When an answer was spoken via microphone, ignore speech-to-text quirks entirely — grade the underlying ideas and how clearly they were expressed. Never penalize for transcription artifacts, minor grammar issues from speech recognition, or slightly awkward phrasing that comes from speaking aloud. Focus on: did they communicate the concept clearly? Did they show understanding? Were they engaging? Return valid JSON only." },

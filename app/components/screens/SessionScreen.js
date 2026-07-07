@@ -43,6 +43,7 @@ const SessionScreen = memo(function SessionScreen({
   onNext,
   isLast,
   onVoiceUsed,
+  hintsMap,
 }) {
   const aud = useMemo(() => AUDIENCES.find((a) => a.id === audience), [audience]);
   const voice = useVoice(onChange, answer);
@@ -62,9 +63,10 @@ const SessionScreen = memo(function SessionScreen({
 
   const [hintLevel, setHintLevel] = useState(0);
   const hintsForQuestion = useMemo(() => {
+    if (hintsMap) return hintsMap[q] || null;
     const allHints = mode === "teach" ? TEACH_HINTS : SWE_HINTS;
     return allHints[q] || null;
-  }, [mode, q]);
+  }, [mode, q, hintsMap]);
 
   const toggleHint = useCallback(() => {
     if (!hintsForQuestion) return;

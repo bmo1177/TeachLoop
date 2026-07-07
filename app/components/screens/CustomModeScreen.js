@@ -41,6 +41,7 @@ const CustomModeScreen = memo(function CustomModeScreen({ onBack, onGenerated })
       }
       onGenerated({
         questions: data.questions,
+        hints: data.hints || null,
         topic: topic.trim(),
         audience: selectedAudience,
       });

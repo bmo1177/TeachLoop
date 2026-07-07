@@ -42,9 +42,14 @@ Generate exactly ${count} practice questions. Each question should:
 - Be appropriate for explaining to ${audienceLabel || "a general audience"}
 - Vary in difficulty and focus (some conceptual, some practical, some comparative)
 
-Return JSON: {"questions":["<question 1>","<question 2>","<question 3>","<question 4>","<question 5>"]}
+For each question, provide 3 progressive hints:
+- Hint 1: A gentle nudge that points them in the right direction without giving away the answer
+- Hint 2: A medium scaffold that provides more context or a key concept to consider
+- Hint 3: A comprehensive summary of what a strong answer should cover
 
-Only return the JSON array. No extra text.`;
+Return JSON: {"questions":["<question 1>","<question 2>","<question 3>","<question 4>","<question 5>"],"hints":[["<hint 1 for q1>","<hint 2 for q1>","<hint 3 for q1>"],["<hint 1 for q2>","<hint 2 for q2>","<hint 3 for q2>"],["<hint 1 for q3>","<hint 2 for q3>","<hint 3 for q3>"],["<hint 1 for q4>","<hint 2 for q4>","<hint 3 for q4>"],["<hint 1 for q5>","<hint 2 for q5>","<hint 3 for q5>"]]}
+
+Only return the JSON. No extra text.`;
 };
 
 export const reportPrompt = (evals) => {
