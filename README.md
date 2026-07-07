@@ -110,6 +110,12 @@ After each 5-question session, receive a comprehensive report:
 
 ---
 
+## Screenshots
+
+<img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_07.png" width="230" alt="screenshots1"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_33.png" width="230" alt="screenshots2"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_43.png" width="230" alt="screenshots3"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_24.png" width="230" alt="screenshots4"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_36.png" width="230" alt="screenshots5"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_55.png" width="230" alt="screenshots6"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_16.png" width="230" alt="screenshots7"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_26.png" width="230" alt="screenshots8"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_38.png" width="230" alt="screenshots9"/>
+
+---
+
 ## Quick Start
 
 ```bash
