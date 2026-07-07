@@ -163,6 +163,21 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
               </div>
             </button>
 
+            <button className="mode-card" onClick={() => onMode("whiteboard")}>
+              <div className="mode-card-icon" style={{ background: "rgba(194, 65, 12, 0.1)", color: "var(--color-primary)" }}>
+                <ChalkboardTeacher size={24} weight="duotone" />
+              </div>
+              <div className="mode-card-content">
+                <h3 className="mode-card-title">Sketch Mode</h3>
+                <p className="mode-card-desc">
+                  Explain concepts visually with an interactive whiteboard. Evaluated on diagram clarity, completeness, and layout.
+                </p>
+              </div>
+              <div className="mode-card-arrow">
+                <ArrowRight size={18} weight="bold" />
+              </div>
+            </button>
+
             <button className="mode-card" onClick={() => onMode("custom", sessionLength)}>
               <div className="mode-card-icon" style={{ background: "var(--color-success-subtle)", color: "var(--color-success)" }}>
                 <Sparkle size={24} weight="duotone" />

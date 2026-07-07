@@ -14,6 +14,7 @@ const AudienceScreen = dynamic(() => import("@/app/components/screens/AudienceSc
 const WheelScreen = dynamic(() => import("@/app/components/screens/WheelScreen").then((m) => m.WheelScreen), { loading: () => null });
 const SessionScreen = dynamic(() => import("@/app/components/screens/SessionScreen").then((m) => m.SessionScreen), { loading: () => null });
 const FeedbackScreen = dynamic(() => import("@/app/components/screens/FeedbackScreen").then((m) => m.FeedbackScreen), { loading: () => null });
+const WhiteboardScreen = dynamic(() => import("@/app/components/screens/WhiteboardScreen").then((m) => m.WhiteboardScreen), { loading: () => null });
 
 /* ─── ERROR BOUNDARY ──────────────────────────────────────────────────────── */
 
@@ -96,7 +97,9 @@ function AppInner() {
   const gotoMode = (m, length) => {
     setMode(m);
     setSessionLength(length || DEFAULT_SESSION_LENGTH);
-    if (m === "teach") {
+    if (m === "whiteboard") {
+      setScreen("whiteboard");
+    } else if (m === "teach") {
       setScreen("audience");
     } else if (m === "custom") {
       setScreen("custom");
@@ -338,6 +341,11 @@ function AppInner() {
                 onBack={() => setScreen("custom")}
                 onStart={startCustomSession}
               />
+            </motion.div>
+          )}
+          {screen === "whiteboard" && (
+            <motion.div key="whiteboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <WhiteboardScreen onBack={reset} />
             </motion.div>
           )}
         </AnimatePresence>

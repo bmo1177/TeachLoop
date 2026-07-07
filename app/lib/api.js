@@ -64,3 +64,99 @@ export const reportPrompt = (evals) => {
 ${summary}
 Return JSON: {"communicationStyle":"<2-3 sentences>","recurringStrength":"<pattern>","recurringFlaw":"<habit>","weeklyPractice":"<actionable practice>","overallScore":<average score>}`;
 };
+
+export function getWhiteboardSummary(elements) {
+  if (!elements || elements.length === 0) return "Empty whiteboard canvas (no shapes or annotations drawn).";
+
+  const rectangles = elements.filter(e => e.type === "rectangle" && !e.isDeleted);
+  const ellipses = elements.filter(e => e.type === "ellipse" && !e.isDeleted);
+  const diamonds = elements.filter(e => e.type === "diamond" && !e.isDeleted);
+  const texts = elements.filter(e => e.type === "text" && !e.isDeleted);
+  const arrows = elements.filter(e => e.type === "arrow" && !e.isDeleted);
+  const lines = elements.filter(e => (e.type === "line" || e.type === "draw") && !e.isDeleted);
+
+  const shapeMap = new Map();
+  [...rectangles, ...ellipses, ...diamonds].forEach(s => shapeMap.set(s.id, s));
+  texts.forEach(t => shapeMap.set(t.id, t));
+
+  const getShapeLabel = (shape) => {
+    const boundText = texts.find(t => t.containerId === shape.id);
+    if (boundText) return boundText.text;
+
+    let nearestText = null;
+    let minDist = 150;
+    texts.forEach(t => {
+      const dx = (shape.x + shape.width/2) - (t.x + t.width/2);
+      const dy = (shape.y + shape.height/2) - (t.y + t.height/2);
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestText = t.text;
+      }
+    });
+    return nearestText || `Unnamed ${shape.type}`;
+  };
+
+  const shapesList = [...rectangles, ...ellipses, ...diamonds].map((s) => {
+    const label = getShapeLabel(s);
+    return `- [ID: ${s.id}] ${s.type.toUpperCase()}: "${label}" located at (${Math.round(s.x)}, ${Math.round(s.y)})`;
+  });
+
+  const freeTexts = texts.filter(t => !t.containerId).map(t => {
+    return `- Text Note: "${t.text}" at (${Math.round(t.x)}, ${Math.round(t.y)})`;
+  });
+
+  const arrowConnections = arrows.map(a => {
+    const startId = a.startBinding?.elementId;
+    const endId = a.endBinding?.elementId;
+    const startShape = startId ? shapeMap.get(startId) : null;
+    const endShape = endId ? shapeMap.get(endId) : null;
+
+    const startLabel = startShape ? (startShape.type === "text" ? startShape.text : getShapeLabel(startShape)) : "unconnected start";
+    const endLabel = endShape ? (endShape.type === "text" ? endShape.text : getShapeLabel(endShape)) : "unconnected end";
+
+    const boundText = texts.find(t => t.containerId === a.id);
+    const arrowLabel = boundText ? ` labeled "${boundText.text}"` : "";
+
+    return `- Arrow${arrowLabel} connecting "${startLabel}" to "${endLabel}"`;
+  });
+
+  return `WHITEBOARD CANVAS CONTENT SUMMARY:
+Total Elements: ${elements.length}
+Shapes:
+${shapesList.length > 0 ? shapesList.join("\n") : "None"}
+
+Floating Text / Notes:
+${freeTexts.length > 0 ? freeTexts.join("\n") : "None"}
+
+Connections / Arrows:
+${arrowConnections.length > 0 ? arrowConnections.join("\n") : "None"}
+
+Other Drawings (Lines/Sketches):
+- Number of freehand sketches/lines: ${lines.length}
+`;
+}
+
+export const whiteboardEvalPrompt = (concept, elementsSummary, notes) => {
+  return `You are evaluating a user's visual explanation (diagram/whiteboard sketch) of the concept: "${concept}".
+They have drawn a diagram and accompanied it with a text explanation.
+
+Here is the structured representation of what they drew on the whiteboard:
+"""
+${elementsSummary}
+"""
+
+Here is their accompanying written explanation / notes:
+"""
+${notes}
+"""
+
+Evaluate their explanation. Focus on:
+1. Correctness: Are the drawn relationships and concepts correct?
+2. Completeness: Did they include key components of the concept?
+3. Clarity: Is the diagram logical, easy to follow, and not overly cluttered?
+4. Visual Structure: Is there a good layout flow, proper hierarchy, and connections?
+
+Return JSON: {"scores":{"correctness":<1-10>,"completeness":<1-10>,"clarity":<1-10>,"visualStructure":<1-10>},"overallScore":<1-10>,"styleObservation":"<1 sentence style observation>","strongPoint":"<specific strong visual or text explanation point>","flawToFix":"<single most impactful improvement to the diagram or explanation>"}`;
+};
+
