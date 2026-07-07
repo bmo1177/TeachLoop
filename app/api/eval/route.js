@@ -37,7 +37,14 @@ function getAllowedOrigin(request) {
   return null;
 }
 
-function validateResponseSchema(data) {
+function validateQuestionsSchema(data) {
+  if (!data || typeof data !== "object") return false;
+  if (!Array.isArray(data.questions)) return false;
+  if (data.questions.length === 0) return false;
+  return data.questions.every((q) => typeof q === "string" && q.length > 0);
+}
+
+function validateEvalSchema(data) {
   if (!data || typeof data !== "object") return false;
   if (typeof data.overallScore !== "number") return false;
   if (typeof data.styleObservation !== "string") return false;
@@ -128,8 +135,14 @@ export async function POST(request) {
         const text = data.choices?.[0]?.message?.content || "";
 
         const parsed = extractJSON(text);
-        if (parsed && validateResponseSchema(parsed)) {
-          return NextResponse.json(parsed);
+        if (parsed) {
+          const isQuestionResponse = Array.isArray(parsed.questions);
+          const isValid = isQuestionResponse
+            ? validateQuestionsSchema(parsed)
+            : validateEvalSchema(parsed);
+          if (isValid) {
+            return NextResponse.json(parsed);
+          }
         }
 
         return NextResponse.json(
