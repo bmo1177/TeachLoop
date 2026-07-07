@@ -12,6 +12,7 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
   const rafRef = useRef(null);
   const startTimeRef = useRef(null);
   const currentRotationRef = useRef(0);
+  const current_itemRef = useRef(null);
   const wheelColors = useWheelColors();
 
   useEffect(() => {
@@ -70,6 +71,12 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
       spin();
     }
   }, [spinning, phase, spin]);
+
+  useEffect(() => {
+    if (current_itemRef.current) {
+      current_itemRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [completedCount]);
 
   const activeQuestion = questions[activeIdx] || questions[0];
 
@@ -157,9 +164,17 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h2 className="wheel-question-list-title">
-              {mode === "teach" ? "Concepts" : "Questions"}
-            </h2>
+            <div className="wheel-question-progress">
+              <span className="wheel-question-progress-text">
+                {completedCount} of {questions.length} done
+              </span>
+              <div className="wheel-question-progress-bar">
+                <div
+                  className="wheel-question-progress-fill"
+                  style={{ width: `${(completedCount / questions.length) * 100}%` }}
+                />
+              </div>
+            </div>
             <ul className="wheel-question-items">
               {questions.map((q, i) => {
                 const isDone = i < completedCount;
@@ -167,24 +182,22 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
                 return (
                   <li
                     key={i}
+                    ref={isCurrent ? current_itemRef : null}
                     className={`wheel-question-item ${isDone ? "wheel-question-done" : ""} ${isCurrent ? "wheel-question-current" : ""}`}
                   >
-                    <span className="wheel-question-num">{i + 1}</span>
-                    <span className="wheel-question-text">
-                      {isDone ? (
-                        <span className="wheel-question-strikethrough">{q}</span>
-                      ) : (
-                        q
-                      )}
-                    </span>
-                    {isDone && (
-                      <span className="wheel-question-check" aria-label="Completed">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <circle cx="7" cy="7" r="7" fill="var(--color-accent-muted)" />
-                          <path d="M4 7.5L6 9.5L10 4.5" stroke="var(--color-accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                    )}
+                    <div className="wheel-question-indicator">
+                      <div className={`wheel-question-dot ${isDone ? "wheel-question-dot-done" : ""} ${isCurrent ? "wheel-question-dot-current" : ""}`}>
+                        {isDone ? (
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2.5 6.5L5 9L9.5 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : (
+                          <span className="wheel-question-dot-num">{i + 1}</span>
+                        )}
+                      </div>
+                      {i < questions.length - 1 && <div className={`wheel-question-line ${isDone ? "wheel-question-line-done" : ""}`} />}
+                    </div>
+                    <span className="wheel-question-text">{q}</span>
                   </li>
                 );
               })}
