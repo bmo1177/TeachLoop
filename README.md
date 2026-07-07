@@ -9,7 +9,7 @@ Practice explaining concepts to different audiences and get real-time feedback o
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
-[![License](https://img.shields.io/badge/License-Private-red)](#license)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://vercel.com)
 
 </div>
@@ -304,7 +304,7 @@ This is a private project. For access or questions, reach out via [GitHub Issues
 
 ## License
 
-**Private** — not licensed for distribution.
+This project is licensed under the [MIT License](LICENSE) — see the [LICENSE](LICENSE) file for details.
 
 ---
 
