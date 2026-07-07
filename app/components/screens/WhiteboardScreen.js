@@ -20,7 +20,7 @@ import { TemplateSelector } from "@/app/components/ui/TemplateSelector";
 import { NotesPanel } from "@/app/components/ui/NotesPanel";
 import { WhiteboardCanvas } from "@/app/components/ui/WhiteboardCanvas";
 import { useWhiteboardHistory } from "@/app/hooks/useWhiteboardHistory";
-import { callEval, whiteboardEvalPrompt, getWhiteboardSummary } from "@/app/lib/api";
+import { callEval, whiteboardEvalPrompt, prepareWhiteboardPrompt } from "@/app/lib/api";
 
 const WHITEBOARD_EXERCISES = [
   { id: "rate-limiter", title: "Rate Limiter Architecture", category: "System Design" },
@@ -84,11 +84,11 @@ const WhiteboardScreen = memo(function WhiteboardScreen({ onBack }) {
     setError(null);
 
     try {
-      // 1. Sanitize elements and get textual description
-      const summaryText = getWhiteboardSummary(canvasElements);
+      // 1. Build structured prompt from canvas elements + notes
+      const outline = prepareWhiteboardPrompt(canvasElements, notes, selectedExercise.title);
 
-      // 2. Generate prompt and call evaluation api
-      const prompt = whiteboardEvalPrompt(selectedExercise.title, summaryText, notes);
+      // 2. Generate eval prompt and call evaluation api
+      const prompt = whiteboardEvalPrompt(selectedExercise.title, outline, notes);
       const res = await callEval(prompt);
 
       // 3. Update evaluation state

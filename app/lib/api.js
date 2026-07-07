@@ -137,6 +137,79 @@ Other Drawings (Lines/Sketches):
 `;
 }
 
+export function prepareWhiteboardPrompt(elements, notes, concept) {
+  if (!elements || elements.length === 0) {
+    return `CONCEPT: "${concept}"\n\nCANVAS: Empty — no shapes or annotations drawn.\n\nNOTES:\n${notes || "(none)"}`;
+  }
+
+  const active = elements.filter(el => !el.isDeleted);
+  if (active.length === 0) {
+    return `CONCEPT: "${concept}"\n\nCANVAS: Empty — no shapes or annotations drawn.\n\nNOTES:\n${notes || "(none)"}`;
+  }
+
+  const shapes = active.filter(el => ["rectangle", "ellipse", "diamond"].includes(el.type));
+  const texts = active.filter(el => el.type === "text");
+  const arrows = active.filter(el => el.type === "arrow");
+  const lines = active.filter(el => ["line", "draw"].includes(el.type));
+
+  const getLabel = (el) => {
+    const bound = texts.find(t => t.containerId === el.id);
+    if (bound) return `"${bound.text}"`;
+    let nearest = null;
+    let minDist = 150;
+    texts.forEach(t => {
+      if (t.containerId) return;
+      const dx = (el.x + el.width / 2) - (t.x + t.width / 2);
+      const dy = (el.y + el.height / 2) - (t.y + t.height / 2);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < minDist) { minDist = dist; nearest = t; }
+    });
+    return nearest ? `"${nearest.text}"` : `(${el.type})`;
+  };
+
+  const shapeLines = shapes.map(s => {
+    const label = getLabel(s);
+    const size = s.width > 200 ? "large" : s.width > 80 ? "medium" : "small";
+    return `  - ${label} [${s.type}, ${size}]`;
+  });
+
+  const freeTexts = texts.filter(t => !t.containerId).map(t => `  - "${t.text}"`);
+
+  const connectionLines = arrows.map(a => {
+    const startShape = a.startBinding?.elementId
+      ? shapes.find(s => s.id === a.startBinding.elementId) || texts.find(t => t.id === a.startBinding.elementId)
+      : null;
+    const endShape = a.endBinding?.elementId
+      ? shapes.find(s => s.id === a.endBinding.elementId) || texts.find(t => t.id === a.endBinding.elementId)
+      : null;
+
+    const from = startShape ? getLabel(startShape) : "(free end)";
+    const to = endShape ? getLabel(endShape) : "(free end)";
+    const arrowText = texts.find(t => t.containerId === a.id);
+    const label = arrowText ? ` [labeled: "${arrowText.text}"]` : "";
+    return `  - ${from} → ${to}${label}`;
+  });
+
+  const parts = [`CONCEPT: "${concept}"`];
+
+  parts.push("\nSHAPES (boxes, circles, diamonds):");
+  parts.push(shapeLines.length > 0 ? shapeLines.join("\n") : "  (none)");
+
+  parts.push("\nTEXT LABELS (standalone notes):");
+  parts.push(freeTexts.length > 0 ? freeTexts.join("\n") : "  (none)");
+
+  parts.push("\nCONNECTIONS (arrows between elements):");
+  parts.push(connectionLines.length > 0 ? connectionLines.join("\n") : "  (none)");
+
+  if (lines.length > 0) {
+    parts.push(`\nFREEHAND DRAWINGS: ${lines.length} sketch(es)`);
+  }
+
+  parts.push(`\nNOTES:\n${notes || "(none)"}`);
+
+  return parts.join("\n");
+}
+
 export const whiteboardEvalPrompt = (concept, elementsSummary, notes) => {
   return `You are evaluating a user's visual explanation (diagram/whiteboard sketch) of the concept: "${concept}".
 They have drawn a diagram and accompanied it with a text explanation.
