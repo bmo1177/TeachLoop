@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { useWheelColors } from "@/app/providers/ThemeProvider";
 import { Nav } from "@/app/components/ui";
 
-const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone, screenName }) {
+const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, spinning, onSpin, onDone, screenName, completedCount = 0 }) {
   const [rotation, setRotation] = useState(0);
   const [activeIdx, setActiveIdx] = useState(0);
   const [phase, setPhase] = useState("idle");
@@ -149,6 +149,46 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
               <div className="wheel-center-dot" />
             </div>
             {phase === "spinning" && <div className="wheel-glow" aria-hidden="true" />}
+          </motion.div>
+
+          <motion.div
+            className="wheel-question-list"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h2 className="wheel-question-list-title">
+              {mode === "teach" ? "Concepts" : "Questions"}
+            </h2>
+            <ul className="wheel-question-items">
+              {questions.map((q, i) => {
+                const isDone = i < completedCount;
+                const isCurrent = i === completedCount;
+                return (
+                  <li
+                    key={i}
+                    className={`wheel-question-item ${isDone ? "wheel-question-done" : ""} ${isCurrent ? "wheel-question-current" : ""}`}
+                  >
+                    <span className="wheel-question-num">{i + 1}</span>
+                    <span className="wheel-question-text">
+                      {isDone ? (
+                        <span className="wheel-question-strikethrough">{q}</span>
+                      ) : (
+                        q
+                      )}
+                    </span>
+                    {isDone && (
+                      <span className="wheel-question-check" aria-label="Completed">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <circle cx="7" cy="7" r="7" fill="var(--color-accent-muted)" />
+                          <path d="M4 7.5L6 9.5L10 4.5" stroke="var(--color-accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </motion.div>
 
           {phase === "stopped" && (

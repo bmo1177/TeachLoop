@@ -267,6 +267,7 @@ function AppInner() {
                 onSpin={() => setWheelSpin(false)}
                 onDone={startSession}
                 screenName="wheel"
+                completedCount={0}
               />
             </motion.div>
           )}
@@ -280,6 +281,7 @@ function AppInner() {
                 onSpin={() => setWheelSpin(false)}
                 onDone={finishWheelTransition}
                 screenName="wheel-session"
+                completedCount={idx}
               />
             </motion.div>
           )}
