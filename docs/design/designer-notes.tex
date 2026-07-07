@@ -1,0 +1,416 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc,decorations.pathreplacing}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{balance}
+\usepackage{multicol}
+\usepackage{tabularx}
+
+\hypersetup{colorlinks=true, linkcolor=blue!70!black, urlcolor=blue!70!black}
+
+\definecolor{accent}{HTML}{C2410C}
+\definecolor{accentlight}{HTML}{FFF7ED}
+\definecolor{secondary}{HTML}{7C3AED}
+\definecolor{success}{HTML}{16A34A}
+\definecolor{err}{HTML}{DC2626}
+\definecolor{txt}{HTML}{1C1917}
+\definecolor{txt2}{HTML}{78716C}
+\definecolor{bluea}{HTML}{2563EB}
+\definecolor{l1}{HTML}{EAB308}
+\definecolor{l2}{HTML}{EA580C}
+\definecolor{l3}{HTML}{DC2626}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  backgroundcolor=\color{gray!5},
+  frame=single,
+  rulecolor=\color{gray!30},
+  breaklines=true,
+  columns=fullflexible,
+}
+
+\begin{document}
+
+\title{TeachLoop: An AI-Powered Communication Practice Platform for Technical Professionals}
+
+\author{
+\IEEEauthorblockN{Belalia Mohamed Oussama}
+}
+
+\maketitle
+
+\begin{abstract}
+Effective communication of technical concepts is a critical professional skill rarely taught in formal education. This paper presents TeachLoop, a web-based platform that helps engineers practice explaining complex technical topics through AI-powered feedback. The system employs a three-mode architecture (Teaching, Interview, Custom) with audience-aware evaluation across five communication dimensions. A progressive hint system provides scaffolding from gentle nudges to comprehensive explanations, drawing on Vygotsky's Zone of Proximal Development. The platform uses a client-side state machine with localStorage persistence, proxying evaluations to a large language model via a single API route. We describe the system architecture, the AI evaluation pipeline with rate limiting and schema validation, the design system comprising three themes with 40+ CSS custom properties, and accessibility features targeting WCAG AAA compliance. A content database of 36 curated questions with 108 progressive hint sets covers AI/ML concepts and system design topics. TeachLoop demonstrates that effective AI-assisted communication practice can be delivered with zero backend infrastructure beyond the AI proxy.
+\end{abstract}
+
+\begin{IEEEkeywords}
+communication practice, AI feedback, scaffolding, web application, technical education, progressive hints
+\end{IEEEkeywords}
+
+% ══════════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:intro}
+
+Software engineers frequently struggle to explain complex systems to non-technical stakeholders, junior developers, or interviewers. While technical knowledge is necessary, the ability to \emph{communicate} that knowledge effectively determines career outcomes---from passing technical interviews to leading cross-functional projects. Studies in engineering education consistently show that communication skill is among the top factors in hiring decisions, yet it is rarely taught in formal curricula~\cite{deeplearning}.
+
+Existing tools focus on technical skill assessment---coding challenges, system design quizzes, flashcards---but neglect the communication dimension entirely. A developer may understand backpropagation deeply but be unable to explain it to a product manager. TeachLoop addresses this gap by evaluating \emph{how} users explain, not merely \emph{what} they know.
+
+The platform presents users with technical concepts (e.g., backpropagation, CAP theorem, transformer architecture, ride-sharing system design) and asks them to explain these concepts to various audiences---from a curious 10-year-old to a senior AI engineer. An AI model evaluates each explanation across five communication dimensions and provides actionable feedback. The system is designed around four explicit principles: coach over critic, focus on the human, progress is visible, and warmth through craft.
+
+The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work on scaffolding and AI-assisted feedback. Section~\ref{sec:design} describes the system architecture, state machine, and AI evaluation pipeline. Section~\ref{sec:design-system} details the design system and theme architecture. Section~\ref{sec:implementation} covers implementation details including code splitting, voice input, security, and accessibility. Section~\ref{sec:discussion} discusses trade-offs and limitations. Section~\ref{sec:conclusion} concludes.
+
+% ══════════════════════════════════════════════════════════
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Scaffolding in Education}
+
+Vygotsky's Zone of Proximal Development (ZPD) establishes that learners achieve more with structured support than alone~\cite{vygotsky}. The ZPD is the gap between what a learner can do independently and what they can achieve with guidance. Hint systems in intelligent tutoring employ progressive revelation---from vague prompts to detailed explanations---to keep learners within their ZPD~\cite{vanlehn}. This scaffolding approach has been validated across domains from mathematics to programming education. TeachLoop adapts this pattern: each concept offers three hint levels (nudge, concept outline, full explanation), allowing users to self-select their scaffolding depth.
+
+\subsection{AI-Powered Feedback}
+
+Recent work on AI-assisted writing feedback demonstrates that large language models can provide structured, dimension-specific evaluation when given carefully engineered prompts~\cite{deeplearning}. TeachLoop extends this to oral and written technical explanations, scoring across clarity, analogies, vocabulary fit, confidence, and structure. The evaluation prompt is designed to produce consistent JSON output, enabling programmatic aggregation into session-level reports.
+
+\subsection{Spaced Repetition and Practice}
+
+Effective skill acquisition requires repeated practice with increasing difficulty. The Leitner system~\cite{leitner} formalizes spaced repetition through progressive intervals. While TeachLoop tracks session history and score trends to make progress visible, adaptive difficulty and spaced repetition remain future work. The current system uses random question selection from curated pools.
+
+% ══════════════════════════════════════════════════════════
+\section{System Design}
+\label{sec:design}
+
+\subsection{Architecture Overview}
+
+TeachLoop follows a client-side-first architecture with four layers (Fig.~\ref{fig:arch}). The design prioritizes simplicity: no backend database, no user authentication, no client-side router. All application state lives in a single React component; all persistent data lives in localStorage.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  layer/.style={draw=accent!70!black, fill=accent!5, rounded corners=5pt, minimum width=7.2cm, minimum height=0.5cm, align=center, font=\scriptsize\bfseries},
+  comp/.style={draw=txt2!50!black, fill=white, rounded corners=3pt, minimum width=1.3cm, minimum height=0.35cm, align=center, font=\tiny},
+  ext/.style={draw=secondary!60!black, fill=secondary!8, rounded corners=3pt, minimum width=2.4cm, minimum height=0.4cm, align=center, font=\tiny\bfseries},
+  arrow/.style={->, thick, color=txt2!80},
+  data/.style={font=\tiny, text=txt2, align=center},
+]
+
+% Layer boxes
+\node[layer, fill=accent!6] (pres) at (0, 3.6) {Presentation Layer};
+\node[layer, fill=secondary!6, draw=secondary!70!black] (state) at (0, 2.5) {State Machine};
+\node[layer, fill=bluea!6, draw=bluea!70!black] (dataL) at (0, 1.4) {Data \& Hooks};
+\node[layer, fill=success!6, draw=success!70!black] (api) at (0, 0.3) {API Layer};
+
+% Components inside layers
+\node[comp] (s1) at (-2.8, 3.6) {Home};
+\node[comp] (s2) at (-1.6, 3.6) {Audience};
+\node[comp] (s3) at (-0.4, 3.6) {Wheel};
+\node[comp] (s4) at (0.8, 3.6) {Session};
+\node[comp] (s5) at (2.0, 3.6) {Feedback};
+\node[comp] (s6) at (3.0, 3.6) {Custom};
+
+\node[comp] (sv) at (-2.0, 2.5) {screen};
+\node[comp] (ev) at (0, 2.5) {evals[]};
+\node[comp] (rp) at (2.0, 2.5) {report};
+
+\node[comp] (q) at (-2.8, 1.4) {36Q};
+\node[comp] (h) at (-1.4, 1.4) {108H};
+\node[comp] (v) at (0, 1.4) {Voice};
+\node[comp] (hs) at (1.4, 1.4) {History};
+\node[comp] (th) at (2.8, 1.4) {Theme};
+
+\node[ext] (llm) at (0, -0.5) {Nemotron 120B (via OpenRouter)};
+
+% Data flow labels
+\node[data] at (-4.2, 3.6) {Motion\\transitions};
+\node[data] at (4.2, 3.6) {Web Speech\\API};
+\node[data] at (-4.2, 2.5) {Single source\\of truth};
+\node[data] at (4.2, 2.5) {Accumulated\\results};
+\node[data] at (-4.2, 1.4) {Static\\bundle};
+\node[data] at (4.2, 1.4) {localStorage\\max 20};
+
+% Arrows between layers
+\draw[arrow] (pres.south) -- node[right, font=\tiny, xshift=-0.3cm] {state updates} (state.north);
+\draw[arrow] (state.south) -- node[right, font=\tiny, xshift=-0.3cm] {reads/writes} (dataL.north);
+\draw[arrow] (dataL.south) -- node[right, font=\tiny, xshift=-0.3cm] {callEval()} (api.north);
+\draw[arrow, dashed, color=secondary!60] (api.south) -- node[right, font=\tiny, color=secondary] {JSON response} (llm.north);
+
+% Data store icon
+\node[draw=success!50!black, fill=success!10, rounded corners=2pt, minimum width=1.2cm, minimum height=0.3cm, font=\tiny\bfseries] (ls) at (0, -1.2) {localStorage};
+
+\draw[arrow, color=success!60] (api.south) -- ++(0,-0.2) -| (ls.north);
+
+\end{tikzpicture}
+\caption{Four-layer architecture of TeachLoop with component inventory and data flow annotations.}
+\label{fig:arch}
+\end{figure}
+
+The Presentation layer contains seven screen components (Home, Audience, Wheel, Session, Feedback, CustomMode, CustomReview) with Motion-powered page transitions. The State Machine layer manages all application state via \texttt{useState} hooks in the root \texttt{AppInner} component---there is no client-side router; a \texttt{screen} state variable controls which screen is rendered. The Data \& Hooks layer provides static question banks, progressive hints, voice input via the Web Speech API, and localStorage session persistence. The API layer consists of a single Next.js API route that proxies evaluation requests to OpenRouter.
+
+\subsection{Screen State Machine}
+
+The application operates as a finite state machine with 8 screens (Fig.~\ref{fig:state}). The \texttt{screen} state variable is the single source of truth for navigation state. There is no URL-based routing---the browser URL remains \texttt{/} throughout the entire session.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  lvl/.style={draw=#1!60!black, fill=#1!10, rounded corners=4pt, minimum width=6.8cm, minimum height=0.5cm, align=left, font=\tiny},
+  ex/.style={font=\tiny, text=txt2, align=left, inner sep=2pt},
+  arr/.style={->, thick, color=txt2!60},
+]
+
+% Level 1
+\node[lvl=l1, minimum width=6.8cm] (L1) at (0, 3.0) {};
+\node[font=\tiny\bfseries, text=l1!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L1.north west) {Level 1 --- Nudge};
+\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L1.north west) {``Have you tried thinking about which layer would be responsible?''};
+\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L1.south east) {score $< 1$, 1st wrong};
+
+% Level 2
+\node[lvl=l2, minimum width=6.8cm] (L2) at (0, 2.0) {};
+\node[font=\tiny\bfseries, text=l2!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L2.north west) {Level 2 --- Outline};
+\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L2.north west) {``The presentation layer... The state machine layer...' (bullet points)};
+\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L2.south east) {score $< 1$, 2nd+ wrong};
+
+% Level 3
+\node[lvl=l3, minimum width=6.8cm] (L3) at (0, 1.0) {};
+\node[font=\tiny\bfseries, text=l3!80!black, anchor=north west] at ([xshift=0.15cm, yshift=-0.05cm]L3.north west) {Level 3 --- Full Explanation};
+\node[ex, anchor=north west] at ([xshift=0.15cm, yshift=-0.22cm]L3.north west) {``The presentation layer is responsible for... because...' (complete answer)};
+\node[font=\tiny, text=txt2!50, anchor=south east] at ([xshift=-0.15cm, yshift=0.05cm]L3.south east) {score $< 1$, 3rd+ wrong};
+
+% Flow arrows
+\draw[arr] (L1.south) -- node[right, font=\tiny, xshift=0.1cm] {still wrong} (L2.north);
+\draw[arr] (L2.south) -- node[right, font=\tiny, xshift=0.1cm] {still wrong} (L3.north);
+
+% Right side: success path
+\draw[arr, color=success!60] (L1.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
+\draw[arr, color=success!60] (L2.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
+\draw[arr, color=success!60] (L3.east) -- ++(0.5,0) node[right, font=\tiny, text=success!70!black] {``Correct!''};
+
+% Source annotation
+\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, minimum width=6.8cm, minimum height=0.3cm, font=\tiny, align=center] at (0, 0.2) {36 concepts $\times$ 3 levels = 108 hand-crafted hint sets (hints.js)};
+
+\end{tikzpicture}
+\caption{Three-level progressive hint system. Each level adds cognitive scaffolding.}
+\label{fig:hints}
+\end{figure}
+
+The root component maintains 18 state variables that collectively encode the full application state. Key variables include: \texttt{screen} (current screen), \texttt{mode} (teach/interview/custom), \texttt{qs} (question array for current session), \texttt{idx} (current question index), \texttt{ans} (current answer text), \texttt{evals} (accumulated evaluation results), \texttt{report} (session-level summary), \texttt{wheelSpin} (animation state), and \texttt{wasVoiceUsed} (microphone flag). Session history is managed by the \texttt{useSessionHistory} hook, which persists up to 20 sessions in localStorage.
+
+\subsection{AI Evaluation Pipeline}
+
+Each user answer is evaluated by an LLM through a structured pipeline (Fig.~\ref{fig:eval}). The pipeline implements five validation stages before reaching the AI model.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,
+  evalStep/.style={draw=accent!60!black, fill=accent!8, rounded corners=3pt, minimum width=1.4cm, minimum height=0.4cm, align=center, font=\tiny},
+  api/.style={draw=success!60!black, fill=success!8, rounded corners=3pt, minimum width=2.4cm, minimum height=0.4cm, align=center, font=\tiny\bfseries},
+  arr/.style={->, thick, color=txt2!80},
+  elbl/.style={font=\tiny, text=txt2, fill=white, inner sep=1pt, pos=0.55},
+]
+
+\node[evalStep] (q) at (0, 2.8) {Quiz 36Q};
+\node[evalStep] (a) at (0, 2.1) {Answer};
+\node[evalStep] (s) at (0, 1.4) {Score};
+\node[evalStep] (h) at (0, 0.7) {Hint};
+\node[evalStep] (p) at (0, 0) {Prompt};
+\node[api] (api) at (0, -0.8) {OpenRouter};
+\node[evalStep] (r) at (0, -1.5) {JSON};
+\node[evalStep] (re) at (0, -2.2) {report[]};
+
+\node[draw=secondary!40, fill=secondary!5, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (t) at (4.2, 0.7) {Text-to-speech};
+\node[draw=bluea!40, fill=bluea!5, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (v) at (4.2, 1.4) {Chart data};
+\node[draw=txt2!30, fill=txt2!3, rounded corners=2pt, minimum width=1.6cm, minimum height=0.3cm, font=\tiny] (l) at (4.2, -1.5) {Score log};
+
+\draw[arr] (q.south) -- (a.north);
+\draw[arr] (a.south) -- (s.north);
+\draw[arr] (s.south) -- (h.north);
+\draw[arr] (h.south) -- (p.north);
+\draw[arr] (p.south) -- (api.north);
+\draw[arr] (api.south) -- (r.north);
+\draw[arr] (r.south) -- (re.north);
+
+\draw[arr, dashed, color=secondary] (s.east) -- ++(0.3,0) |- node[elbl, near end] {audio} (t.west);
+\draw[arr, dashed, color=bluea] (s.east) -- ++(0.3,0) |- node[elbl, near end] {visual} (v.west);
+\draw[arr, dashed, color=txt2!60] (r.east) -- ++(0.3,0) |- node[elbl, near end] {log} (l.west);
+
+\node[draw=txt2!20, fill=txt2!2, rounded corners=2pt, minimum width=5.6cm, minimum height=0.2cm, font=\tiny, align=center] (loop) at (0, 1.75) {};
+
+\end{tikzpicture}
+\caption{Evaluation pipeline. Dashed lines = data consumers; the pipeline loops until session ends.}
+\label{fig:pipeline}
+\end{figure}
+
+The prompt construction stage builds a mode-specific evaluation prompt. Teaching mode evaluates: clarity, analogies, vocabulary fit, confidence, and structure. Interview mode evaluates: clarity, depth, structure, confidence, and examples. Each dimension is scored 1--10. The prompt also requests structured JSON output containing an \texttt{overallScore}, \texttt{styleObservation} (one sentence), \texttt{strongPoint}, and \texttt{flawToFix}.
+
+Input validation caps prompt length at 12,000 characters. Rate limiting enforces 30 requests per minute per IP address using an in-memory store. The API call uses a 15-second timeout via \texttt{AbortController} with exponential backoff retry (2 attempts). JSON extraction includes fallback parsing for malformed responses. Schema validation ensures the response matches the expected shape before returning to the client.
+
+After all questions in a session are evaluated, a session report is generated by aggregating individual evaluations into a communication style analysis, recurring strength, recurring flaw, and a weekly practice tip. This report is saved to localStorage as part of the session history.
+
+\subsection{Progressive Hint System}
+
+Each of the 36 static concepts offers three hint levels following scaffolding theory~\cite{vanlehn}:
+
+\begin{enumerate}[leftmargin=*, label=\textbf{L\arabic*:}]
+  \item \textbf{Nudge:} A gentle directional prompt that points toward the answer without revealing it. Example for ``Attention Mechanism'': ``Focus on the core idea of weighing how much each input word matters to every other word.''
+  \item \textbf{Concept Outline:} A structured scaffold providing key concepts and terminology. Example: ``Attention lets each token look at all other tokens and decide which ones are most relevant. Explain query, key, value vectors and the softmax weighting.''
+  \item \textbf{Full Explanation:} A comprehensive reference covering what a strong answer should include. Example: ``In `Attention Is All You Need', each token is projected into Q, K, V. Attention scores = softmax(QK$^T$/$\sqrt{d}$)V. Multi-head attention runs this in parallel.''
+\end{enumerate}
+
+The content database covers 20 AI/ML teaching concepts (from Backpropagation to Mixture of Experts) and 16 system design/SWE interview questions (from URL shortening to consensus algorithms). Each hint set is hand-curated to ensure technical accuracy and pedagogical progression.
+
+\subsection{Voice Input Pipeline}
+
+The \texttt{useVoice} hook captures speech via the Web Speech API and applies automatic post-processing. Filler words (``um,'' ``uh,'' ``like,'' ``you know,'' ``I mean,'' ``basically,'' ``literally,'' ``right'') are removed. Consecutive duplicate words are collapsed. Punctuation is normalized. A \texttt{wasVoiceUsed} flag annotates the evaluation prompt to excuse transcription artifacts: ``Grade the ideas and communication, not the transcription quality.''
+
+% ══════════════════════════════════════════════════════════
+\section{Design System}
+\label{sec:design-system}
+
+\subsection{Typography and Spacing}
+
+The typography follows a Perfect Fourth (1.333) modular scale with 10 defined steps from 0.6875rem (2xs) to 3.375rem (5xl). The primary typeface is Geist, a variable font optimized for screen reading. Spacing uses a 4pt base with 16 defined steps from 0.25rem to 8rem. Border radii range from 0.25rem (xs) to 9999px (full). Easing curves include quart, expo, spring, and in-out variants. A z-index scale from 0 (base) to 500 (toast) prevents stacking conflicts.
+
+\subsection{Theme System}
+
+Three themes are implemented via CSS custom properties, each defining 40+ variables for colors, shadows, grain texture, glass effects, and wheel segment colors (Table~\ref{tab:themes}).
+
+\begin{table}[!t]
+\centering
+\caption{Theme Variants with Accent Colors}
+\label{tab:themes}
+\begin{tabular}{lll}
+\toprule
+\textbf{Theme} & \textbf{Accent} & \textbf{Background} \\
+\midrule
+Sunrise Studio & Burnt Orange \#C2410C & Warm cream \#FBF9F6 \\
+Chalkboard & Yellow \#FACC15 & Dark zinc \#18181B \\
+Blue Hour & Blue \#2563EB & Cool slate \#F8FAFC \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Theme selection persists in localStorage and is applied via the \texttt{data-theme} attribute on the document root. An inline script in the root layout runs before React hydration to prevent flash-of-unstyled-theme (FOUC). The \texttt{ThemeProvider} context exposes the current theme and a switcher component (three colored dots with spring-scale animation).
+
+\subsection{Visual Effects}
+
+The design system employs seven layered visual effects:
+
+\begin{enumerate}[leftmargin=*, label=(\arabic*)]
+  \item \textbf{Grain Texture:} An SVG noise overlay at 2--4\% opacity is applied via a \texttt{::after} pseudo-element on the body, adding tactile warmth without impacting readability.
+  \item \textbf{Glassmorphism:} The navigation bar uses \texttt{backdrop-filter: blur(16px)} with a semi-transparent background, creating a depth hierarchy between the nav and page content.
+  \item \textbf{ScoreRing:} An SVG circle with animated \texttt{stroke-dashoffset} represents scores. Color coding: green for scores $\geq$8, accent for 5--7, red for $<$5. Configurable size and animation delay.
+  \item \textbf{Sparkline Charts:} SVG polylines render score trends across past sessions. Auto-scales to min/max range. Up to 5 sessions are shown on the home screen.
+  \item \textbf{Wheel Animation:} A CSS conic-gradient wheel with segment labels spins using quadratic easing (3--5 extra rotations). A glow effect activates during spin. Progress dots with connecting lines track completed questions.
+  \item \textbf{Page Transitions:} \texttt{AnimatePresence} with 250ms opacity fade between all screens.
+  \item \textbf{Staggered Entrances:} Audience list items animate in with 50ms stagger delay for a polished reveal effect.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════
+\section{Implementation}
+\label{sec:implementation}
+
+\subsection{Technology Stack}
+
+Table~\ref{tab:stack} summarizes the technology stack and the rationale for each choice.
+
+\begin{table}[!t]
+\centering
+\caption{Technology Stack}
+\label{tab:stack}
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{Component} & \textbf{Technology \& Rationale} \\
+\midrule
+Framework & Next.js 15.3.3 (App Router, API routes, React Server Components) \\
+UI & React 19.1.0 (concurrent features, Suspense for code splitting) \\
+Animation & Motion 12.42.0 (spring physics, AnimatePresence) \\
+Typography & Geist 1.7.2 (variable font, screen-optimized) \\
+Icons & Phosphor Icons 2.1.10 (duotone weight, consistent language) \\
+AI Backend & OpenRouter / NVIDIA Nemotron 120B (free tier, JSON mode) \\
+Speech & Web Speech API (native browser, no dependencies) \\
+Storage & localStorage (max 20 sessions, JSON serialization) \\
+Deployment & Vercel (edge functions, zero-config Next.js) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Code Splitting and Dynamic Imports}
+
+Heavy screen components (AudienceScreen, WheelScreen, SessionScreen, FeedbackScreen) use Next.js \texttt{dynamic()} imports with no loading placeholder. The app shell (HomeScreen, CustomModeScreen) loads eagerly. This reduces the initial bundle from the full application to just the entry screen and shared utilities.
+
+\subsection{Error Handling}
+
+A class-based \texttt{ErrorBoundary} component wraps the entire application, catching React rendering errors and providing a recovery UI with a ``Try again'' button. API errors are caught at the call site and displayed in contextual error banners with retry options. The session report generation has independent error handling---if report generation fails, users can still view their individual answers.
+
+\subsection{Security}
+
+The API route implements multiple security layers: IP-based rate limiting (30 requests/minute), origin validation against allowed origins, prompt length capping (12,000 characters), 15-second fetch timeout with \texttt{AbortController}, exponential backoff retry (2 attempts maximum), JSON extraction with regex fallback for malformed responses, and response schema validation. Security headers include X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, and Permissions-Policy with microphone=self.
+
+\subsection{Accessibility and PWA}
+
+The platform targets WCAG AAA compliance with: a skip link to \texttt{\#main-content}, screen reader text via \texttt{.sr-only} class, \texttt{:focus-visible} outlines with accent color, \texttt{prefers-reduced-motion} media query that disables all animations, semantic HTML with proper heading hierarchy, and full keyboard navigability.
+
+PWA features include a web manifest with app name and theme color, a service worker implementing stale-while-revalidate caching, theme-color meta tag for mobile browser chrome, and a \texttt{beforeunload} handler to prevent accidental navigation during active sessions.
+
+\subsection{Data Architecture}
+
+All data is client-side. Static content (36 questions, 108 hint sets, 5 audience definitions) is bundled as JavaScript modules. Session history (date, mode, audience, overall score, per-question scores) persists in localStorage with a 20-session cap. Theme preference and onboarding dismissal state also persist. There is no server-side database, no user authentication, and no cross-device synchronization.
+
+% ══════════════════════════════════════════════════════════
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Design Trade-offs}
+
+Several deliberate trade-offs were made during development:
+
+\begin{enumerate}[leftmargin=*, label=(\Roman*)]
+  \item \textbf{No client-side router:} Using a \texttt{screen} state variable instead of URL-based navigation simplifies state management but prevents deep linking, browser back-button support, and shareable URLs for specific screens.
+  \item \textbf{Single-component state:} All 18 state variables live in \texttt{AppInner}, avoiding prop drilling complexity but creating a large component ($\sim$357 lines) that re-renders on any state change.
+  \item \textbf{Static content database:} Embedding questions in the bundle ensures instant availability but limits the question pool to 36 static items. Custom mode mitigates this by generating questions dynamically.
+  \item \textbf{localStorage only:} No backend complexity, but session history is device-bound and lost on cache clear. No cross-device sync is possible.
+  \item \textbf{Free AI model:} Using NVIDIA Nemotron 120B via OpenRouter's free tier eliminates cost but introduces potential rate limits and model availability risks.
+\end{enumerate}
+
+\subsection{Limitations}
+
+The current implementation has several limitations. No user accounts or cross-device synchronization. No adaptive difficulty---question selection is random rather than performance-based. No exportable session reports beyond the browser print dialog. Custom mode requires AI generation, adding latency and an external API dependency. Voice input accuracy varies across browsers and hardware.
+
+\subsection{Future Directions}
+
+Planned improvements include: adaptive question selection using evaluation scores to target weak areas, spaced repetition scheduling for concept review, multi-language support for global audiences, team practice mode with shared evaluation reports, and enhanced PWA features including background sync and push notifications for practice reminders.
+
+% ══════════════════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+
+TeachLoop demonstrates that effective AI-assisted communication practice can be delivered with a minimal, client-side-first architecture. By combining a curated content database (36 questions, 108 hint sets), structured AI evaluation (5-dimension scoring), and a craft-oriented design system (3 themes, Perfect Fourth typography, grain textures), the platform provides actionable feedback on \emph{how} engineers explain technical concepts. The key architectural decision---a single API route proxying to a free LLM with localStorage persistence---eliminates backend infrastructure while maintaining a polished user experience. The progressive hint system, grounded in scaffolding theory, provides entry points for users at different skill levels. Future work will focus on adaptive difficulty and spaced repetition to improve long-term learning outcomes.
+
+\balance
+
+\begin{thebibliography}{9}
+
+\bibitem{deeplearning}
+DeepLearning.AI, ``Communicating with AI: Technical Explanations,'' DeepLearning.AI Short Courses, 2024. [Online]. Available: https://www.deeplearning.ai
+
+\bibitem{vygotsky}
+L.\,S. Vygotsky, \emph{Mind in Society: The Development of Higher Psychological Processes}. Cambridge, MA: Harvard Univ. Press, 1978.
+
+\bibitem{vanlehn}
+K. vanLehn, ``The relative effectiveness of human tutoring, intelligent tutoring systems, and other tutoring systems,'' \emph{Educational Psychologist}, vol. 46, no. 4, pp. 197--221, 2011.
+
+\bibitem{leitner}
+S. Leitner, \emph{So lernt man lernen}. Freiburg: Herder, 1972.
+
+\end{thebibliography}
+
+\end{document}
