@@ -51,6 +51,10 @@
   top: var(--space-4);
 }
 
+#main-content:focus {
+  outline: none;
+}
+
 /* ─── SCREENS ───────────────────────────────────────────────────────────────── */
 
 .screen {

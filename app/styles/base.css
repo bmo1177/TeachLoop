@@ -163,3 +163,24 @@ p {
   }
 }
 
+/* ─── WINDOWS HIGH CONTRAST (FORCED COLORS) ─────────────────────────────────── */
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: CanvasText;
+  }
+
+  .skip-link:focus,
+  .btn,
+  .mic-button,
+  .hint-button,
+  .session-length-option,
+  [role="radio"] {
+    border: 1px solid CanvasText;
+  }
+
+  body::after {
+    display: none;
+  }
+}
+

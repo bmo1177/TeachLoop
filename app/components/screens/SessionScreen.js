@@ -105,7 +105,7 @@ const SessionScreen = memo(function SessionScreen({
           <span className="question-label" style={{ color: modeColor }}>
             {mode === "teach" ? "Explain this concept" : "Interview question"}
           </span>
-          <h2 className="question-text">{q}</h2>
+          <h1 className="question-text">{q}</h1>
         </motion.div>
 
         {hintsForQuestion && !showEval && !loading && (

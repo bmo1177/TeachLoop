@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Component, Suspense } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, MotionConfig } from "motion/react";
 import dynamic from "next/dynamic";
 import { useSessionHistory } from "@/app/hooks/useSessionHistory";
 import { TEACH_CONCEPTS, SWE_QUESTIONS } from "@/app/data/questions";
@@ -251,7 +251,7 @@ function AppInner() {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      <div id="main-content">
+       <div id="main-content" tabIndex={-1}>
         <AnimatePresence mode="wait">
           {screen === "home" && (
             <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
@@ -357,9 +357,11 @@ function AppInner() {
 export default function App() {
   return (
     <ThemeProvider>
-      <ErrorBoundary>
-        <AppInner />
-      </ErrorBoundary>
+      <MotionConfig reducedMotion="user">
+        <ErrorBoundary>
+          <AppInner />
+        </ErrorBoundary>
+      </MotionConfig>
     </ThemeProvider>
   );
 }
