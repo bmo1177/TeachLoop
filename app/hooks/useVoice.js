@@ -1,41 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-
-const FILLER_PATTERN =
-  /\b(um+|uh+|er+|ah+|like,?\s*you know,?|you know,?|I mean,?|basically,?|actually,?|sort of,?|kind of,?|right\?*)\b/gi;
-
-function removeFillers(text) {
-  return text.replace(FILLER_PATTERN, "").replace(/\s{2,}/g, " ").trim();
-}
-
-function deduplicateWords(text) {
-  return text
-    .split(/(\s+)/)
-    .reduce((acc, token) => {
-      if (/^\s+$/.test(token)) {
-        acc.push(token);
-      } else {
-        const prev = acc.length > 1 ? acc[acc.length - 2] : "";
-        if (token.toLowerCase() !== prev.toLowerCase()) {
-          acc.push(token);
-        }
-      }
-      return acc;
-    }, [])
-    .join("");
-}
-
-function fixPunctuation(text) {
-  let t = text.replace(/\s{2,}/g, " ").trim();
-  if (t && !/[.!?;:]$/.test(t)) t += ".";
-  return t;
-}
-
-function cleanTranscript(text) {
-  if (!text) return text;
-  return fixPunctuation(deduplicateWords(removeFillers(text)));
-}
+import { useState, useRef, useEffect } from "react";
+import {
+  cleanTranscript,
+  capitalizeFirstLetter,
+  finalizeTranscript,
+} from "@/app/lib/transcript";
 
 function useVoice(onChange, answer) {
   const [recording, setRecording] = useState(false);
@@ -80,11 +50,15 @@ function useVoice(onChange, answer) {
         }
       }
       if (finalText.trim()) {
-        const cleaned = cleanTranscript(finalText);
+        const cleaned = cleanTranscript(finalText, { isTerminal: false });
         if (!cleaned) return;
         const cur = ansRef.current;
         const sep = cur && !cur.endsWith(" ") ? " " : "";
-        onChange(cur + sep + cleaned + " ");
+        let combined = cur + sep + cleaned;
+        if (!cur) {
+          combined = capitalizeFirstLetter(combined);
+        }
+        onChange(combined + " ");
         setWasSpoken(true);
         setInterim("");
       } else if (interimText) {
@@ -111,6 +85,10 @@ function useVoice(onChange, answer) {
       }
       setRecording(false);
       setInterim("");
+      const cur = ansRef.current;
+      if (cur && cur.trim()) {
+        onChange(finalizeTranscript(cur));
+      }
     };
 
     return rec;
@@ -136,6 +114,10 @@ function useVoice(onChange, answer) {
     recRef.current = null;
     setRecording(false);
     setInterim("");
+    const cur = ansRef.current;
+    if (cur && cur.trim()) {
+      onChange(finalizeTranscript(cur));
+    }
   };
 
   return {

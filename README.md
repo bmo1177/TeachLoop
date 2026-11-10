@@ -148,7 +148,24 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `npm run build` | Create production build |
 | `npm run start` | Serve production build |
 | `npm run lint` | Run ESLint checks |
+| `npm run test` | Run Vitest unit test suite |
+| `npm run test:watch` | Run Vitest in interactive watch mode |
 | `npm run test:e2e` | Run Playwright end-to-end tests |
+
+### Testing
+
+TeachLoop maintains two automated testing suites:
+
+- **Unit Tests (Vitest)** — Validates pure logic across transcript cleanup, speech fragmentation fixes, session history management, API response schema validators, prompt template builders, and deterministic demo mocks.
+  ```bash
+  npm run test
+  ```
+- **End-to-End Tests (Playwright)** — Exercises the entire user journey (Teach mode, audience selection, wheel transitions, answer submission, demo badges, full session report generation, and past session persistence) plus Excalidraw whiteboard flows.
+  ```bash
+  # Install Playwright Chromium and OS dependencies (Linux/macOS/Windows)
+  npx playwright install --with-deps chromium
+  npm run test:e2e
+  ```
 
 ---
 

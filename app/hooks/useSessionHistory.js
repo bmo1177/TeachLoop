@@ -1,8 +1,12 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-
-const STORAGE_KEY = "teachloop-sessions";
-const MAX_SESSIONS = 20;
+import {
+  STORAGE_KEY,
+  parseSessions,
+  addSessionToList,
+  deleteSessionFromList,
+  serializeSessions,
+} from "@/app/lib/sessionHistory";
 
 export function useSessionHistory() {
   const [sessions, setSessions] = useState([]);
@@ -11,28 +15,29 @@ export function useSessionHistory() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) setSessions(parsed);
+        setSessions(parseSessions(raw));
       }
     } catch {}
   }, []);
 
   const addSession = useCallback((session) => {
     setSessions((prev) => {
-      const next = [{ id: Date.now(), ...session }, ...prev].slice(0, MAX_SESSIONS);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      const next = addSessionToList(prev, session);
+      try {
+        localStorage.setItem(STORAGE_KEY, serializeSessions(next));
+      } catch {}
       return next;
     });
   }, []);
 
   const deleteSession = useCallback((id) => {
     setSessions((prev) => {
-      const next = prev.filter((s) => s.id !== id);
+      const next = deleteSessionFromList(prev, id);
       try {
         if (next.length === 0) {
           localStorage.removeItem(STORAGE_KEY);
         } else {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+          localStorage.setItem(STORAGE_KEY, serializeSessions(next));
         }
       } catch {}
       return next;
@@ -41,8 +46,12 @@ export function useSessionHistory() {
 
   const clearHistory = useCallback(() => {
     setSessions([]);
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
   }, []);
 
   return { sessions, addSession, deleteSession, clearHistory };
 }
+
+export { STORAGE_KEY };
