@@ -48,12 +48,23 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
   color: var(--color-text-primary);
+  transition: all var(--duration-fast) var(--ease-out-quart);
 }
 
 .nav-back:hover {
-  opacity: 0.8;
+  background: var(--color-surface-raised);
+}
+
+.nav-back:active {
+  transform: scale(0.98);
+}
+
+.nav-back:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .nav-title {

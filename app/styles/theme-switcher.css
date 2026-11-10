@@ -56,7 +56,19 @@
 .theme-dot[aria-checked="true"] {
   border-color: var(--color-surface);
   box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent);
-  transform: scale(1.1);
+  transform: scale(1.12);
+}
+
+.theme-dot.theme-dot-sunrise[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px #C2410C;
+}
+
+.theme-dot.theme-dot-chalkboard[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px #FACC15;
+}
+
+.theme-dot.theme-dot-blue-hour[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px #3B82F6;
 }
 
 .theme-dot-sunrise {

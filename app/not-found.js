@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "@/app/components/ui/LogoMark";
+import { LoopMotif } from "@/app/components/ui/LoopMotif";
 import { Footer } from "@/app/components/ui/Footer";
 
 export const metadata = {
@@ -23,31 +24,23 @@ export default function NotFound() {
       </header>
 
       <main className="container screen-center" style={{ minHeight: "65vh" }}>
-        <div style={{ maxWidth: "28rem", textAlign: "center", width: "100%" }}>
+        <div style={{ maxWidth: "32rem", textAlign: "center", width: "100%" }}>
           <div
             style={{
-              width: "64px",
-              height: "64px",
-              borderRadius: "50%",
-              backgroundColor: "var(--color-accent-subtle)",
-              color: "var(--color-accent)",
               display: "flex",
-              alignItems: "center",
               justifyContent: "center",
-              fontSize: "1.75rem",
-              fontWeight: 800,
-              margin: "0 auto var(--space-4)",
-              border: "1px solid var(--color-accent-strong)",
+              alignItems: "center",
+              marginBottom: "var(--space-5)",
+              color: "var(--color-accent)",
             }}
           >
-            404
+            <LoopMotif size={56} strokeWidth={1.75} />
           </div>
-          <span className="info-eyebrow">Lost in Orbit</span>
-          <h1 className="info-title" style={{ fontSize: "var(--font-size-2xl)" }}>
-            Page Not Found
+          <h1 className="info-title" style={{ fontSize: "var(--font-size-2xl)", marginBottom: "var(--space-3)" }}>
+            You spun completely off the question wheel
           </h1>
           <p className="info-subtitle" style={{ marginBottom: "var(--space-6)" }}>
-            Looks like you spun off the wheel. The page you are looking for doesn&rsquo;t exist or has moved.
+            The page you are looking for does not exist or has moved back to the home notebook.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: "var(--space-3)" }}>
             <Link href="/" className="btn btn-primary btn-lg">

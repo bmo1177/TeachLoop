@@ -305,9 +305,17 @@ const SessionScreen = memo(function SessionScreen({
             )}
 
             <div className="textarea-meta">
-              <span className={`word-count ${wc >= 15 ? "unlocked" : "need-more"}`}>
-                {wc} words{wc < 15 ? ` (${15 - wc} more to unlock)` : " (ready to submit)"}
-              </span>
+              <div className="word-count-group">
+                <span className={`word-count ${wc >= 15 ? "unlocked" : "need-more"}`}>
+                  {wc} words{wc < 15 ? ` (${15 - wc} more to unlock)` : " (ready to submit)"}
+                </span>
+                <div className="word-meter-track" aria-hidden="true">
+                  <div
+                    className={`word-meter-fill ${wc >= 15 ? "unlocked" : ""}`}
+                    style={{ width: `${Math.min(100, (wc / 15) * 100)}%` }}
+                  />
+                </div>
+              </div>
               <span className="word-ideal">80-200 words ideal</span>
             </div>
 

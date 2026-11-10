@@ -101,6 +101,13 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
     <>
       <Nav onHome={onReset} screen="feedback" />
       <main className="container screen-top">
+        <div className="report-dossier-bar" aria-hidden="true">
+          <span className="report-dossier-title">TeachLoop Coaching Dossier</span>
+          <span className="report-dossier-meta">
+            Session Audit · {evals?.length || 0} Questions · {new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+          </span>
+        </div>
+
         <motion.header
           className="feedback-hero"
           initial={{ opacity: 0, y: 16 }}
@@ -114,6 +121,19 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
             {verdict} <span className="tabular-nums">{rounded}/10</span>
           </h1>
           <p className="feedback-hero-subtitle">Overall Communication Quality</p>
+
+          <div className="verdict-scale-bar" role="img" aria-label={`Score ${rounded} out of 10 on communication scale`}>
+            <div className="verdict-scale-track">
+              <div className="verdict-scale-segment segment-growing"><span>1-5</span> Growing</div>
+              <div className="verdict-scale-segment segment-solid"><span>6-7</span> Solid</div>
+              <div className="verdict-scale-segment segment-strong"><span>8-10</span> Strong</div>
+              <div
+                className="verdict-scale-pip"
+                style={{ left: `${Math.min(97, Math.max(3, (rounded / 10) * 100))}%` }}
+              />
+            </div>
+          </div>
+
           {report?.demo && (
             <div className="demo-badge-pill" role="status">
               Demo evaluation: set OPENROUTER_API_KEY to get AI scoring
@@ -128,7 +148,10 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 id="style-heading" className="section-label">Your Communication Style</h2>
+          <div className="report-section-divider">
+            <span className="report-section-num">§ 01</span>
+            <h2 id="style-heading" className="section-label">Your Communication Style</h2>
+          </div>
           <p className="style-description">{report.communicationStyle}</p>
 
           <div className="style-insights">
@@ -186,7 +209,10 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 id="breakdown-heading" className="section-label">Question Breakdown</h2>
+          <div className="report-section-divider">
+            <span className="report-section-num">§ 02</span>
+            <h2 id="breakdown-heading" className="section-label">Question Breakdown</h2>
+          </div>
           <div className="breakdown-list">
             {evals.map((e, i) => {
               const s = e.ev.overallScore;

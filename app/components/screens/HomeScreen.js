@@ -12,8 +12,8 @@ import {
   Sparkle,
   Target,
 } from "@phosphor-icons/react";
-import { AUDIENCES } from "@/app/data/audiences";
-import { Nav, Sparkline, Footer } from "@/app/components/ui";
+import { AUDIENCES, AudienceIcon } from "@/app/data/audiences";
+import { Nav, Sparkline, Footer, LoopMotif } from "@/app/components/ui";
 import { OnboardingOverlay } from "@/app/components/ui/OnboardingOverlay";
 import { useOnboarding } from "@/app/hooks/useOnboarding";
 
@@ -46,7 +46,24 @@ const HomeScreen = memo(function HomeScreen({
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
               Train how you{" "}
-              <span className="home-title-accent">communicate,</span>
+              <span className="home-title-accent">
+                communicate,
+                <svg
+                  className="loop-underline"
+                  viewBox="0 0 240 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 14C45 4 195 2 232 12C200 17 65 21 28 17C18 16 12 12 18 8C26 3 85 5 125 7"
+                    stroke="var(--color-accent)"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
               <br />
               not just what you know.
             </motion.h1>
@@ -292,41 +309,135 @@ const HomeScreen = memo(function HomeScreen({
         </motion.section>
 
         <motion.section
+          className="personas-section"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="personas-header">
+            <span className="section-eyebrow">Audience Calibration</span>
+            <h2 className="personas-title">Five audiences. Zero generic grading.</h2>
+            <p className="personas-subtitle">
+              TeachLoop shifts its rubric dynamically based on who is listening to you.
+            </p>
+          </div>
+
+          <div className="personas-grid">
+            {AUDIENCES.map((aud) => (
+              <div
+                key={aud.id}
+                className="persona-card"
+                onClick={() => onMode("teach", sessionLength)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") onMode("teach", sessionLength);
+                }}
+              >
+                <div className="persona-card-header">
+                  <div className="persona-card-icon">
+                    <AudienceIcon id={aud.id} size={20} />
+                  </div>
+                  <span className="persona-card-name">{aud.label}</span>
+                </div>
+                <blockquote className="persona-card-quote">
+                  &ldquo;{aud.quote}&rdquo;
+                </blockquote>
+                <div className="persona-card-focus">
+                  <span>{aud.focus}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section
           className="proof-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="proof-header">
+            <span className="section-eyebrow">The Rubric</span>
             <h2 className="proof-title">How TeachLoop coaches your delivery</h2>
             <p className="proof-subtitle">
-              Deliberate practice with calibrated constraints before stepping in front of panels or classrooms.
+              Deliberate communication practice with calibrated constraints before stepping in front of panels or classrooms.
             </p>
           </div>
           <div className="proof-bento">
-            <div className="proof-bento-card">
-              <div className="proof-bento-icon">
-                <ChatCircle size={22} weight="duotone" />
+            <div className="proof-bento-card proof-card-featured">
+              <div className="proof-bento-top">
+                <span className="proof-bento-tag">5-Point Rubric</span>
+                <span className="proof-bento-metric tabular-nums">1-10 Scale</span>
               </div>
-              <div className="proof-bento-content">
-                <span className="proof-bento-tag">Calibrated Personas</span>
-                <h3 className="proof-bento-headline">Audience-specific evaluation</h3>
-                <p className="proof-bento-desc">
-                  Explaining an algorithm to a child requires intuitive analogies. Explaining to an executive requires bottom-line tradeoffs and operational risk. The coach adjusts its rubric per audience.
-                </p>
+              <h3 className="proof-bento-headline">Comprehensive delivery metrics</h3>
+              <p className="proof-bento-desc">
+                Every explanation is graded across 5 distinct axes to isolate exactly what needs tightening.
+              </p>
+              <div className="rubric-bars-preview">
+                <div className="rubric-bar-item">
+                  <div className="rubric-bar-header">
+                    <span>Clarity & Framing</span>
+                    <span className="tabular-nums">9.2</span>
+                  </div>
+                  <div className="rubric-bar-track"><div className="rubric-bar-fill" style={{ width: "92%" }} /></div>
+                </div>
+                <div className="rubric-bar-item">
+                  <div className="rubric-bar-header">
+                    <span>Use of Analogies</span>
+                    <span className="tabular-nums">8.6</span>
+                  </div>
+                  <div className="rubric-bar-track"><div className="rubric-bar-fill" style={{ width: "86%" }} /></div>
+                </div>
+                <div className="rubric-bar-item">
+                  <div className="rubric-bar-header">
+                    <span>Vocabulary Fit</span>
+                    <span className="tabular-nums">8.9</span>
+                  </div>
+                  <div className="rubric-bar-track"><div className="rubric-bar-fill" style={{ width: "89%" }} /></div>
+                </div>
+                <div className="rubric-bar-item">
+                  <div className="rubric-bar-header">
+                    <span>Confidence & Pace</span>
+                    <span className="tabular-nums">8.4</span>
+                  </div>
+                  <div className="rubric-bar-track"><div className="rubric-bar-fill" style={{ width: "84%" }} /></div>
+                </div>
+                <div className="rubric-bar-item">
+                  <div className="rubric-bar-header">
+                    <span>Logical Progression</span>
+                    <span className="tabular-nums">9.0</span>
+                  </div>
+                  <div className="rubric-bar-track"><div className="rubric-bar-fill" style={{ width: "90%" }} /></div>
+                </div>
               </div>
             </div>
 
-            <div className="proof-bento-card">
-              <div className="proof-bento-icon">
-                <ChartBar size={22} weight="duotone" />
+            <div className="proof-bento-stacked">
+              <div className="proof-bento-card">
+                <div className="proof-bento-icon">
+                  <ChatCircle size={22} weight="duotone" />
+                </div>
+                <div className="proof-bento-content">
+                  <span className="proof-bento-tag">Speech Intelligence</span>
+                  <h3 className="proof-bento-headline">Automatic answer structuring</h3>
+                  <p className="proof-bento-desc">
+                    Dictate your answers naturally. TeachLoop strips filler stutters, preserves similes, cases tech acronyms, and formats enumerations into clean markdown.
+                  </p>
+                </div>
               </div>
-              <div className="proof-bento-content">
-                <span className="proof-bento-tag">5-Point Rubric</span>
-                <h3 className="proof-bento-headline">Actionable delivery metrics</h3>
-                <p className="proof-bento-desc">
-                  Clarity, analogies, vocabulary fit, confidence, and structure. Pinpoint exact verbal habits and measure your progress across sessions.
-                </p>
+
+              <div className="proof-bento-card">
+                <div className="proof-bento-icon">
+                  <ChartBar size={22} weight="duotone" />
+                </div>
+                <div className="proof-bento-content">
+                  <span className="proof-bento-tag">Longitudinal Growth</span>
+                  <h3 className="proof-bento-headline">Recurring patterns over time</h3>
+                  <p className="proof-bento-desc">
+                    Pinpoint repeated strengths, recurring blindspots, and targeted weekly habits in your personal rehearsal history.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -407,7 +518,7 @@ const HomeScreen = memo(function HomeScreen({
           ) : (
             <div className="past-sessions-empty">
               <span className="past-sessions-empty-icon">
-                <GraduationCap size={28} weight="duotone" />
+                <LoopMotif size={44} strokeWidth={2.4} />
               </span>
               <h3 className="past-sessions-empty-title">Your rehearsal notebook is empty</h3>
               <p className="past-sessions-empty-text">

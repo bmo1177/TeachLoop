@@ -86,15 +86,24 @@
 .site-footer {
   text-align: center;
   padding: var(--space-12) 0 var(--space-8);
-  border-top: 1px solid var(--color-border-subtle);
-  margin-top: var(--space-12);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-16);
+  position: relative;
 }
 
 .site-footer-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: var(--space-4);
+}
+
+.site-footer-brand {
+  display: flex;
+  align-items: center;
   gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .site-footer-copy {

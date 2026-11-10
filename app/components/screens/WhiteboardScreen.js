@@ -19,6 +19,7 @@ import { Nav } from "@/app/components/ui/Nav";
 import { TemplateSelector } from "@/app/components/ui/TemplateSelector";
 import { NotesPanel } from "@/app/components/ui/NotesPanel";
 import { WhiteboardCanvas } from "@/app/components/ui/WhiteboardCanvas";
+import { LoopMotif } from "@/app/components/ui/LoopMotif";
 import { useWhiteboardHistory } from "@/app/hooks/useWhiteboardHistory";
 import { callEval, whiteboardEvalPrompt, prepareWhiteboardPrompt } from "@/app/lib/api";
 
@@ -363,6 +364,12 @@ const WhiteboardScreen = memo(function WhiteboardScreen({ onBack }) {
                     excalidrawRef={excalidrawRef}
                     theme="light"
                   />
+                  {canvasElements.filter(el => !el.isDeleted).length === 0 && (
+                    <div className="wb-canvas-empty-hint" aria-hidden="true">
+                      <LoopMotif size={24} strokeWidth={2.2} />
+                      <span>Sketch shapes, connectors, and notes to explain your architecture</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.section>

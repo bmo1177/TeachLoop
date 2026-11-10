@@ -119,23 +119,29 @@ const CustomModeScreen = memo(function CustomModeScreen({ onBack, onGenerated })
             <label className="topic-input-label" htmlFor="topic-input">
               What topic do you want to practice explaining?
             </label>
-            <input
-              id="topic-input"
-              className="topic-input"
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g. Kubernetes, GraphQL, System Design..."
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && canGenerate) handleGenerate();
-              }}
-              autoFocus
-            />
+            <div className="topic-command-bar">
+              <span className="topic-command-icon" aria-hidden="true">
+                <Sparkle size={18} weight="duotone" />
+              </span>
+              <input
+                id="topic-input"
+                className="topic-input"
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="e.g. Kubernetes, GraphQL, System Design, React..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && canGenerate) handleGenerate();
+                }}
+                autoFocus
+              />
+              <span className="topic-command-hint" aria-hidden="true">↵</span>
+            </div>
             <div className="topic-examples">
               {EXAMPLE_TOPICS.map((t) => (
                 <button
                   key={t}
-                  className="topic-example-tag"
+                  className={`topic-example-tag ${topic === t ? "active" : ""}`}
                   onClick={() => setTopic(t)}
                   type="button"
                 >
