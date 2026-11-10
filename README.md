@@ -128,13 +128,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ### Prerequisites
 
 - **Node.js** 18.18+ (20 or 22 recommended)
-- **Optional:** [OpenRouter API key](https://openrouter.ai/keys) — free tier available. Required only for real AI scoring and custom generated topics.
+- **Optional AI keys** — NVIDIA NIM (recommended, free) or OpenRouter, both free-tier. Required only for real AI scoring and custom generated topics; otherwise demo mode.
 
 ### Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OPENROUTER_API_KEY` | No | From [OpenRouter](https://openrouter.ai/keys). Without it the app runs in demo mode with mock evaluations |
+| `NVIDIA_API_KEY` | No | From [build.nvidia.com](https://build.nvidia.com) — recommended provider (free endpoint, ~1-3s responses). Default model: `nvidia/nemotron-3.5-bolt-e4b`, override with `NVIDIA_MODEL` |
+| `OPENROUTER_API_KEY` | No | Fallback provider from [OpenRouter](https://openrouter.ai/keys), used when no NVIDIA key is present. Override with `OPENROUTER_MODEL` |
+| — | — | With **neither** key configured, the app runs in demo mode (deterministic mock evaluation, clearly labeled in the UI) |
 
 ---
 
@@ -177,7 +179,7 @@ TeachLoop maintains two automated testing suites:
 | **Animations** | [Motion](https://motion.dev) (Framer Motion) |
 | **Typography** | [Geist](https://vercel.com/font) font family |
 | **Icons** | [Phosphor Icons](https://phosphoricons.com) |
-| **AI Backend** | [OpenRouter](https://openrouter.ai) (NVIDIA Nemotron 120B, free tier) |
+| **AI Backend** | [NVIDIA NIM](https://build.nvidia.com) (default `nemotron-3.5-bolt-e4b`) → [OpenRouter](https://openrouter.ai) fallback → deterministic demo mode |
 | **Voice** | Web Speech API (browser-native) |
 | **Storage** | localStorage (sessions, whiteboards, themes) |
 
@@ -302,7 +304,7 @@ Contributions, suggestions, and issue reports are very welcome!
 
 - **localStorage Persistence** — Sessions and sketches are stored locally in browser storage. Clearing browser data clears your history. Cloud accounts and sync are on the roadmap.
 - **Voice Recognition Browser Variance** — Built on the standard Web Speech API, which works best in Chromium browsers (Chrome, Edge). Safari and Firefox provide varied support; keyboard input works everywhere.
-- **Free Tier AI Backend** — Powered by NVIDIA Nemotron 120B through OpenRouter's free tier. Response latency and rate limits may vary based on upstream traffic.
+- **Free Tier AI Backend** — NVIDIA NIM free endpoint by default (OpenRouter free-tier fallback). Response latency and rate limits may vary based on upstream traffic.
 
 ---
 

@@ -175,6 +175,16 @@ describe("evalSchemas validation and extraction", () => {
       expect(extractJSON(text)).toEqual({ status: "ok", count: 5 });
     });
 
+    it("strips model think/thinking fences from reasoning models", () => {
+      const thinkWrapped = '<think>Let me grade this answer carefully first.</think>{"scores":{"clarity":8},"overallScore":8}';
+      expect(extractJSON(thinkWrapped)).toEqual({ scores: { clarity: 8 }, overallScore: 8 });
+    });
+
+    it("strips think fences inside markdown blocks", () => {
+      const mixed = '```think\nThe analogy lands well.\n```\n{"ok":true}';
+      expect(extractJSON(mixed)).toEqual({ ok: true });
+    });
+
     it("returns null for non-JSON or unparseable input", () => {
       expect(extractJSON("")).toBeNull();
       expect(extractJSON(null)).toBeNull();

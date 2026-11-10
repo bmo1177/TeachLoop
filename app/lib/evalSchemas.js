@@ -38,7 +38,12 @@ export function validateReportSchema(data) {
 
 export function extractJSON(text) {
   if (!text || typeof text !== "string") return null;
-  const fence = text.replace(/```json\n?|```/g, "").trim();
+  // Reasoning models may wrap their answer in think/thinking fences even in
+  // JSON mode; strip those (plus normal code fences) before both strategies.
+  const fence = text
+    .replace(/```(?:json|think|thinking)\n?|```/g, "")
+    .replace(/<\/?(?:think|thinking)>/g, "")
+    .trim();
   try { return JSON.parse(fence); } catch {}
 
   const start = text.indexOf("{");
