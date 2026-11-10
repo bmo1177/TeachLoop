@@ -20,37 +20,39 @@ function ScoreRing({ score, size = 64, label, delay = 0 }) {
   else if (score < 5) color = "var(--color-error)";
 
   return (
-    <div className="score-ring" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="var(--color-border)"
-          strokeWidth="4"
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-          style={{
-            transform: "rotate(-90deg)",
-            transformOrigin: "50% 50%",
-            transition: "stroke-dashoffset 0.8s var(--ease-out-expo)",
-          }}
-        />
-      </svg>
-      <div className="score-ring-inner">
-        <span className="score-ring-value">{score}</span>
-        {label && <span className="score-ring-label">{label}</span>}
+    <div className="score-ring-wrap">
+      <div className="score-ring" style={{ width: size, height: size }}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke="var(--color-border)"
+            strokeWidth="4"
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke={color}
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeDasharray={c}
+            strokeDashoffset={offset}
+            style={{
+              transform: "rotate(-90deg)",
+              transformOrigin: "50% 50%",
+              transition: "stroke-dashoffset 0.8s var(--ease-out-expo)",
+            }}
+          />
+        </svg>
+        <div className="score-ring-inner">
+          <span className="score-ring-value">{score}</span>
+        </div>
       </div>
+      {label && <span className="score-ring-label">{label}</span>}
     </div>
   );
 }

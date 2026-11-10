@@ -18,29 +18,28 @@
 
 .feedback-hero {
   text-align: center;
-  margin-bottom: var(--space-12);
+  margin-bottom: var(--space-8);
   animation: slideUp 0.5s var(--ease-out-expo);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.feedback-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
-  color: var(--color-accent);
-  margin-bottom: var(--space-6);
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-accent-subtle);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-accent-muted);
+.feedback-score-center {
+  margin-bottom: var(--space-4);
 }
 
 .feedback-verdict {
-  font-size: clamp(var(--font-size-xl), 4vw, var(--font-size-2xl));
-  margin-top: var(--space-4);
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-3xl));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-1);
+}
+
+.feedback-hero-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
 }
 
 .feedback-style {
@@ -124,13 +123,22 @@
 }
 
 .insight-practice {
-  background: var(--color-surface);
-  border: 1.5px dashed var(--color-accent);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+}
+
+.insight-practice strong {
+  color: var(--color-text-primary);
+}
+
+.insight-practice p {
+  color: var(--color-text-secondary);
 }
 
 .insight-practice .insight-icon {
-  background: var(--color-secondary);
-  color: white;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-accent);
 }
 
 .feedback-breakdown {
@@ -234,10 +242,29 @@
 
 .feedback-actions {
   display: flex;
+  flex-direction: column;
   gap: var(--space-3);
+  width: 100%;
+  max-width: 520px;
+  margin: var(--space-8) auto 0;
+}
+
+@media (min-width: 640px) {
+  .feedback-actions {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 .feedback-actions .btn {
   flex: 1;
+}
+
+.copy-report-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  white-space: nowrap;
 }
 

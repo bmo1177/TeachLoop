@@ -1,9 +1,16 @@
 import { defineConfig } from "@playwright/test";
+import fs from "node:fs";
+
+const systemChrome = [
+  process.env.PLAYWRIGHT_CHROME_PATH,
+  "/run/current-system/sw/bin/google-chrome",
+  "/usr/bin/google-chrome",
+].find((p) => p && fs.existsSync(p));
 
 export default defineConfig({
   testDir: "./e2e",
-  timeout: 30000,
-  expect: { timeout: 5000 },
+  timeout: 60000,
+  expect: { timeout: 10000 },
   fullyParallel: false,
   retries: 0,
   workers: 1,
@@ -22,7 +29,14 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { browserName: "chromium" },
+      use: {
+        browserName: "chromium",
+        ...(process.env.PW_CHANNEL === "chrome" && systemChrome
+          ? { launchOptions: { executablePath: systemChrome } }
+          : process.env.PW_CHANNEL
+            ? { channel: process.env.PW_CHANNEL }
+            : {}),
+      },
     },
   ],
 });

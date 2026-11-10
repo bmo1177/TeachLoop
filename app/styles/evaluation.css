@@ -65,35 +65,58 @@
   justify-content: flex-end;
 }
 
-.score-ring {
+.score-ring-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-1);
   animation: scoreReveal 0.5s var(--ease-out-quart) both;
 }
 
+.score-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-ring svg {
+  display: block;
+}
+
 .score-ring-inner {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
 .score-ring-value {
   font-family: var(--font-family);
   font-weight: 700;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-base);
   line-height: 1;
   color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.score-ring[style*="100px"] .score-ring-value,
+.score-ring[style*="108px"] .score-ring-value {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
 }
 
 .score-ring-label {
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
   text-align: center;
-  max-width: 48px;
-  line-height: 1.2;
+  max-width: 56px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 .evaluation-quote {
@@ -105,7 +128,7 @@
   background: var(--color-surface-raised);
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-4);
-  border-left: 3px solid var(--color-accent);
+  border: 1px solid var(--color-border);
 }
 
 @media (min-width: 640px) {

@@ -11,6 +11,7 @@ function useVoice(onChange, answer) {
   const [recording, setRecording] = useState(false);
   const [interim, setInterim] = useState("");
   const [wasSpoken, setWasSpoken] = useState(false);
+  const [micError, setMicError] = useState(null);
   const recRef = useRef(null);
   const ansRef = useRef(answer);
   const restartRef = useRef(false);
@@ -69,7 +70,9 @@ function useVoice(onChange, answer) {
     rec.onerror = (e) => {
       if (e.error === "aborted" || e.error === "no-speech") return;
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-        setInterim("Microphone access denied. Check browser permissions.");
+        setMicError("Microphone access blocked. Type your answer directly below.");
+      } else {
+        setMicError("Microphone unavailable. You can type your answer directly below.");
       }
       setRecording(false);
     };
@@ -96,6 +99,7 @@ function useVoice(onChange, answer) {
 
   const start = () => {
     if (!SR) return;
+    setMicError(null);
     restartRef.current = true;
     const rec = buildRec();
     try {
@@ -103,7 +107,7 @@ function useVoice(onChange, answer) {
       recRef.current = rec;
       setRecording(true);
     } catch (e) {
-      setInterim("Could not start voice input. Check microphone permissions.");
+      setMicError("Could not start microphone. Type your answer directly below.");
       restartRef.current = false;
     }
   };
@@ -125,6 +129,7 @@ function useVoice(onChange, answer) {
     supported,
     interim,
     wasSpoken,
+    micError,
     toggle: () => (recording ? stop() : start()),
   };
 }

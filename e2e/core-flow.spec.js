@@ -16,10 +16,13 @@ test.describe("Core Flow & Demo Mode (Unmocked)", () => {
     await page.waitForLoadState("domcontentloaded");
 
     // Dismiss onboarding tour if present
-    const skipBtn = page.locator("text=Skip tour");
-    if (await skipBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    const skipBtn = page.locator("button", { hasText: "Skip tour" });
+    try {
+      await skipBtn.waitFor({ state: "visible", timeout: 8000 });
       await skipBtn.click();
-      await page.waitForTimeout(300);
+      await expect(page.locator(".onboarding-overlay")).toBeHidden({ timeout: 5000 });
+    } catch {
+      // Tour was not displayed or already dismissed
     }
   });
 
@@ -138,7 +141,7 @@ test.describe("Core Flow & Demo Mode (Unmocked)", () => {
     const demoPill = page.locator(".demo-badge-pill");
     await expect(demoPill).toBeVisible({ timeout: 15000 });
     await expect(demoPill).toHaveText(
-      "Demo evaluation — set OPENROUTER_API_KEY to get AI scoring"
+      "Demo evaluation: set OPENROUTER_API_KEY to get AI scoring"
     );
   });
 });

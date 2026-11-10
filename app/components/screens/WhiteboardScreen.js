@@ -305,7 +305,7 @@ const WhiteboardScreen = memo(function WhiteboardScreen({ onBack }) {
 
                       {evaluation?.demo && (
                         <div className="demo-badge-pill" role="status" style={{ margin: "var(--space-2) 0" }}>
-                          Demo evaluation — set OPENROUTER_API_KEY to get AI scoring
+                          Demo evaluation: set OPENROUTER_API_KEY to get AI scoring
                         </div>
                       )}
 

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL("https://teach-loop-ten.vercel.app"),
   title: {
-    default: "TeachLoop — Communication Coaching for Technical Professionals",
+    default: "TeachLoop: Communication Coaching for Technical Professionals",
     template: "%s | TeachLoop",
   },
   description:
@@ -31,7 +31,7 @@ export const metadata = {
     ],
   },
   openGraph: {
-    title: "TeachLoop — Communication Coaching for Technical Professionals",
+    title: "TeachLoop: Communication Coaching for Technical Professionals",
     description:
       "Train how you communicate, not just what you know. Practice technical concepts and system design with AI coaching.",
     url: "https://teach-loop-ten.vercel.app",
@@ -41,7 +41,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TeachLoop — Communication Coaching for Technical Professionals",
+    title: "TeachLoop: Communication Coaching for Technical Professionals",
     description:
       "Train how you communicate, not just what you know. AI-powered communication coaching for technical professionals.",
   },

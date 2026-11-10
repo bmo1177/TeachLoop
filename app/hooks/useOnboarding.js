@@ -8,6 +8,13 @@ export function useOnboarding() {
 
   useEffect(() => {
     try {
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("tour") === "off") {
+          setShow(false);
+          return;
+        }
+      }
       const onboarded = localStorage.getItem(STORAGE_KEY);
       if (!onboarded) setShow(true);
     } catch {

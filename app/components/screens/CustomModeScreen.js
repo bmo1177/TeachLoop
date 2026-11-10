@@ -154,7 +154,7 @@ const CustomModeScreen = memo(function CustomModeScreen({ onBack, onGenerated })
         >
           <span className="custom-audience-label">Who will you explain it to?</span>
           <span className="custom-audience-hint">
-            Optional — helps tailor question difficulty and vocabulary.
+            Optional: helps tailor question difficulty and vocabulary.
           </span>
           <div className="custom-audience-grid" role="radiogroup" aria-label="Select audience">
             {AUDIENCES.map((a) => (

@@ -28,7 +28,7 @@ export const SWE_QUESTIONS = [
   "Compare microservices vs monolithic architecture. When would you choose each?",
   "How would you design a real-time notification system for 10 million users?",
   "Explain eventual consistency. Where is it acceptable and where is it dangerous?",
-  "SQL vs NoSQL — how do you decide which to use for a new product?",
+  "SQL vs NoSQL: how do you decide which to use for a new product?",
   "How would you design the backend for a live collaborative document editor?",
   "Design a distributed rate limiter. What data structures and algorithms would you use?",
   "How would you approach migrating a monolithic database to a microservices architecture?",

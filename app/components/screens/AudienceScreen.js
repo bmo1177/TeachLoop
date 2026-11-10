@@ -32,22 +32,32 @@ const AudienceScreen = memo(function AudienceScreen({ onSelect, onBack, selected
           {AUDIENCES.map((a, i) => (
             <motion.button
               key={a.id}
-              className="audience-option"
+              className={`audience-option ${selectedAudience === a.id ? "selected" : ""}`}
               onClick={() => onSelect(a.id)}
               role="radio"
               aria-checked={selectedAudience === a.id}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
             >
-              <span className="audience-icon">
-                <AudienceIcon id={a.id} />
-              </span>
-              <div className="audience-content">
-                <span className="audience-label">{a.label}</span>
-                <span className="audience-hint">{a.hint}</span>
+              <div className="audience-option-main">
+                <span className="audience-icon">
+                  <AudienceIcon id={a.id} size={22} />
+                </span>
+                <div className="audience-content">
+                  <div className="audience-header-row">
+                    <span className="audience-label">{a.label}</span>
+                    {a.focus && <span className="audience-focus-tag">{a.focus}</span>}
+                  </div>
+                  <span className="audience-hint">{a.hint}</span>
+                  {a.quote && (
+                    <p className="audience-quote-bubble">
+                      &ldquo;{a.quote}&rdquo;
+                    </p>
+                  )}
+                </div>
+                <CaretRight size={18} weight="bold" className="audience-chevron" />
               </div>
-              <CaretRight size={16} weight="bold" className="audience-chevron" />
             </motion.button>
           ))}
         </div>

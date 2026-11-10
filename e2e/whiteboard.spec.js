@@ -27,10 +27,13 @@ test.describe("Whiteboard Feature", () => {
     await page.waitForLoadState("networkidle");
 
     // Dismiss onboarding overlay if present
-    const skipBtn = page.locator("text=Skip tour");
-    if (await skipBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    const skipBtn = page.locator("button", { hasText: "Skip tour" });
+    try {
+      await skipBtn.waitFor({ state: "visible", timeout: 8000 });
       await skipBtn.click();
-      await page.waitForTimeout(500);
+      await expect(page.locator(".onboarding-overlay")).toBeHidden({ timeout: 5000 });
+    } catch {
+      // Tour was not displayed or already dismissed
     }
   });
 

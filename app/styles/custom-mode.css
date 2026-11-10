@@ -30,17 +30,6 @@
   overflow: hidden;
 }
 
-.topic-input-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
-  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-}
-
 .topic-input-label {
   display: block;
   font-size: var(--font-size-sm);

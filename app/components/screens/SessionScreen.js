@@ -226,6 +226,24 @@ const SessionScreen = memo(function SessionScreen({
               )}
             </div>
 
+            {voice.micError && (
+              <div className="mic-error-banner" role="alert" style={{
+                margin: "0 0 var(--space-3) 0",
+                padding: "var(--space-3) var(--space-4)",
+                background: "var(--color-surface-raised)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-lg)",
+                fontSize: "var(--font-size-xs)",
+                color: "var(--color-text-secondary)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-2)",
+              }}>
+                <MicrophoneSlash size={16} weight="bold" color="var(--color-accent)" />
+                <span>{voice.micError}</span>
+              </div>
+            )}
+
             {voice.recording && (
               <motion.div
                 className="recording-indicator"
@@ -235,14 +253,14 @@ const SessionScreen = memo(function SessionScreen({
               >
                 <span className="recording-dot" />
                 <span>
-                  {voice.interim || "Listening — speak clearly..."}
+                  {voice.interim || "Listening: speak clearly..."}
                 </span>
               </motion.div>
             )}
 
             <div className="textarea-meta">
-              <span className={`word-count ${wc >= 15 ? "" : "warning"}`}>
-                {wc} words{wc < 15 ? ` — ${15 - wc} more to unlock` : ""}
+              <span className={`word-count ${wc >= 15 ? "unlocked" : "need-more"}`}>
+                {wc} words{wc < 15 ? ` (${15 - wc} more to unlock)` : " (ready to submit)"}
               </span>
               <span className="word-ideal">80-200 words ideal</span>
             </div>
@@ -272,7 +290,7 @@ const SessionScreen = memo(function SessionScreen({
             >
               {evaluation?.demo && (
                 <div className="demo-badge-pill" role="status">
-                  Demo evaluation — set OPENROUTER_API_KEY to get AI scoring
+                  Demo evaluation: set OPENROUTER_API_KEY to get AI scoring
                 </div>
               )}
               <div className="evaluation-header">

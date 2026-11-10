@@ -129,7 +129,7 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
             className="wheel-container"
             role="img"
             aria-label={`Wheel spinning to select question ${questionIdx + 1} of ${questions.length}. ${phase === "stopped" ? `Selected: ${activeQuestion}` : "Spinning..."}`}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
@@ -150,21 +150,20 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
               >
                 {questions.map((q, i) => {
                   const angle = i * segAngle + segAngle / 2;
-                  const rad = (angle * Math.PI) / 180;
-                  const labelR = 55;
-                  const tx = Math.cos(rad) * labelR;
-                  const ty = Math.sin(rad) * labelR;
-                  const truncated = q.length > 40 ? q.slice(0, 38) + "..." : q;
+                  const truncated = q.length > 28 ? q.slice(0, 26) + "..." : q;
+                  const isActive = activeIdx === i && phase === "stopped";
                   return (
                     <div
                       key={i}
-                      className={`wheel-label ${activeIdx === i && phase === "stopped" ? "wheel-label-active" : ""}`}
+                      className={`wheel-slice-ray ${isActive ? "wheel-label-active" : ""}`}
                       style={{
-                        transform: `translate(${tx - 50}%, ${ty - 50}%) rotate(${angle + 90}deg)`,
+                        transform: `rotate(${angle}deg)`,
                       }}
                     >
-                      <span className="wheel-label-num">{i + 1}</span>
-                      <span className="wheel-label-text">{truncated}</span>
+                      <div className="wheel-slice-content">
+                        <span className="wheel-slice-num tabular-nums">{i + 1}</span>
+                        <span className="wheel-slice-title">{truncated}</span>
+                      </div>
                     </div>
                   );
                 })}
@@ -174,15 +173,23 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
             {phase === "spinning" && <div className="wheel-glow" aria-hidden="true" />}
           </motion.div>
 
+          <div
+            className="sr-only"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {phase === "stopped" ? `Wheel stopped on question: ${activeQuestion}. Ready to begin session.` : "Wheel is spinning..."}
+          </div>
+
           <motion.div
             className="wheel-question-list"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="wheel-question-progress">
-              <span className="wheel-question-progress-text">
-                {completedCount} of {questions.length} done
+              <span className="wheel-question-progress-text tabular-nums">
+                {completedCount} of {questions.length} complete
               </span>
               <div className="wheel-question-progress-bar">
                 <div
@@ -191,33 +198,6 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
                 />
               </div>
             </div>
-            <ul className="wheel-question-items">
-              {questions.map((q, i) => {
-                const isDone = i < completedCount;
-                const isCurrent = i === completedCount;
-                return (
-                  <li
-                    key={i}
-                    ref={isCurrent ? current_itemRef : null}
-                    className={`wheel-question-item ${isDone ? "wheel-question-done" : ""} ${isCurrent ? "wheel-question-current" : ""}`}
-                  >
-                    <div className="wheel-question-indicator">
-                      <div className={`wheel-question-dot ${isDone ? "wheel-question-dot-done" : ""} ${isCurrent ? "wheel-question-dot-current" : ""}`}>
-                        {isDone ? (
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2.5 6.5L5 9L9.5 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        ) : (
-                          <span className="wheel-question-dot-num">{i + 1}</span>
-                        )}
-                      </div>
-                      {i < questions.length - 1 && <div className={`wheel-question-line ${isDone ? "wheel-question-line-done" : ""}`} />}
-                    </div>
-                    <span className="wheel-question-text">{q}</span>
-                  </li>
-                );
-              })}
-            </ul>
           </motion.div>
 
           {phase === "stopped" && (
@@ -229,9 +209,12 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
             >
               <div className="wheel-result-card">
                 <span className="wheel-result-label">
-                  {mode === "teach" ? "Concept to explain" : "Your question"}
+                  {mode === "teach" ? "Selected Concept" : "Selected Question"}
                 </span>
-                <p className="wheel-result-text">{activeQuestion}</p>
+                <h2 className="wheel-result-text">{activeQuestion}</h2>
+                <p className="wheel-result-affordance">
+                  Take your time. You can speak with your microphone or type your answer.
+                </p>
               </div>
               <button className="btn btn-primary btn-full btn-lg" onClick={onDone}>
                 Begin Session

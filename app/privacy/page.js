@@ -38,7 +38,7 @@ export default function PrivacyPage() {
         {/* Short Version Box */}
         <div className="info-summary-box">
           <div className="info-summary-title">
-            <span>⚡ The Short Version</span>
+            <span>The Short Version</span>
           </div>
           <ul>
             <li><strong>Audio never leaves your browser:</strong> Speech-to-text recognition runs locally via the browser Web Speech API. We never record, stream, or store your raw voice audio on any server.</li>
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
             When you grant microphone permission in TeachLoop, your browser activates the native <strong>Web Speech API</strong> (or <code>webkitSpeechRecognition</code> in Chromium browsers).
           </p>
           <p>
-            Audio processing and transcription occur entirely within your client browser environment. TeachLoop servers never receive, intercept, process, or store raw microphone audio streams. If you prefer not to use voice input, you can type your answers directly—voice input is entirely optional.
+            Audio processing and transcription occur entirely within your client browser environment. TeachLoop servers never receive, intercept, process, or store raw microphone audio streams. If you prefer not to use voice input, you can type your answers directly: voice input is entirely optional.
           </p>
         </article>
 

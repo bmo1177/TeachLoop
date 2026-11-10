@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowUp,
@@ -10,11 +10,44 @@ import {
   Check,
   CaretDown,
   ChalkboardTeacher,
+  Copy,
 } from "@phosphor-icons/react";
 import { ScoreRing, Nav } from "@/app/components/ui";
 
 const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError, onReset, onRetryReport }) {
   const [open, setOpen] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyMarkdown = useCallback(() => {
+    if (!report) return;
+    const lines = [
+      "# TeachLoop Practice Report",
+      `Overall Score: ${Math.round((Number(report.overallScore) || 0) * 10) / 10}/10`,
+      "",
+      "## Communication Style",
+      report.communicationStyle || "",
+      "",
+      "## Insights",
+      `- Recurring Strength: ${report.recurringStrength || ""}`,
+      `- Recurring Flaw: ${report.recurringFlaw || ""}`,
+      `- This Week's Practice: ${report.weeklyPractice || ""}`,
+      "",
+      "## Question Breakdown",
+      ...(evals || []).map((e, idx) => [
+        `### Question ${idx + 1}: ${e.q}`,
+        `Score: ${e.ev.overallScore}/10`,
+        `Style observation: ${e.ev.styleObservation}`,
+        `- Worked well: ${e.ev.strongPoint}`,
+        `- Fix this: ${e.ev.flawToFix}`,
+        "",
+      ].join("\n")),
+    ];
+
+    navigator.clipboard.writeText(lines.join("\n")).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  }, [report, evals]);
 
   if (!report && !reportError) {
     return (
@@ -74,14 +107,16 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <span className="feedback-eyebrow">Session Complete</span>
-          <ScoreRing score={rounded} size={100} />
+          <div className="feedback-score-center">
+            <ScoreRing score={rounded} size={108} />
+          </div>
           <h1 className="feedback-verdict">
-            {verdict} {rounded}/10
+            {verdict} <span className="tabular-nums">{rounded}/10</span>
           </h1>
+          <p className="feedback-hero-subtitle">Overall Communication Quality</p>
           {report?.demo && (
             <div className="demo-badge-pill" role="status">
-              Demo evaluation — set OPENROUTER_API_KEY to get AI scoring
+              Demo evaluation: set OPENROUTER_API_KEY to get AI scoring
             </div>
           )}
         </motion.header>
@@ -215,6 +250,24 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
         </motion.section>
 
         <div className="feedback-actions">
+          <button
+            type="button"
+            className="btn btn-secondary btn-full btn-lg copy-report-btn"
+            onClick={handleCopyMarkdown}
+            aria-label="Copy report as markdown"
+          >
+            {copied ? (
+              <>
+                <Check size={18} weight="bold" color="var(--color-success)" />
+                <span>Report copied to clipboard!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={18} weight="duotone" />
+                <span>Copy report as markdown</span>
+              </>
+            )}
+          </button>
           <button className="btn btn-primary btn-full btn-lg" onClick={onReset}>
             Try Again
           </button>
