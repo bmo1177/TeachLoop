@@ -4,6 +4,12 @@ export function pick(arr, n) {
   return [...arr].sort(() => Math.random() - 0.5).slice(0, n);
 }
 
+let lastWasDemo = false;
+
+export function isDemoMode() {
+  return lastWasDemo;
+}
+
 export async function callEval(prompt) {
   const res = await fetch("/api/eval", {
     method: "POST",
@@ -16,6 +22,9 @@ export async function callEval(prompt) {
   }
   const data = await res.json();
   if (data.error) throw new Error(data.error);
+  if (data.demo) {
+    lastWasDemo = true;
+  }
   return data;
 }
 

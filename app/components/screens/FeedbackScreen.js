@@ -79,6 +79,11 @@ const FeedbackScreen = memo(function FeedbackScreen({ evals, report, reportError
           <h1 className="feedback-verdict">
             {verdict} {rounded}/10
           </h1>
+          {report?.demo && (
+            <div className="demo-badge-pill" role="status">
+              Demo evaluation — set OPENROUTER_API_KEY to get AI scoring
+            </div>
+          )}
         </motion.header>
 
         <motion.section

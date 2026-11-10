@@ -6,4 +6,5 @@ export { Sparkline } from "./Sparkline";
 export { TemplateSelector } from "./TemplateSelector";
 export { NotesPanel } from "./NotesPanel";
 export { default as WhiteboardCanvas } from "./WhiteboardCanvas";
+export { Footer } from "./Footer";
 

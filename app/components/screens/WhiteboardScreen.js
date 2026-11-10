@@ -303,6 +303,12 @@ const WhiteboardScreen = memo(function WhiteboardScreen({ onBack }) {
                         <span className="wb-overall-score">{evaluation.overallScore}/10</span>
                       </div>
 
+                      {evaluation?.demo && (
+                        <div className="demo-badge-pill" role="status" style={{ margin: "var(--space-2) 0" }}>
+                          Demo evaluation — set OPENROUTER_API_KEY to get AI scoring
+                        </div>
+                      )}
+
                       <p className="wb-feedback-observation">{evaluation.styleObservation}</p>
 
                       <div className="wb-scores-breakdown">

@@ -14,9 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "TeachLoop - Communication Coaching",
+  metadataBase: new URL("https://teach-loop-ten.vercel.app"),
+  title: {
+    default: "TeachLoop — Communication Coaching for Technical Professionals",
+    template: "%s | TeachLoop",
+  },
   description:
-    "Train how you communicate, not just what you know. AI-powered feedback on clarity, analogies, and vocabulary fit.",
+    "Train how you communicate, not just what you know. AI-powered communication coaching for technical professionals.",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
@@ -27,9 +31,19 @@ export const metadata = {
     ],
   },
   openGraph: {
-    title: "TeachLoop",
-    description: "AI-powered communication coaching for technical professionals.",
+    title: "TeachLoop — Communication Coaching for Technical Professionals",
+    description:
+      "Train how you communicate, not just what you know. Practice technical concepts and system design with AI coaching.",
+    url: "https://teach-loop-ten.vercel.app",
+    siteName: "TeachLoop",
+    locale: "en_US",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TeachLoop — Communication Coaching for Technical Professionals",
+    description:
+      "Train how you communicate, not just what you know. AI-powered communication coaching for technical professionals.",
   },
   manifest: "/manifest.json",
   appleWebApp: {

@@ -12,7 +12,7 @@ import {
   Sparkle,
 } from "@phosphor-icons/react";
 import { AUDIENCES } from "@/app/data/audiences";
-import { Nav, Sparkline } from "@/app/components/ui";
+import { Nav, Sparkline, Footer } from "@/app/components/ui";
 import { OnboardingOverlay } from "@/app/components/ui/OnboardingOverlay";
 import { useOnboarding } from "@/app/hooks/useOnboarding";
 
@@ -314,11 +314,7 @@ const HomeScreen = memo(function HomeScreen({ onMode, pastSessions, onDeleteSess
           </div>
         </motion.section>
 
-        <footer className="home-footer">
-          <p className="home-footer-text">
-            AI-powered communication coaching
-          </p>
-        </footer>
+        <Footer />
       </main>
     </>
   );

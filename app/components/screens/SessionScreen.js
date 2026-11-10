@@ -270,6 +270,11 @@ const SessionScreen = memo(function SessionScreen({
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             >
+              {evaluation?.demo && (
+                <div className="demo-badge-pill" role="status">
+                  Demo evaluation — set OPENROUTER_API_KEY to get AI scoring
+                </div>
+              )}
               <div className="evaluation-header">
                 <div className="evaluation-score">
                   <span className="evaluation-score-label">Communication Score</span>
