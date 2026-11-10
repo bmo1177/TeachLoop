@@ -112,14 +112,10 @@ After completing a session, receive an end-of-session synthesis:
 ```bash
 # Clone the repository
 git clone https://github.com/bmo1177/TeachLoop.git
-cd teachloop
+cd TeachLoop
 
 # Install dependencies
 npm install
-
-# Set up environment
-cp .env.local.example .env.local
-# Add your OpenRouter API key to .env.local
 
 # Start development server
 npm run dev
@@ -127,16 +123,18 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+**No API key? No problem.** Without `OPENROUTER_API_KEY`, TeachLoop runs in **demo mode** with deterministic mock scoring — perfect for trying the full loop (teach → feedback → report) before configuring anything. Every screen clearly labels demo results, so it's never mistaken for real AI scoring.
+
 ### Prerequisites
 
-- **Node.js** 18+
-- **OpenRouter API Key** — Get one free at [openrouter.ai/keys](https://openrouter.ai/keys)
+- **Node.js** 18.18+ (20 or 22 recommended)
+- **Optional:** [OpenRouter API key](https://openrouter.ai/keys) — free tier available. Required only for real AI scoring and custom generated topics.
 
 ### Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OPENROUTER_API_KEY` | Yes | API key from [OpenRouter](https://openrouter.ai/keys) — uses the free NVIDIA Nemotron model |
+| `OPENROUTER_API_KEY` | No | From [OpenRouter](https://openrouter.ai/keys). Without it the app runs in demo mode with mock evaluations |
 
 ---
 
@@ -281,6 +279,8 @@ Keyboard input works across all browsers. Voice input is a progressive enhanceme
 - Origin validation on the API endpoint
 - 15-second request timeout with exponential backoff retry
 - Multi-tier response schema validation (evaluations, custom questions, and session reports)
+- **Demo mode** — when no API key is configured the endpoint returns deterministic mock evaluations (clearly labeled `demo: true` in every response); no upstream LLM call is ever made without a key
+- User input is length-capped (12,000 chars) and never executed server-side
 - Security headers configured: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`
 - `X-Powered-By` header disabled
 
