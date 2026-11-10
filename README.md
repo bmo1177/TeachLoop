@@ -4,13 +4,16 @@
 
 **Train how you communicate, not just what you know.**
 
-AI-powered communication coaching for technical professionals.
-Practice explaining concepts to different audiences and get real-time feedback on clarity, analogies, and vocabulary fit.
+AI-powered communication coaching for technical professionals. Practice explaining concepts to different audiences, master system design communication, and get real-time feedback on clarity, structure, and vocabulary fit.
+
+[![Live Demo](https://img.shields.io/badge/Demo-teach--loop--ten.vercel.app-C2410C?style=for-the-badge)](https://teach-loop-ten.vercel.app)
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://vercel.com)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://teach-loop-ten.vercel.app)
+
+👉 **[Try the Live Demo](https://teach-loop-ten.vercel.app)** 👈
 
 </div>
 
@@ -18,62 +21,52 @@ Practice explaining concepts to different audiences and get real-time feedback o
 
 ## Why TeachLoop?
 
-Technical professionals often struggle to explain what they know. You can ace a code review but freeze when a PM asks "what does this actually do?" TeachLoop closes that gap.
+Technical professionals often struggle to explain what they know. You can ace a code review but freeze when an executive asks "what does this actually do?" TeachLoop closes that gap.
 
-- **Explain to real audiences** — not just other engineers. Try a curious 10-year-old, a non-technical recruiter, or a C-suite executive.
-- **Get structured AI feedback** — scored on clarity, audience-fit, analogy quality, vocabulary, and confidence.
-- **Track your growth** — see your communication scores trend over sessions with sparkline charts and session reports.
-- **Practice in two modes** — Teach mode (explain concepts) or Interview mode (answer system design questions under pressure).
+- **Explain to real audiences** — Not just other engineers. Practice explaining to a curious 10-year-old, a non-technical recruiter, an executive, or a senior AI engineer.
+- **Master system design answers** — Tackle architecture questions under pressure with structured feedback on clarity, depth, and structure.
+- **Generate custom topic sets** — Practice any topic on demand (Kubernetes, GraphQL, React, etc.) with AI-generated questions and progressive hints.
+- **Sketch diagrams visually** — Explain architectures visually with an interactive whiteboard and automated layout evaluation.
+- **Get structured AI feedback** — Scored on clarity, audience-fit, analogies, vocabulary, and confidence, complete with end-of-session synthesis reports.
+- **Track your growth** — Review your past sessions with sparkline score trajectories and recurring pattern insights.
 
 ---
 
 ## How It Works
 
-```
- Pick a Mode          Choose an Audience         Spin the Wheel
- ────────────         ──────────────────         ───────────────
- Teach or Interview   Student, PM, Executive…    Random topic selection
-
-        │                    │                         │
-        └────────────────────┴─────────────────────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   Record Your Answer │
-                    │  (Voice or Keyboard) │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   AI Evaluation      │
-                    │  5-dimension scoring │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────▼──────────┐
-                    │   Session Report     │
-                    │  Style · Patterns    │
-                    │  · Growth Tips       │
-                    └─────────────────────┘
-```
+1. **Pick a Mode & Session Length** — Choose Teach Mode (5 target audiences), System Design Interview Mode, Custom AI Topics, or Whiteboard Sketch Mode. Set session length to 3 (Quick), 5 (Standard), or 7 (Deep) questions.
+2. **Spin the Wheel** — A randomized question is selected from curated question banks or generated on-the-fly.
+3. **Record Your Explanation** — Speak your answer via browser-native speech recognition or type it in. Tap progressive hints (Nudge, Concept Outline, Full Breakdown) whenever you need scaffolding.
+4. **Get Instant AI Feedback** — Receive immediate dimensional scoring, strong points, and specific fixes per question, followed by an overarching session report and growth tips.
 
 ---
 
 ## Features
 
-### Two Practice Modes
+### Four Practice Modes
 
 | Mode | What You Do | Sample Topics |
 |------|------------|---------------|
-| **Teach** | Explain a technical concept to a chosen audience | Backpropagation, RAG, The Attention Mechanism, Mixture of Experts |
-| **Interview** | Answer system design / behavioral questions | URL Shortener, CAP Theorem, Design a Rate Limiter |
+| **Teach** | Explain a technical concept to a chosen audience persona | Backpropagation, RAG, The Attention Mechanism, Mixture of Experts |
+| **Interview** | Answer system design & architectural questions under pressure | URL Shortener, CAP Theorem, Design a Rate Limiter, Eventual Consistency |
+| **Custom** | Generate AI questions on any technical domain with progressive hints | Kubernetes, GraphQL, React Hooks, Distributed Caching |
+| **Sketch (Whiteboard)** | Draw system diagrams on an interactive Excalidraw canvas | Rate Limiter Architecture, CNN Flow, DNS Resolution, Freeform |
 
 ### Five Audiences (Teach Mode)
 
 Each audience comes with contextual coaching guidance:
 
-- 🧒 **Curious 10-Year-Old** — Plain language, real-world analogies
-- 👔 **Non-Technical Recruiter** — Business value, clear outcomes
-- 🧑‍💻 **Junior Developer** — Technical depth with patience
-- 🎩 **C-Suite Executive** — Strategic framing, ROI focus
-- 🤖 **Senior AI Engineer** — Full technical precision
+- 🧒 **Curious 10-Year-Old** — Plain language, real-world analogies, no jargon
+- 👔 **Non-Technical Recruiter** — Business outcomes, clear impact, accessible framing
+- 🧑‍💻 **Junior Developer** — Technical depth with patience and solid fundamentals
+- 🎩 **C-Suite Executive** — Strategic framing, ROI focus, high-level trade-offs
+- 🤖 **Senior AI Engineer** — Full technical precision, edge cases, performance
+
+### Configurable Session Length
+
+- **3 Questions** — Quick practice (5–7 minutes)
+- **5 Questions** — Standard session (10–15 minutes)
+- **7 Questions** — Deep practice (20+ minutes)
 
 ### Intelligent Voice Input
 
@@ -81,7 +74,7 @@ Built-in Web Speech API integration with automatic cleanup:
 
 - Removes filler words ("um," "uh," "like," "you know")
 - Deduplicates repeated words
-- Fixes punctuation and capitalization
+- Punctuation and capitalization formatting
 - Real-time word count with ideal range guidance (80–200 words)
 
 ### Progressive Hint System
@@ -92,27 +85,25 @@ Three levels of hints per question — start with a nudge, escalate to a full ex
 2. **Concept Outline** — Key ideas organized for clarity
 3. **Full Explanation** — The complete technical breakdown
 
-### Session Reports
+### Session Reports & Growth Tracking
 
-After each 5-question session, receive a comprehensive report:
+After completing a session, receive an end-of-session synthesis:
 
-- **Communication style analysis** — How you naturally explain things
+- **Communication style analysis** — How you naturally express ideas
 - **Recurring strengths** — What you consistently do well
-- **Growth areas** — Patterns to work on
+- **Growth areas** — Patterns to improve
 - **Weekly practice tip** — A concrete action to try
-- **Per-question breakdown** — Review each answer with scores
-
-### Progress Tracking
-
-- Up to **20 past sessions** stored locally
-- Color-coded scores with verdict badges: **Strong** · **Solid** · **Growing**
-- **Sparkline charts** showing your score trajectory over time
+- **Progress Tracking** — Up to 20 past sessions stored locally with sparkline trends and score badges (**Strong** · **Solid** · **Growing**)
 
 ---
 
 ## Screenshots
 
-<img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_07.png" width="230" alt="screenshots1"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_33.png" width="230" alt="screenshots2"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_52_43.png" width="230" alt="screenshots3"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_24.png" width="230" alt="screenshots4"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_36.png" width="230" alt="screenshots5"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_53_55.png" width="230" alt="screenshots6"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_16.png" width="230" alt="screenshots7"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_26.png" width="230" alt="screenshots8"/> <img src="screenshots/screencapture-teach-loop-ten-vercel-app-2026-07-07-22_54_38.png" width="230" alt="screenshots9"/>
+<div align="center">
+  <img src="public/screenshots/hero-home.webp" width="700" alt="TeachLoop Home and Practice Mode Selection" />
+  <br /><br />
+  <img src="public/screenshots/session-report.webp" width="700" alt="TeachLoop Session Report and Communication Analysis" />
+</div>
 
 ---
 
@@ -157,6 +148,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `npm run build` | Create production build |
 | `npm run start` | Serve production build |
 | `npm run lint` | Run ESLint checks |
+| `npm run test:e2e` | Run Playwright end-to-end tests |
 
 ---
 
@@ -166,12 +158,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 |-------|-----------|
 | **Framework** | [Next.js 15](https://nextjs.org) (App Router) |
 | **UI** | [React 19](https://react.dev) |
+| **Whiteboard** | [Excalidraw](https://excalidraw.com) |
 | **Animations** | [Motion](https://motion.dev) (Framer Motion) |
 | **Typography** | [Geist](https://vercel.com/font) font family |
 | **Icons** | [Phosphor Icons](https://phosphoricons.com) |
 | **AI Backend** | [OpenRouter](https://openrouter.ai) (NVIDIA Nemotron 120B, free tier) |
 | **Voice** | Web Speech API (browser-native) |
-| **Storage** | localStorage (sessions, theme, history) |
+| **Storage** | localStorage (sessions, whiteboards, themes) |
 
 ---
 
@@ -180,33 +173,45 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```
 app/
   page.js                          # App shell, state machine, error boundary
-  layout.js                        # Root layout, fonts, theme script
-  globals.css                      # Design system, themes, all styles (~3k lines)
-  api/eval/route.js                # AI evaluation endpoint (proxies to OpenRouter)
+  layout.js                        # Root layout, fonts, metadata, theme script
+  globals.css                      # Global styles and modular imports
+  styles/                          # 17 modular CSS stylesheets
+  api/eval/route.js                # AI evaluation and report proxy to OpenRouter
   components/
     screens/
-      HomeScreen.js                # Hero, mode cards, features, past sessions
-      AudienceScreen.js            # Audience selection with icons
-      WheelScreen.js               # Animated spinning wheel
-      SessionScreen.js             # Question card, textarea, voice input
-      FeedbackScreen.js            # Session report, style analysis
-      LoadingEval.js               # Skeleton loading state
+      HomeScreen.js                # Hero, mode cards, session length picker, history
+      AudienceScreen.js            # Audience persona selection
+      WheelScreen.js               # Animated question selector wheel (reduced-motion aware)
+      SessionScreen.js             # Question card, textarea, voice input, hint drawer
+      FeedbackScreen.js            # Session synthesis report and style analysis
+      CustomModeScreen.js          # Custom topic question generator
+      CustomReviewScreen.js        # Review generated questions before starting
+      WhiteboardScreen.js          # Interactive drawing workspace with AI layout evaluation
+      LoadingEval.js               # Loading state animation
     ui/
-      LogoMark.js                  # SVG logo
-      Nav.js                       # Glassmorphism navigation bar
+      LogoMark.js                  # SVG logo mark
+      Nav.js                       # Top navigation bar
       ProgressBar.js               # Session progress indicator
-      ScoreRing.js                 # Animated circular score gauge
-      Sparkline.js                 # Score trend chart
+      ScoreRing.js                 # Circular animated score gauge
+      Sparkline.js                 # Score trend sparkline
+      WhiteboardCanvas.js          # Excalidraw canvas wrapper
+      TemplateSelector.js          # Diagram templates
+      NotesPanel.js                # Written notes for visual explanations
+      OnboardingOverlay.js         # Guided onboarding tour
   data/
-    questions.js                   # Teach + SWE question banks
-    audiences.js                   # Audience definitions + icons
+    questions.js                   # Teach + Interview question banks
+    audiences.js                   # Audience definitions + coaching advice
     hints.js                       # 3-level progressive hints
+    templates.js                   # Whiteboard diagram starting templates
   hooks/
-    useVoice.js                    # Web Speech API hook
+    useVoice.js                    # Web Speech API hook with cleanup
+    useSessionHistory.js           # Session history in localStorage
+    useWhiteboardHistory.js        # Whiteboard sketch history in localStorage
+    useOnboarding.js               # First-visit onboarding state
   lib/
-    api.js                         # API helpers, prompt builders
+    api.js                         # API helpers, prompt templates, whiteboard parser
   providers/
-    ThemeProvider.js               # Theme context + switcher
+    ThemeProvider.js               # Theme context and theme switcher
 ```
 
 ---
@@ -225,32 +230,18 @@ Switch themes from the navigation bar. Your choice persists across sessions.
 
 ---
 
-## Design System
-
-TeachLoop ships with a complete design system built into `globals.css`:
-
-- **Typography** — Perfect Fourth (1.333) modular scale, 10 size steps, Geist family
-- **Spacing** — 4pt base scale, 16 named steps (`--space-1` through `--space-32`)
-- **Colors** — Theme-aware CSS custom properties with light/dark modes
-- **Motion** — Custom easing curves (quart, expo, spring), 4 duration levels
-- **Surfaces** — Grain texture overlay, glassmorphism navbar, gradient card hovers
-- **Layout** — Content max-width 44rem, responsive breakpoints at 480px / 640px / 768px
-
----
-
 ## Accessibility
 
-TeachLoop is built to be usable by everyone:
+TeachLoop is built toward WCAG 2.1 AA goals:
 
-- **WCAG AA** contrast targets across all themes
-- **Keyboard navigation** with visible focus indicators on every interactive element
+- **Keyboard navigation** with visible focus indicators on interactive elements
+- **Reduced motion** — Fully respected via `prefers-reduced-motion` (including wheel spin bypass)
 - **Screen reader support** — ARIA labels, live regions, semantic HTML
-- **Reduced motion** — Fully respected via `prefers-reduced-motion`
 - **Voice + keyboard** — Input via Web Speech API with typed fallback
 - **Skip links** — Jump directly to main content
 - **Touch targets** — Minimum 44px on mobile
 - **Safe area insets** — Proper padding on iOS devices
-- **Print styles** — Clean output when printing session reports
+- **Print styles** — Clean layout when printing session reports
 
 ---
 
@@ -263,7 +254,7 @@ TeachLoop is built to be usable by everyone:
 | **Safari** | Limited | Web Speech API support varies by version |
 | **Firefox** | Limited | Web Speech API support varies by version |
 
-Keyboard input works everywhere. Voice input is a progressive enhancement.
+Keyboard input works across all browsers. Voice input is a progressive enhancement.
 
 ---
 
@@ -272,7 +263,7 @@ Keyboard input works everywhere. Voice input is a progressive enhancement.
 - Rate limiting: 30 requests per minute per IP
 - Origin validation on the API endpoint
 - 15-second request timeout with exponential backoff retry
-- Response schema validation before processing
+- Multi-tier response schema validation (evaluations, custom questions, and session reports)
 - Security headers configured: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`
 - `X-Powered-By` header disabled
 
@@ -280,31 +271,21 @@ Keyboard input works everywhere. Voice input is a progressive enhancement.
 
 ## Contributing
 
-This is a private project. For access or questions, reach out via [GitHub Issues](https://github.com/bmo1177/TeachLoop/issues) or contact the maintainer directly.
+Contributions, suggestions, and issue reports are very welcome!
 
----
-
-## Roadmap
-
-- [ ] User accounts and cloud-synced session history
-- [ ] TypeScript migration
-- [ ] Test suite (unit + integration)
-- [ ] More question banks and audiences
-- [ ] Custom audience creator
-- [ ] Session export (PDF / markdown)
-- [ ] Dark mode improvements and theme customization
-- [ ] Mobile-optimized voice experience
-- [ ] PWA support for offline hint browsing
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/my-new-feature`)
+3. Commit your changes (`git commit -m 'Add my feature'`)
+4. Push to the branch (`git push origin feature/my-new-feature`)
+5. Open a Pull Request
 
 ---
 
 ## Known Limitations
 
-- **localStorage only** — Sessions are stored in the browser. Clearing storage wipes history. No cloud sync.
-- **Voice input varies** — Web Speech API works best in Chrome. Safari/Firefox support is inconsistent.
-- **No user accounts** — Single-user, no authentication.
-- **Free AI model** — Uses NVIDIA Nemotron (free tier via OpenRouter). Evaluation quality may vary compared to paid models.
-- **5 questions per session** — Fixed session length, not configurable yet.
+- **localStorage Persistence** — Sessions and sketches are stored locally in browser storage. Clearing browser data clears your history. Cloud accounts and sync are on the roadmap.
+- **Voice Recognition Browser Variance** — Built on the standard Web Speech API, which works best in Chromium browsers (Chrome, Edge). Safari and Firefox provide varied support; keyboard input works everywhere.
+- **Free Tier AI Backend** — Powered by NVIDIA Nemotron 120B through OpenRouter's free tier. Response latency and rate limits may vary based on upstream traffic.
 
 ---
 

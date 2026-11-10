@@ -62,6 +62,19 @@ function validateEvalSchema(data) {
   return true;
 }
 
+function validateReportSchema(data) {
+  if (!data || typeof data !== "object") return false;
+  if (typeof data.overallScore !== "number" && (typeof data.overallScore !== "string" || isNaN(Number(data.overallScore)))) return false;
+  if (typeof data.communicationStyle !== "string") return false;
+  if (typeof data.recurringStrength !== "string") return false;
+  if (typeof data.recurringFlaw !== "string") return false;
+  if (typeof data.weeklyPractice !== "string") return false;
+  if (typeof data.overallScore === "string") {
+    data.overallScore = Number(data.overallScore);
+  }
+  return true;
+}
+
 function extractJSON(text) {
   const fence = text.replace(/```json\n?|```/g, "").trim();
   try { return JSON.parse(fence); } catch {}
@@ -144,10 +157,14 @@ export async function POST(request) {
 
         const parsed = extractJSON(text);
         if (parsed) {
-          const isQuestionResponse = Array.isArray(parsed.questions);
-          const isValid = isQuestionResponse
-            ? validateQuestionsSchema(parsed)
-            : validateEvalSchema(parsed);
+          let isValid = false;
+          if (Array.isArray(parsed.questions)) {
+            isValid = validateQuestionsSchema(parsed);
+          } else if (parsed.scores && typeof parsed.scores === "object") {
+            isValid = validateEvalSchema(parsed);
+          } else {
+            isValid = validateReportSchema(parsed);
+          }
           if (isValid) {
             return NextResponse.json(parsed);
           }

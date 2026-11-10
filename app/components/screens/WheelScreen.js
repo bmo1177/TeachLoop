@@ -10,6 +10,7 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
   const [activeIdx, setActiveIdx] = useState(0);
   const [phase, setPhase] = useState("idle");
   const rafRef = useRef(null);
+  const timeoutRef = useRef(null);
   const startTimeRef = useRef(null);
   const currentRotationRef = useRef(0);
   const current_itemRef = useRef(null);
@@ -28,9 +29,23 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
     setPhase("spinning");
     onSpin();
 
+    const targetOffset = (360 - targetIdx * segAngle - segAngle / 2);
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      currentRotationRef.current = targetOffset;
+      setRotation(targetOffset);
+      setActiveIdx(targetIdx);
+      timeoutRef.current = setTimeout(() => {
+        setPhase("stopped");
+      }, 250);
+      return;
+    }
+
     const extraSpins = 3 + Math.floor(Math.random() * 3);
     const currentMod = currentRotationRef.current % 360;
-    const targetOffset = (360 - targetIdx * segAngle - segAngle / 2);
     const totalDelta = extraSpins * 360 + ((targetOffset - currentMod + 360) % 360);
     const startRotation = currentRotationRef.current;
     const finalRotation = startRotation + totalDelta;
@@ -63,6 +78,7 @@ const WheelScreen = memo(function WheelScreen({ questions, mode, questionIdx, sp
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 

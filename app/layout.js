@@ -17,6 +17,15 @@ export const metadata = {
   title: "TeachLoop - Communication Coaching",
   description:
     "Train how you communicate, not just what you know. AI-powered feedback on clarity, analogies, and vocabulary fit.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   openGraph: {
     title: "TeachLoop",
     description: "AI-powered communication coaching for technical professionals.",
@@ -46,7 +55,8 @@ export default function RootLayout({ children }) {
     >
       <head>
         <meta name="color-scheme" content="light dark" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('teachloop-theme');if(t){document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content=t==='chalkboard'?'dark':'light'}}catch(e){}})()`,

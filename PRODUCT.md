@@ -29,4 +29,4 @@ Generic SaaS templates. Avoid the "AI tool" aesthetic: neon accents on dark back
 
 ## Accessibility & Inclusion
 
-WCAG AAA compliance. Support reduced motion preferences. Ensure screen reader compatibility, keyboard navigation, sufficient color contrast, and focus indicators throughout.
+Built toward WCAG 2.1 AA goals (with continuous accessibility auditing). Supports reduced motion preferences, keyboard navigation, semantic headings, and focus indicators throughout. Known gaps (such as subtle muted text contrast on specific background tokens) are actively tracked and being addressed.
