@@ -374,6 +374,170 @@
   animation: pulse 1s ease-in-out infinite;
 }
 
+.recording-status {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.interim-label {
+  font-size: var(--font-size-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  font-weight: var(--font-weight-bold);
+  opacity: 0.8;
+}
+
+.interim-text {
+  color: var(--color-text-primary);
+  font-style: italic;
+  font-weight: var(--font-weight-normal);
+  opacity: 0.9;
+}
+
+.session-actions-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.session-actions-row .btn-polish {
+  flex: 1;
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.session-actions-row .btn-polish:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  transform: translateY(-1px);
+}
+
+.session-actions-row .btn-submit {
+  flex: 1.2;
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 520px) {
+  .session-actions-row {
+    flex-direction: column-reverse;
+  }
+  .session-actions-row .btn-polish,
+  .session-actions-row .btn-submit {
+    width: 100%;
+  }
+}
+
+.polish-undo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-3);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  animation: slideUp 0.2s var(--ease-out-quart);
+}
+
+.polish-undo-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.polish-undo-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: none;
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: all var(--duration-fast) var(--ease-out-quart);
+}
+
+.polish-undo-button:hover {
+  background: var(--color-accent-subtle);
+}
+
+.polish-undo-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.polish-error-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-3);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  animation: slideUp 0.2s var(--ease-out-quart);
+}
+
+.polish-error-message {
+  color: var(--color-text-secondary);
+}
+
+.polish-error-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.polish-recovery-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.polish-recovery-btn:hover {
+  background: var(--color-accent-subtle);
+}
+
+.polish-recovery-dismiss {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.polish-recovery-dismiss:hover {
+  color: var(--color-text-secondary);
+  background: transparent;
+}
+
 .textarea-meta {
   display: flex;
   justify-content: space-between;

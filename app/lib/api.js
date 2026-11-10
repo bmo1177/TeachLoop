@@ -28,6 +28,21 @@ export async function callEval(prompt) {
   return data;
 }
 
+export async function polishTranscript(text) {
+  const res = await fetch("/api/polish", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Network error" }));
+    throw new Error(err.error || "Failed to structure answer");
+  }
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
 export const evalPrompt = (mode, question, answer, audLabel, wasSpoken = false) => {
   const spokenNote = wasSpoken
     ? "\n\n[This answer was spoken via microphone and transcribed automatically. Grade the ideas and communication, not the transcription quality. Ignore any awkward phrasing caused by speech-to-text conversion.]"

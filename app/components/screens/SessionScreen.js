@@ -8,10 +8,12 @@ import {
   Microphone,
   MicrophoneSlash,
   Lightbulb,
+  Sparkle,
+  ArrowCounterClockwise,
 } from "@phosphor-icons/react";
 import { AUDIENCES, AudienceIcon } from "@/app/data/audiences";
 import { TEACH_HINTS, SWE_HINTS } from "@/app/data/hints";
-import { QUESTIONS_PER_SESSION } from "@/app/lib/api";
+import { QUESTIONS_PER_SESSION, polishTranscript } from "@/app/lib/api";
 import { ScoreRing, ProgressBar, Nav } from "@/app/components/ui";
 import { useVoice } from "@/app/hooks/useVoice";
 import { LoadingEval } from "./LoadingEval";
@@ -62,6 +64,11 @@ const SessionScreen = memo(function SessionScreen({
     mode === "teach" ? "var(--color-accent)" : "var(--color-secondary)";
 
   const [hintLevel, setHintLevel] = useState(0);
+  const [isPolishing, setIsPolishing] = useState(false);
+  const [previousAnswer, setPreviousAnswer] = useState(null);
+  const [polishError, setPolishError] = useState(null);
+  const [polishDemo, setPolishDemo] = useState(false);
+
   const hintsForQuestion = useMemo(() => {
     if (hintsMap) return hintsMap[q] || null;
     const allHints = mode === "teach" ? TEACH_HINTS : SWE_HINTS;
@@ -75,7 +82,36 @@ const SessionScreen = memo(function SessionScreen({
 
   useEffect(() => {
     setHintLevel(0);
+    setPreviousAnswer(null);
+    setPolishError(null);
+    setPolishDemo(false);
   }, [q]);
+
+  const handleStructureWithAi = useCallback(async () => {
+    if (wc < 15 || isPolishing || loading || voice.recording) return;
+    setIsPolishing(true);
+    setPolishError(null);
+    try {
+      const result = await polishTranscript(answer);
+      setPreviousAnswer(answer);
+      onChange(result.text);
+      setPolishDemo(!!result.demo);
+    } catch (err) {
+      setPolishError(
+        err.message || "Could not structure answer. You can retry or submit as-is."
+      );
+    } finally {
+      setIsPolishing(false);
+    }
+  }, [wc, isPolishing, loading, voice.recording, answer, onChange]);
+
+  const handleUndoPolish = useCallback(() => {
+    if (previousAnswer !== null) {
+      onChange(previousAnswer);
+      setPreviousAnswer(null);
+      setPolishDemo(false);
+    }
+  }, [previousAnswer, onChange]);
 
   return (
     <>
@@ -250,10 +286,20 @@ const SessionScreen = memo(function SessionScreen({
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
+                aria-live="polite"
               >
                 <span className="recording-dot" />
-                <span>
-                  {voice.interim || "Listening: speak clearly..."}
+                <span className="recording-status">
+                  {voice.micStatus ? (
+                    voice.micStatus
+                  ) : voice.interim ? (
+                    <>
+                      <span className="interim-label">Live transcript:</span>{" "}
+                      <span className="interim-text">{voice.interim}</span>
+                    </>
+                  ) : (
+                    "Listening: speak clearly..."
+                  )}
                 </span>
               </motion.div>
             )}
@@ -265,13 +311,81 @@ const SessionScreen = memo(function SessionScreen({
               <span className="word-ideal">80-200 words ideal</span>
             </div>
 
-            <button
-              className="btn btn-primary btn-full btn-lg"
-              onClick={onSubmit}
-              disabled={!canSubmit}
-            >
-              Submit Answer
-            </button>
+            <div className="session-actions-row">
+              <button
+                type="button"
+                className="btn btn-secondary btn-polish"
+                onClick={handleStructureWithAi}
+                disabled={wc < 15 || isPolishing || loading || voice.recording}
+                title={
+                  wc < 15
+                    ? "Enter at least 15 words to structure with AI"
+                    : "Reformat into a clean, structured written answer"
+                }
+                aria-label="Structure answer with AI"
+              >
+                {isPolishing ? (
+                  <>
+                    <span className="spinner" aria-hidden="true" />
+                    <span>Structuring...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkle size={18} weight="duotone" aria-hidden="true" />
+                    <span>Structure with AI</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary btn-submit"
+                onClick={onSubmit}
+                disabled={!canSubmit || isPolishing}
+              >
+                Submit Answer
+              </button>
+            </div>
+
+            {previousAnswer !== null && (
+              <div className="polish-undo-bar" role="status">
+                <div className="polish-undo-info">
+                  <Sparkle size={14} weight="fill" color="var(--color-accent)" aria-hidden="true" />
+                  <span>Answer structured with AI{polishDemo ? " (demo mode)" : ""}.</span>
+                </div>
+                <button
+                  type="button"
+                  className="polish-undo-button"
+                  onClick={handleUndoPolish}
+                  aria-label="Restore original text before AI structuring"
+                >
+                  <ArrowCounterClockwise size={14} weight="bold" aria-hidden="true" />
+                  <span>Undo (restore original)</span>
+                </button>
+              </div>
+            )}
+
+            {polishError && (
+              <div className="polish-error-bar" role="alert">
+                <span className="polish-error-message">{polishError}</span>
+                <div className="polish-error-actions">
+                  <button
+                    type="button"
+                    className="polish-recovery-btn"
+                    onClick={handleStructureWithAi}
+                  >
+                    Retry
+                  </button>
+                  <button
+                    type="button"
+                    className="polish-recovery-btn polish-recovery-dismiss"
+                    onClick={() => setPolishError(null)}
+                  >
+                    Keep original
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
 

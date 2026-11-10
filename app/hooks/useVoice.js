@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   cleanTranscript,
   capitalizeFirstLetter,
@@ -12,16 +12,23 @@ function useVoice(onChange, answer) {
   const [interim, setInterim] = useState("");
   const [wasSpoken, setWasSpoken] = useState(false);
   const [micError, setMicError] = useState(null);
+  const [micStatus, setMicStatus] = useState("");
+
   const recRef = useRef(null);
   const ansRef = useRef(answer);
   const restartRef = useRef(false);
+  const retryCountRef = useRef(0);
+  const timestampsRef = useRef([]);
+
   ansRef.current = answer;
 
   useEffect(() => {
     return () => {
       if (recRef.current) {
         restartRef.current = false;
-        try { recRef.current.stop(); } catch (_) {}
+        try {
+          recRef.current.stop();
+        } catch (_) {}
         recRef.current = null;
       }
     };
@@ -32,7 +39,8 @@ function useVoice(onChange, answer) {
     (window.SpeechRecognition || window.webkitSpeechRecognition);
   const supported = !!SR;
 
-  const buildRec = () => {
+  const buildRec = useCallback(() => {
+    if (!SR) return null;
     const rec = new SR();
     rec.continuous = true;
     rec.interimResults = true;
@@ -42,14 +50,18 @@ function useVoice(onChange, answer) {
     rec.onresult = (e) => {
       let finalText = "";
       let interimText = "";
+      const now = Date.now();
+
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const transcript = e.results[i][0].transcript;
         if (e.results[i].isFinal) {
           finalText += transcript;
+          timestampsRef.current.push(now);
         } else {
           interimText += transcript;
         }
       }
+
       if (finalText.trim()) {
         const cleaned = cleanTranscript(finalText, { isTerminal: false });
         if (!cleaned) return;
@@ -62,32 +74,70 @@ function useVoice(onChange, answer) {
         onChange(combined + " ");
         setWasSpoken(true);
         setInterim("");
+        setMicStatus("");
+        retryCountRef.current = 0; // Reset retries on successful input
       } else if (interimText) {
         setInterim(interimText);
       }
     };
 
     rec.onerror = (e) => {
-      if (e.error === "aborted" || e.error === "no-speech") return;
+      if (e.error === "aborted") return;
+
+      // Handle transient errors with up to 2 retries
+      if (e.error === "no-speech" || e.error === "network") {
+        if (restartRef.current && retryCountRef.current < 2) {
+          retryCountRef.current += 1;
+          setMicStatus(
+            `Reconnecting microphone (attempt ${retryCountRef.current} of 2)...`
+          );
+          try {
+            rec.abort();
+            setTimeout(() => {
+              if (restartRef.current && recRef.current) {
+                try {
+                  recRef.current.start();
+                } catch (_) {}
+              }
+            }, 300);
+          } catch (_) {}
+          return;
+        }
+        if (e.error === "no-speech") {
+          // If no speech detected after retries, keep quiet without harsh error
+          return;
+        }
+        setMicError("Microphone network interrupted. You can type your answer below or try again.");
+        setRecording(false);
+        setMicStatus("");
+        return;
+      }
+
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         setMicError("Microphone access blocked. Type your answer directly below.");
       } else {
         setMicError("Microphone unavailable. You can type your answer directly below.");
       }
       setRecording(false);
+      setMicStatus("");
+      restartRef.current = false;
     };
 
     rec.onend = () => {
       if (restartRef.current) {
         try {
           rec.start();
-        } catch (e) {
+        } catch (_) {
           setRecording(false);
+          setMicStatus("");
         }
         return;
       }
       setRecording(false);
       setInterim("");
+      setMicStatus("");
+      retryCountRef.current = 0;
+
       const cur = ansRef.current;
       if (cur && cur.trim()) {
         onChange(finalizeTranscript(cur));
@@ -95,34 +145,48 @@ function useVoice(onChange, answer) {
     };
 
     return rec;
-  };
+  }, [SR, onChange]);
 
-  const start = () => {
+  const start = useCallback(() => {
     if (!SR) return;
     setMicError(null);
+    setMicStatus("");
+    retryCountRef.current = 0;
+    timestampsRef.current = [];
     restartRef.current = true;
+
     const rec = buildRec();
+    if (!rec) return;
+
     try {
       rec.start();
       recRef.current = rec;
       setRecording(true);
-    } catch (e) {
+    } catch (_) {
       setMicError("Could not start microphone. Type your answer directly below.");
       restartRef.current = false;
+      setRecording(false);
     }
-  };
+  }, [SR, buildRec]);
 
-  const stop = () => {
+  const stop = useCallback(() => {
     restartRef.current = false;
-    recRef.current?.stop();
-    recRef.current = null;
+    if (recRef.current) {
+      try {
+        recRef.current.stop();
+      } catch (_) {}
+      recRef.current = null;
+    }
     setRecording(false);
     setInterim("");
+    setMicStatus("");
+    retryCountRef.current = 0;
+
     const cur = ansRef.current;
     if (cur && cur.trim()) {
       onChange(finalizeTranscript(cur));
     }
-  };
+  }, [onChange]);
 
   return {
     recording,
@@ -130,6 +194,7 @@ function useVoice(onChange, answer) {
     interim,
     wasSpoken,
     micError,
+    micStatus,
     toggle: () => (recording ? stop() : start()),
   };
 }

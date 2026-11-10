@@ -144,4 +144,52 @@ test.describe("Core Flow & Demo Mode (Unmocked)", () => {
       "Demo evaluation: set OPENROUTER_API_KEY to get AI scoring"
     );
   });
+
+  test("Path C: Structure with AI reformats typed text and provides undo restoration", async ({
+    page,
+  }) => {
+    // 1. Start Teach mode directly
+    await page.locator("button", { hasText: "Start Practicing" }).click();
+
+    // 2. Select audience
+    await page.locator(".audience-option").first().click();
+
+    // 3. Wheel -> start
+    const beginBtn = page.locator("button", { hasText: "Begin Session" });
+    await expect(beginBtn).toBeVisible({ timeout: 10000 });
+    await beginBtn.click();
+
+    // 4. Fill >= 15 words with speech/acronym patterns
+    const textarea = page.locator("textarea[aria-label='Your answer']");
+    const rawInput =
+      "first we set up an api and a rest db using sql. second we deploy the worker queue on cpu and ram.";
+    await textarea.fill(rawInput);
+
+    // 5. Structure with AI button is unlocked and clicked
+    const polishBtn = page.locator("button", { hasText: "Structure with AI" });
+    await expect(polishBtn).toBeEnabled({ timeout: 5000 });
+    await polishBtn.click();
+
+    // 6. Verify formatted text appears with acronyms and list markers
+    await expect(textarea).toHaveValue(
+      "- First we set up an API and a REST DB using SQL.\n- Second we deploy the worker queue on CPU and RAM."
+    );
+
+    // 7. Undo bar appears
+    const undoBtn = page.locator("button", { hasText: "Undo (restore original)" });
+    await expect(undoBtn).toBeVisible({ timeout: 10000 });
+
+    // 8. Click undo and verify original text is cleanly restored
+    await undoBtn.click();
+    await expect(textarea).toHaveValue(rawInput);
+    await expect(undoBtn).toBeHidden();
+
+    // 9. Submit answer continues to work cleanly
+    const submitBtn = page.locator("button", { hasText: "Submit Answer" });
+    await expect(submitBtn).toBeEnabled({ timeout: 5000 });
+    await submitBtn.click();
+    await expect(page.locator(".evaluation-card")).toBeVisible({
+      timeout: 15000,
+    });
+  });
 });

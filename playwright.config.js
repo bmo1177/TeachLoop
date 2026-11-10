@@ -25,6 +25,11 @@ export default defineConfig({
     port: 3000,
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
+    env: {
+      NVIDIA_API_KEY: "",
+      NVIDIA_NIM_API_KEY: "",
+      OPENROUTER_API_KEY: "",
+    },
   },
   projects: [
     {
